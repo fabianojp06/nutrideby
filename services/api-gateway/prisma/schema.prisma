@@ -86,8 +86,38 @@ model Paciente {
 
   prontuarios      Prontuario[]
   planosAlimentares PlanoAlimentar[]
+  registrosPeso    RegistroPeso[]
+  registrosDiario  RegistroDiario[]
 
   @@map("pacientes")
+}
+
+// US-14: paciente registra o próprio peso periodicamente (distinto do
+// pesoKg do Prontuario, que é medido pelo nutricionista na consulta).
+// Alimenta o mesmo gráfico de evolução de US-07 no Admin Web.
+model RegistroPeso {
+  id           String   @id @default(uuid())
+  pacienteId   String
+  paciente     Paciente @relation(fields: [pacienteId], references: [id])
+  pesoKg       Decimal  @db.Decimal(5, 2)
+  registradoEm DateTime @default(now())
+
+  @@map("registros_peso")
+}
+
+// US-13: diário alimentar simples — texto e/ou foto, sem análise por IA
+// nesta fase. `fotoUrl` assume que o upload em si é feito em outro lugar
+// (ex.: storage direto do front) e só a URL final chega aqui — não há
+// upload de arquivo implementado neste serviço.
+model RegistroDiario {
+  id           String   @id @default(uuid())
+  pacienteId   String
+  paciente     Paciente @relation(fields: [pacienteId], references: [id])
+  texto        String?
+  fotoUrl      String?
+  registradoEm DateTime @default(now())
+
+  @@map("registros_diario")
 }
 
 // Anamnese e dados antropométricos — dado de saúde sensível
