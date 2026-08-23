@@ -69,6 +69,41 @@ export class PlanosAlimentaresService {
     return plano;
   }
 
+  // US-10: duplica um plano para outro paciente (reaproveitar templates).
+  // O original não é alterado; a cópia nasce com aprovadoPeloNutri=false —
+  // aprovação é por paciente, não pode herdar do plano de origem.
+  async duplicar(
+    nutricionistaId: string,
+    pacienteOrigemId: string,
+    id: string,
+    pacienteDestinoId: string,
+  ) {
+    const original = await this.findOne(pacienteOrigemId, id, nutricionistaId);
+    await this.assertPacienteDoNutricionista(nutricionistaId, pacienteDestinoId);
+
+    const copia = await this.prisma.planoAlimentar.create({
+      data: {
+        pacienteId: pacienteDestinoId,
+        titulo: original.titulo,
+        objetivo: original.objetivo,
+        caloriasAlvo: original.caloriasAlvo,
+        refeicoes: original.refeicoes as Prisma.InputJsonValue,
+        observacoes: original.observacoes,
+        aprovadoPeloNutri: false,
+      },
+    });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'PLANO_ALIMENTAR_DUPLICADO',
+      entidade: 'PlanoAlimentar',
+      entidadeId: copia.id,
+      detalhes: { origemId: id, pacienteOrigemId, pacienteDestinoId },
+    });
+    return copia;
+  }
+
   async remove(nutricionistaId: string, pacienteId: string, id: string) {
     await this.findOne(pacienteId, id, nutricionistaId);
     const plano = await this.prisma.planoAlimentar.update({ where: { id }, data: { ativo: false } });

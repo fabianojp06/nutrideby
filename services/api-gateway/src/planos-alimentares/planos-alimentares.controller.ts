@@ -16,6 +16,7 @@ import { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { PlanosAlimentaresService } from './planos-alimentares.service';
 import { CreatePlanoAlimentarDto } from './dto/create-plano-alimentar.dto';
 import { UpdatePlanoAlimentarDto } from './dto/update-plano-alimentar.dto';
+import { DuplicarPlanoAlimentarDto } from './dto/duplicar-plano-alimentar.dto';
 
 // CRUD do nutricionista sobre planos alimentares de um paciente específico.
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -55,6 +56,16 @@ export class PlanosAlimentaresController {
     @Body() dto: UpdatePlanoAlimentarDto,
   ) {
     return this.planosService.update(user.sub, pacienteId, id, dto);
+  }
+
+  @Post(':id/duplicar')
+  duplicar(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('pacienteId') pacienteId: string,
+    @Param('id') id: string,
+    @Body() dto: DuplicarPlanoAlimentarDto,
+  ) {
+    return this.planosService.duplicar(user.sub, pacienteId, id, dto.pacienteDestinoId);
   }
 
   @Delete(':id')
