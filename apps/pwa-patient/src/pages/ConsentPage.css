@@ -1,0 +1,25 @@
+.consent-card {
+  max-width: 380px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 22px;
+}
+
+.consent-card h1 {
+  font-size: 18px;
+  margin: 0 0 6px;
+}
+
+.consent-card__version {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 0 0 16px;
+}
+
+.consent-card__body {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}

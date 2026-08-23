@@ -1,0 +1,63 @@
+/* Paleta extraída do mockup aprovado (layout_opcao_2_progresso.html) */
+:root {
+  --bg: #0f1a15;
+  --surface: #132019;
+  --surface-alt: #1b2a22;
+  --border: #24352b;
+  --accent: #3fa66c;
+  --text: #eaf2ed;
+  --text-muted: #8fa79a;
+  --text-dim: #5c7568;
+  --radius-lg: 28px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-shell {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.screen {
+  flex: 1;
+  padding-bottom: 88px;
+}
+
+.centered-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}

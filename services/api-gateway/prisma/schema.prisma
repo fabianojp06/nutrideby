@@ -1,0 +1,174 @@
+// Schema Prisma — services/api-gateway
+// Fonte de verdade do modelo relacional do NutriDeby (Fase 0).
+// Dados de saúde (Prontuario, PlanoAlimentar) exigem criptografia em repouso
+// no nível de infraestrutura (disco/volume) e TLS 1.2+ em trânsito — ver
+// NutriDeby_Compliance_Juridico_LGPD_Analise.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PlanoAssinatura {
+  STARTER
+  PRO
+  CLINICA
+}
+
+enum StatusAssinatura {
+  TRIAL
+  ATIVA
+  INADIMPLENTE
+  CANCELADA
+  EXPIRADA
+}
+
+enum StatusConsentimento {
+  PENDENTE
+  ACEITO
+  REVOGADO
+}
+
+enum SexoBiologico {
+  MASCULINO
+  FEMININO
+}
+
+// Controladora (paga assinatura) — LGPD: controladora dos dados do paciente
+model Nutricionista {
+  id           String   @id @default(uuid())
+  nome         String
+  email        String   @unique
+  senhaHash    String
+  crn          String   @unique
+  telefone     String?
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  ativo        Boolean  @default(true)
+
+  pacientes   Paciente[]
+  assinatura  Assinatura?
+  auditLogs   AuditLog[]
+
+  @@map("nutricionistas")
+}
+
+// Titular dos dados (uso gratuito via PWA)
+model Paciente {
+  id             String   @id @default(uuid())
+  nome           String
+  email          String   @unique
+  senhaHash      String
+  telefone       String?
+  dataNascimento DateTime?
+  sexoBiologico  SexoBiologico?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+  ativo          Boolean  @default(true)
+
+  nutricionistaId String
+  nutricionista   Nutricionista @relation(fields: [nutricionistaId], references: [id])
+
+  // Termo de Consentimento (LGPD) — obrigatório antes de qualquer
+  // tratamento de dado de saúde. Ver ConsentGuard em src/common/guards.
+  statusConsentimento    StatusConsentimento @default(PENDENTE)
+  consentimentoVersao    String?
+  consentimentoAssinadoEm DateTime?
+  consentimentoRevogadoEm DateTime?
+
+  prontuarios      Prontuario[]
+  planosAlimentares PlanoAlimentar[]
+
+  @@map("pacientes")
+}
+
+// Anamnese e dados antropométricos — dado de saúde sensível
+model Prontuario {
+  id         String   @id @default(uuid())
+  pacienteId String
+  paciente   Paciente @relation(fields: [pacienteId], references: [id])
+
+  // Anamnese
+  queixaPrincipal      String?
+  historicoClinico     String?
+  historicoFamiliar    String?
+  habitosAlimentares   String?
+  usoMedicamentos      String?
+  alergias             String?
+  intolerancias        String?
+  nivelAtividadeFisica String?
+  observacoesGerais    String?
+
+  // Dados antropométricos
+  pesoKg           Decimal? @db.Decimal(5, 2)
+  alturaCm         Decimal? @db.Decimal(5, 2)
+  circunferenciaCintura Decimal? @db.Decimal(5, 2)
+  circunferenciaQuadril Decimal? @db.Decimal(5, 2)
+  percentualGordura     Decimal? @db.Decimal(5, 2)
+  imc                   Decimal? @db.Decimal(5, 2)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("prontuarios")
+}
+
+model PlanoAlimentar {
+  id         String   @id @default(uuid())
+  pacienteId String
+  paciente   Paciente @relation(fields: [pacienteId], references: [id])
+
+  titulo            String
+  objetivo          String?
+  caloriasAlvo      Int?
+  refeicoes         Json // estrutura livre: [{ nome, horario, itens: [...] }]
+  observacoes       String?
+  aprovadoPeloNutri Boolean  @default(false) // gate de compliance para output de IA (Fase futura)
+  ativo             Boolean  @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("planos_alimentares")
+}
+
+// Assinatura da Nutricionista (Controladora) — integração Asaas futura
+model Assinatura {
+  id     String @id @default(uuid())
+
+  nutricionistaId String        @unique
+  nutricionista   Nutricionista @relation(fields: [nutricionistaId], references: [id])
+
+  plano       PlanoAssinatura
+  status      StatusAssinatura @default(TRIAL)
+  trialAte    DateTime?
+
+  asaasCustomerId      String?
+  asaasSubscriptionId  String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("assinaturas")
+}
+
+// Log de auditoria — obrigatório em toda operação sobre dado sensível
+model AuditLog {
+  id     String @id @default(uuid())
+
+  nutricionistaId String?
+  nutricionista   Nutricionista? @relation(fields: [nutricionistaId], references: [id])
+
+  ator       String // id do usuário (nutricionista ou paciente) que executou a ação
+  acao       String // ex: "PRONTUARIO_CRIADO", "CONSENTIMENTO_ACEITO"
+  entidade   String // ex: "Prontuario"
+  entidadeId String?
+  detalhes   Json?
+  criadoEm   DateTime @default(now())
+
+  @@map("audit_logs")
+}

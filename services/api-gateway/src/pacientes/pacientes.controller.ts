@@ -1,0 +1,70 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../auth/types/authenticated-user';
+import { PacientesService } from './pacientes.service';
+import { CreatePacienteDto } from './dto/create-paciente.dto';
+import { UpdatePacienteDto } from './dto/update-paciente.dto';
+import { AceitarConsentimentoDto } from './dto/aceitar-consentimento.dto';
+
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller()
+export class PacientesController {
+  constructor(private readonly pacientesService: PacientesService) {}
+
+  @Roles('NUTRICIONISTA')
+  @Post('pacientes')
+  create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreatePacienteDto) {
+    return this.pacientesService.create(user.sub, dto);
+  }
+
+  @Roles('NUTRICIONISTA')
+  @Get('pacientes')
+  findAll(@CurrentUser() user: AuthenticatedUser) {
+    return this.pacientesService.findAllByNutricionista(user.sub);
+  }
+
+  @Roles('NUTRICIONISTA')
+  @Get('pacientes/:id')
+  findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.pacientesService.findOne(user.sub, id);
+  }
+
+  @Roles('NUTRICIONISTA')
+  @Patch('pacientes/:id')
+  update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdatePacienteDto,
+  ) {
+    return this.pacientesService.update(user.sub, id, dto);
+  }
+
+  @Roles('NUTRICIONISTA')
+  @Delete('pacientes/:id')
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.pacientesService.remove(user.sub, id);
+  }
+
+  // Rota do próprio paciente para assinar o Termo de Consentimento.
+  // Não passa pelo ConsentGuard (é o que destrava as demais rotas).
+  @Roles('PACIENTE')
+  @Post('pacientes/me/consentimento')
+  aceitarConsentimento(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: AceitarConsentimentoDto,
+  ) {
+    return this.pacientesService.aceitarConsentimento(user.sub, dto);
+  }
+}

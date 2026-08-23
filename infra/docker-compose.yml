@@ -1,0 +1,28 @@
+version: "3.9"
+
+# Infra local de desenvolvimento do monorepo NutriDeby.
+# Sobe Postgres com a extensão pgvector, usada pelo api-gateway
+# (dados relacionais) e pelo rag-agent (embeddings do Agente Clínico RAG).
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nutrideby-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nutrideby
+      POSTGRES_PASSWORD: nutrideby
+      POSTGRES_DB: nutrideby
+    ports:
+      - "5432:5432"
+    volumes:
+      - nutrideby_postgres_data:/var/lib/postgresql/data
+      - ./init/001-pgvector.sql:/docker-entrypoint-initdb.d/001-pgvector.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nutrideby -d nutrideby"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  nutrideby_postgres_data:
