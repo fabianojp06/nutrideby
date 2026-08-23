@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlanoAlimentarDto } from './dto/create-plano-alimentar.dto';
 import { UpdatePlanoAlimentarDto } from './dto/update-plano-alimentar.dto';
@@ -10,7 +11,7 @@ export class PlanosAlimentaresService {
   async create(nutricionistaId: string, pacienteId: string, dto: CreatePlanoAlimentarDto) {
     await this.assertPacienteDoNutricionista(nutricionistaId, pacienteId);
     return this.prisma.planoAlimentar.create({
-      data: { ...dto, refeicoes: dto.refeicoes, pacienteId },
+      data: { ...dto, refeicoes: dto.refeicoes as Prisma.InputJsonValue, pacienteId },
     });
   }
 
@@ -42,7 +43,7 @@ export class PlanosAlimentaresService {
     await this.findOne(pacienteId, id, nutricionistaId);
     return this.prisma.planoAlimentar.update({
       where: { id },
-      data: { ...dto, refeicoes: dto.refeicoes },
+      data: { ...dto, refeicoes: dto.refeicoes as Prisma.InputJsonValue | undefined },
     });
   }
 
