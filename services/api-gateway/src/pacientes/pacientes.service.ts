@@ -1,15 +1,21 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePacienteDto } from './dto/create-paciente.dto';
 import { UpdatePacienteDto } from './dto/update-paciente.dto';
 import { AceitarConsentimentoDto } from './dto/aceitar-consentimento.dto';
 
 const SALT_ROUNDS = 12;
+const LINK_TOKEN_TTL_HORAS = 48;
 
 @Injectable()
 export class PacientesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
   async create(nutricionistaId: string, dto: CreatePacienteDto) {
     const existente = await this.prisma.paciente.findUnique({ where: { email: dto.email } });
@@ -80,6 +86,29 @@ export class PacientesService {
       },
       select: this.selectPublico(),
     });
+  }
+
+  // Gera o token de convite de vínculo com o bot de Telegram (tabela
+  // `telegram_link_token`, de propriedade do services/telegram-bot — ver
+  // decisão em services/telegram-bot/README.md de manter essas tabelas fora
+  // do schema Prisma deste serviço, por isso o SQL direto em vez de model).
+  async gerarLinkTelegram(nutricionistaId: string, pacienteId: string) {
+    await this.findOne(nutricionistaId, pacienteId);
+
+    const token = randomBytes(24).toString('hex');
+    const expiraEm = new Date(Date.now() + LINK_TOKEN_TTL_HORAS * 60 * 60 * 1000);
+
+    await this.prisma.$executeRaw`
+      INSERT INTO telegram_link_token (token, paciente_id, expira_em)
+      VALUES (${token}, ${pacienteId}, ${expiraEm})
+    `;
+
+    const botUsername = this.config.get<string>('TELEGRAM_BOT_USERNAME', 'NutriBebyBot');
+    return {
+      token,
+      expiraEm,
+      deepLink: `https://t.me/${botUsername}?start=${token}`,
+    };
   }
 
   private selectPublico() {

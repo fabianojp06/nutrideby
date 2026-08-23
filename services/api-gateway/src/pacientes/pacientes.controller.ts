@@ -57,6 +57,15 @@ export class PacientesController {
     return this.pacientesService.remove(user.sub, id);
   }
 
+  // Gera o link de convite (deep link) para o paciente vincular sua conta
+  // ao bot de notificações do Telegram. O vínculo em si é concluído pelo
+  // services/telegram-bot quando o paciente abre o link e envia /start.
+  @Roles('NUTRICIONISTA')
+  @Post('pacientes/:id/telegram/link')
+  gerarLinkTelegram(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.pacientesService.gerarLinkTelegram(user.sub, id);
+  }
+
   // Rota do próprio paciente para assinar o Termo de Consentimento.
   // Não passa pelo ConsentGuard (é o que destrava as demais rotas).
   @Roles('PACIENTE')
