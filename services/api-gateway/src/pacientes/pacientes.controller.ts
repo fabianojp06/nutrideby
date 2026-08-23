@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { AssinaturaAtivaGuard } from '../common/guards/assinatura-ativa.guard';
+import { RequireAssinaturaAtiva } from '../common/decorators/require-assinatura-ativa.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/types/authenticated-user';
@@ -18,7 +20,10 @@ import { CreatePacienteDto } from './dto/create-paciente.dto';
 import { UpdatePacienteDto } from './dto/update-paciente.dto';
 import { AceitarConsentimentoDto } from './dto/aceitar-consentimento.dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+// AssinaturaAtivaGuard só age sobre requisições de NUTRICIONISTA (ver
+// implementação do guard) — as rotas de PACIENTE abaixo não são afetadas.
+@UseGuards(JwtAuthGuard, RolesGuard, AssinaturaAtivaGuard)
+@RequireAssinaturaAtiva()
 @Controller()
 export class PacientesController {
   constructor(private readonly pacientesService: PacientesService) {}

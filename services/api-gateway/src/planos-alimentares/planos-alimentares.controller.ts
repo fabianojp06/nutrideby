@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { AssinaturaAtivaGuard } from '../common/guards/assinatura-ativa.guard';
+import { RequireAssinaturaAtiva } from '../common/decorators/require-assinatura-ativa.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/types/authenticated-user';
@@ -20,8 +22,9 @@ import { UpdatePlanoAlimentarDto } from './dto/update-plano-alimentar.dto';
 import { DuplicarPlanoAlimentarDto } from './dto/duplicar-plano-alimentar.dto';
 
 // CRUD do nutricionista sobre planos alimentares de um paciente específico.
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, AssinaturaAtivaGuard)
 @Roles('NUTRICIONISTA')
+@RequireAssinaturaAtiva()
 @Controller('pacientes/:pacienteId/planos-alimentares')
 export class PlanosAlimentaresController {
   constructor(

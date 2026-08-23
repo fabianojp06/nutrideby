@@ -105,9 +105,19 @@ export class AssinaturasService {
       return;
     }
 
+    // Marca o início da inadimplência só na primeira vez (não reinicia a
+    // janela de tolerância se a Asaas reenviar o mesmo evento); limpa ao
+    // voltar para ATIVA.
+    const inadimplenteDesde =
+      novoStatus === StatusAssinatura.INADIMPLENTE
+        ? (assinatura.inadimplenteDesde ?? new Date())
+        : novoStatus === StatusAssinatura.ATIVA
+          ? null
+          : assinatura.inadimplenteDesde;
+
     await this.prisma.assinatura.update({
       where: { id: assinatura.id },
-      data: { status: novoStatus },
+      data: { status: novoStatus, inadimplenteDesde },
     });
 
     await this.audit.registrar({

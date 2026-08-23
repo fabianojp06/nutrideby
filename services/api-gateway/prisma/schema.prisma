@@ -151,6 +151,11 @@ model Assinatura {
   status      StatusAssinatura @default(TRIAL)
   trialAte    DateTime?
 
+  // Marcado pelo webhook da Asaas quando status vira INADIMPLENTE; limpo
+  // quando volta a ATIVA. Base para o período de tolerância antes de
+  // suspender acesso (US-17) — ver AssinaturaAtivaGuard.
+  inadimplenteDesde DateTime?
+
   asaasCustomerId      String?
   asaasSubscriptionId  String?
 
