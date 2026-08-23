@@ -76,4 +76,14 @@ export class PacientesController {
   ) {
     return this.pacientesService.aceitarConsentimento(user.sub, dto);
   }
+
+  // US-05 — direito do paciente de revogar o consentimento a qualquer
+  // momento. Também não passa pelo ConsentGuard (revogar não pode depender
+  // de já estar consentido — o paciente pode estar tentando corrigir um
+  // aceite indevido).
+  @Roles('PACIENTE')
+  @Post('pacientes/me/consentimento/revogar')
+  revogarConsentimento(@CurrentUser() user: AuthenticatedUser) {
+    return this.pacientesService.revogarConsentimento(user.sub);
+  }
 }

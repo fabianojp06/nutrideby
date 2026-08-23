@@ -88,6 +88,44 @@ export class PacientesService {
     });
   }
 
+  // US-05: paciente pode revogar o consentimento a qualquer momento (LGPD,
+  // direito do titular). A partir daqui o ConsentGuard volta a bloquear as
+  // rotas de dado de saúde deste paciente.
+  //
+  // NOTA: o critério de aceite de US-05 também exige notificar a
+  // nutricionista em até 5 dias úteis e marcar os dados para exclusão
+  // conforme prazo de retenção — nenhum dos dois está implementado aqui
+  // (exigem, respectivamente, um canal de notificação e uma política de
+  // retenção/expurgo ainda não definidos). Este método cobre só o registro
+  // da revogação e o efeito imediato de bloqueio de acesso.
+  async revogarConsentimento(pacienteId: string) {
+    const antes = await this.prisma.paciente.findUniqueOrThrow({
+      where: { id: pacienteId },
+      select: { nutricionistaId: true },
+    });
+
+    const paciente = await this.prisma.paciente.update({
+      where: { id: pacienteId },
+      data: {
+        statusConsentimento: 'REVOGADO',
+        consentimentoRevogadoEm: new Date(),
+      },
+      select: this.selectPublico(),
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        nutricionistaId: antes.nutricionistaId,
+        ator: pacienteId,
+        acao: 'CONSENTIMENTO_REVOGADO',
+        entidade: 'Paciente',
+        entidadeId: pacienteId,
+      },
+    });
+
+    return paciente;
+  }
+
   // Gera o token de convite de vínculo com o bot de Telegram (tabela
   // `telegram_link_token`, de propriedade do services/telegram-bot — ver
   // decisão em services/telegram-bot/README.md de manter essas tabelas fora
