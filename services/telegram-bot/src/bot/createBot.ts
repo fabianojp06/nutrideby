@@ -1,6 +1,6 @@
-import { Bot } from "grammy";
+import { Bot, GrammyError, HttpError } from "grammy";
 import { env } from "../config/env";
-import { vinculoRepository } from "../db/vinculoRepository";
+import { ChatJaVinculadoAOutroPacienteError, vinculoRepository } from "../db/vinculoRepository";
 import type { ChannelAdapterTelegram } from "../adapters/ChannelAdapterTelegram";
 
 /**
@@ -38,7 +38,18 @@ export function createBot(): Bot {
     }
 
     const chatId = String(ctx.chat.id);
-    await vinculoRepository.vincular(linkToken.pacienteId, chatId);
+    try {
+      await vinculoRepository.vincular(linkToken.pacienteId, chatId);
+    } catch (err) {
+      if (err instanceof ChatJaVinculadoAOutroPacienteError) {
+        await ctx.reply(
+          "Esta conta do Telegram já está vinculada a outro cadastro de paciente. " +
+            "Se isso não deveria acontecer, avise sua nutricionista.",
+        );
+        return;
+      }
+      throw err;
+    }
     await vinculoRepository.marcarTokenUsado(token);
 
     await ctx.reply(
@@ -60,6 +71,19 @@ export function createBot(): Bot {
     // conhecidos apenas orientam o paciente. Futuro: encaminhar ao Agente Clínico RAG
     // (services/rag-agent) via fila, sempre com aprovação humana antes do envio (compliance).
     await ctx.reply("Não entendi. Envie /ajuda para ver os comandos disponíveis.");
+  });
+
+  // Sem isso, uma exceção não tratada em qualquer handler (ex.: erro de rede,
+  // erro do driver pg) derruba o processo inteiro (grammY relança se não há
+  // bot.catch). Logamos e seguimos processando as próximas atualizações.
+  bot.catch((error) => {
+    const { ctx, error: err } = error;
+    console.error(`Erro ao processar update ${ctx.update.update_id}:`, err);
+    if (err instanceof GrammyError) {
+      console.error("Erro da API do Telegram:", err.description);
+    } else if (err instanceof HttpError) {
+      console.error("Falha de rede ao chamar a API do Telegram:", err);
+    }
   });
 
   return bot;
