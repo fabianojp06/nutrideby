@@ -160,6 +160,46 @@ model Assinatura {
   @@map("assinaturas")
 }
 
+// Tabela Brasileira de Composição de Alimentos (TACO, 4ª edição,
+// NEPA-UNICAMP, domínio público) — valores por 100g. Fonte oficial do
+// cálculo nutricional (US-11). Seed em prisma/seed-data/taco.json,
+// carregado por prisma/seed-taco.ts. `codigo` é o número oficial da TACO,
+// estável entre edições da mesma tabela — usado como chave natural.
+model AlimentoTaco {
+  codigo         Int     @id
+  categoria      String
+  descricao      String
+  umidadePercent Decimal? @db.Decimal(6, 2)
+  kcal           Decimal? @db.Decimal(7, 2)
+  kj             Decimal? @db.Decimal(7, 2)
+  proteinaG      Decimal? @db.Decimal(6, 2)
+  lipideosG      Decimal? @db.Decimal(6, 2)
+  colesterolMg   Decimal? @db.Decimal(7, 2)
+  carboidratoG   Decimal? @db.Decimal(6, 2)
+  fibraG         Decimal? @db.Decimal(6, 2)
+  cinzasG        Decimal? @db.Decimal(6, 2)
+  calcioMg       Decimal? @db.Decimal(7, 2)
+  magnesioMg     Decimal? @db.Decimal(7, 2)
+  manganesMg     Decimal? @db.Decimal(7, 3)
+  fosforoMg      Decimal? @db.Decimal(7, 2)
+  ferroMg        Decimal? @db.Decimal(6, 3)
+  sodioMg        Decimal? @db.Decimal(7, 2)
+  potassioMg     Decimal? @db.Decimal(7, 2)
+  cobreMg        Decimal? @db.Decimal(6, 3)
+  zincoMg        Decimal? @db.Decimal(6, 3)
+  retinolMcg     Decimal? @db.Decimal(7, 2)
+  reMcg          Decimal? @db.Decimal(7, 2)
+  raeMcg         Decimal? @db.Decimal(7, 2)
+  tiaminaMg      Decimal? @db.Decimal(6, 3)
+  riboflavinaMg  Decimal? @db.Decimal(6, 3)
+  piridoxinaMg   Decimal? @db.Decimal(6, 3)
+  niacinaMg      Decimal? @db.Decimal(6, 3)
+  vitaminaCMg    Decimal? @db.Decimal(6, 2)
+
+  @@index([descricao])
+  @@map("alimentos_taco")
+}
+
 // Log de auditoria — obrigatório em toda operação sobre dado sensível
 model AuditLog {
   id     String @id @default(uuid())

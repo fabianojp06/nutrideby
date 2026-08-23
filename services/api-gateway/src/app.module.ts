@@ -8,6 +8,7 @@ import { PacientesModule } from './pacientes/pacientes.module';
 import { ProntuariosModule } from './prontuarios/prontuarios.module';
 import { PlanosAlimentaresModule } from './planos-alimentares/planos-alimentares.module';
 import { AssinaturasModule } from './assinaturas/assinaturas.module';
+import { AlimentosModule } from './alimentos/alimentos.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AssinaturasModule } from './assinaturas/assinaturas.module';
     ProntuariosModule,
     PlanosAlimentaresModule,
     AssinaturasModule,
+    AlimentosModule,
   ],
 })
 export class AppModule {}

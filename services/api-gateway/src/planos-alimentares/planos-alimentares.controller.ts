@@ -14,6 +14,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { PlanosAlimentaresService } from './planos-alimentares.service';
+import { CalculoNutricionalService } from './calculo-nutricional.service';
 import { CreatePlanoAlimentarDto } from './dto/create-plano-alimentar.dto';
 import { UpdatePlanoAlimentarDto } from './dto/update-plano-alimentar.dto';
 import { DuplicarPlanoAlimentarDto } from './dto/duplicar-plano-alimentar.dto';
@@ -23,7 +24,10 @@ import { DuplicarPlanoAlimentarDto } from './dto/duplicar-plano-alimentar.dto';
 @Roles('NUTRICIONISTA')
 @Controller('pacientes/:pacienteId/planos-alimentares')
 export class PlanosAlimentaresController {
-  constructor(private readonly planosService: PlanosAlimentaresService) {}
+  constructor(
+    private readonly planosService: PlanosAlimentaresService,
+    private readonly calculoService: CalculoNutricionalService,
+  ) {}
 
   @Post()
   create(
@@ -56,6 +60,16 @@ export class PlanosAlimentaresController {
     @Body() dto: UpdatePlanoAlimentarDto,
   ) {
     return this.planosService.update(user.sub, pacienteId, id, dto);
+  }
+
+  @Get(':id/calculo')
+  async calcular(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('pacienteId') pacienteId: string,
+    @Param('id') id: string,
+  ) {
+    const plano = await this.planosService.findOne(pacienteId, id, user.sub);
+    return this.calculoService.calcular(plano.refeicoes);
   }
 
   @Post(':id/duplicar')
