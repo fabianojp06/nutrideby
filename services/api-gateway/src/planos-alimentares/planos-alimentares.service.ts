@@ -1,18 +1,31 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../common/audit/audit.service';
 import { CreatePlanoAlimentarDto } from './dto/create-plano-alimentar.dto';
 import { UpdatePlanoAlimentarDto } from './dto/update-plano-alimentar.dto';
 
 @Injectable()
 export class PlanosAlimentaresService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   async create(nutricionistaId: string, pacienteId: string, dto: CreatePlanoAlimentarDto) {
     await this.assertPacienteDoNutricionista(nutricionistaId, pacienteId);
-    return this.prisma.planoAlimentar.create({
+    const plano = await this.prisma.planoAlimentar.create({
       data: { ...dto, refeicoes: dto.refeicoes as Prisma.InputJsonValue, pacienteId },
     });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'PLANO_ALIMENTAR_CRIADO',
+      entidade: 'PlanoAlimentar',
+      entidadeId: plano.id,
+    });
+    return plano;
   }
 
   async findAllByPaciente(pacienteId: string, nutricionistaId?: string) {
@@ -41,15 +54,33 @@ export class PlanosAlimentaresService {
     dto: UpdatePlanoAlimentarDto,
   ) {
     await this.findOne(pacienteId, id, nutricionistaId);
-    return this.prisma.planoAlimentar.update({
+    const plano = await this.prisma.planoAlimentar.update({
       where: { id },
       data: { ...dto, refeicoes: dto.refeicoes as Prisma.InputJsonValue | undefined },
     });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'PLANO_ALIMENTAR_ATUALIZADO',
+      entidade: 'PlanoAlimentar',
+      entidadeId: id,
+    });
+    return plano;
   }
 
   async remove(nutricionistaId: string, pacienteId: string, id: string) {
     await this.findOne(pacienteId, id, nutricionistaId);
-    return this.prisma.planoAlimentar.update({ where: { id }, data: { ativo: false } });
+    const plano = await this.prisma.planoAlimentar.update({ where: { id }, data: { ativo: false } });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'PLANO_ALIMENTAR_DESATIVADO',
+      entidade: 'PlanoAlimentar',
+      entidadeId: id,
+    });
+    return plano;
   }
 
   private async assertPacienteDoNutricionista(nutricionistaId: string, pacienteId: string) {

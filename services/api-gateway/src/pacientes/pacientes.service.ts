@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../common/audit/audit.service';
 import { CreatePacienteDto } from './dto/create-paciente.dto';
 import { UpdatePacienteDto } from './dto/update-paciente.dto';
 import { AceitarConsentimentoDto } from './dto/aceitar-consentimento.dto';
@@ -15,6 +16,7 @@ export class PacientesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly audit: AuditService,
   ) {}
 
   async create(nutricionistaId: string, dto: CreatePacienteDto) {
@@ -24,7 +26,7 @@ export class PacientesService {
     const senhaHash = await bcrypt.hash(dto.senha, SALT_ROUNDS);
     const { senha: _senha, ...resto } = dto;
 
-    return this.prisma.paciente.create({
+    const paciente = await this.prisma.paciente.create({
       data: {
         ...resto,
         senhaHash,
@@ -33,6 +35,15 @@ export class PacientesService {
       },
       select: this.selectPublico(),
     });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'PACIENTE_CRIADO',
+      entidade: 'Paciente',
+      entidadeId: paciente.id,
+    });
+    return paciente;
   }
 
   findAllByNutricionista(nutricionistaId: string) {
@@ -54,7 +65,7 @@ export class PacientesService {
 
   async update(nutricionistaId: string, id: string, dto: UpdatePacienteDto) {
     await this.findOne(nutricionistaId, id);
-    return this.prisma.paciente.update({
+    const paciente = await this.prisma.paciente.update({
       where: { id },
       data: {
         ...dto,
@@ -62,21 +73,44 @@ export class PacientesService {
       },
       select: this.selectPublico(),
     });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'PACIENTE_ATUALIZADO',
+      entidade: 'Paciente',
+      entidadeId: id,
+    });
+    return paciente;
   }
 
   async remove(nutricionistaId: string, id: string) {
     await this.findOne(nutricionistaId, id);
-    return this.prisma.paciente.update({
+    const paciente = await this.prisma.paciente.update({
       where: { id },
       data: { ativo: false },
       select: this.selectPublico(),
     });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'PACIENTE_DESATIVADO',
+      entidade: 'Paciente',
+      entidadeId: id,
+    });
+    return paciente;
   }
 
   // Registro do aceite do Termo de Consentimento pelo próprio paciente.
   // Sem isso, ConsentGuard bloqueia acesso a rotas de dado de saúde.
   async aceitarConsentimento(pacienteId: string, dto: AceitarConsentimentoDto) {
-    return this.prisma.paciente.update({
+    const antes = await this.prisma.paciente.findUniqueOrThrow({
+      where: { id: pacienteId },
+      select: { nutricionistaId: true },
+    });
+
+    const paciente = await this.prisma.paciente.update({
       where: { id: pacienteId },
       data: {
         statusConsentimento: 'ACEITO',
@@ -86,6 +120,15 @@ export class PacientesService {
       },
       select: this.selectPublico(),
     });
+
+    await this.audit.registrar({
+      nutricionistaId: antes.nutricionistaId,
+      ator: pacienteId,
+      acao: 'CONSENTIMENTO_ACEITO',
+      entidade: 'Paciente',
+      entidadeId: pacienteId,
+    });
+    return paciente;
   }
 
   // US-05: paciente pode revogar o consentimento a qualquer momento (LGPD,
@@ -113,14 +156,12 @@ export class PacientesService {
       select: this.selectPublico(),
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        nutricionistaId: antes.nutricionistaId,
-        ator: pacienteId,
-        acao: 'CONSENTIMENTO_REVOGADO',
-        entidade: 'Paciente',
-        entidadeId: pacienteId,
-      },
+    await this.audit.registrar({
+      nutricionistaId: antes.nutricionistaId,
+      ator: pacienteId,
+      acao: 'CONSENTIMENTO_REVOGADO',
+      entidade: 'Paciente',
+      entidadeId: pacienteId,
     });
 
     return paciente;

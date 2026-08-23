@@ -1,11 +1,15 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../common/audit/audit.service';
 import { CreateProntuarioDto } from './dto/create-prontuario.dto';
 import { UpdateProntuarioDto } from './dto/update-prontuario.dto';
 
 @Injectable()
 export class ProntuariosService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   async create(nutricionistaId: string, pacienteId: string, dto: CreateProntuarioDto) {
     await this.assertPacienteDoNutricionista(nutricionistaId, pacienteId);
@@ -63,17 +67,13 @@ export class ProntuariosService {
     if (!paciente) throw new ForbiddenException('Paciente não pertence a este nutricionista.');
   }
 
-  // Log de auditoria obrigatório em toda operação sobre dado de saúde
-  // sensível (anamnese/antropometria) — ver CLAUDE.md.
   private registrarAuditoria(nutricionistaId: string, acao: string, entidadeId: string) {
-    return this.prisma.auditLog.create({
-      data: {
-        nutricionistaId,
-        ator: nutricionistaId,
-        acao,
-        entidade: 'Prontuario',
-        entidadeId,
-      },
+    return this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao,
+      entidade: 'Prontuario',
+      entidadeId,
     });
   }
 }

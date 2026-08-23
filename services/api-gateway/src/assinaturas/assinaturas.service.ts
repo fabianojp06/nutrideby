@@ -1,12 +1,16 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditService } from '../common/audit/audit.service';
 import { CreateAssinaturaDto } from './dto/create-assinatura.dto';
 
 const TRIAL_DIAS = 14;
 
 @Injectable()
 export class AssinaturasService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   // Cria a assinatura em TRIAL. A ligação com o Asaas (cobrança recorrente
   // Pix/cartão) é feita em serviço futuro que preenche asaasCustomerId /
@@ -19,7 +23,7 @@ export class AssinaturasService {
       ? new Date(dto.trialAte)
       : new Date(Date.now() + TRIAL_DIAS * 24 * 60 * 60 * 1000);
 
-    return this.prisma.assinatura.create({
+    const assinatura = await this.prisma.assinatura.create({
       data: {
         nutricionistaId,
         plano: dto.plano,
@@ -27,6 +31,16 @@ export class AssinaturasService {
         trialAte,
       },
     });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'ASSINATURA_CRIADA',
+      entidade: 'Assinatura',
+      entidadeId: assinatura.id,
+      detalhes: { plano: dto.plano },
+    });
+    return assinatura;
   }
 
   async findMine(nutricionistaId: string) {
