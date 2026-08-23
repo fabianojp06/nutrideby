@@ -1,0 +1,28 @@
+{
+  "name": "@nutrideby/telegram-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Canal principal de comunicação com pacientes (Telegram) do NutriDeby, via Adaptador de Canais.",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "grammy": "^1.28.0",
+    "fastify": "^4.28.1",
+    "pg": "^8.12.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "tsx": "^4.16.2",
+    "@types/node": "^20.14.10",
+    "@types/pg": "^8.11.6"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
