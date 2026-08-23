@@ -76,8 +76,8 @@ Nutricionista solicita rascunho de plano alimentar ao Agente Clínico RAG, revis
 ### UC-07 — Notificações e Lembretes
 - **US-15**: Como paciente, quero receber lembretes de consulta e mensagens da nutricionista via WhatsApp, para não perder compromissos.
   - Critérios de aceite: envio via WhatsApp Business API (subprocessador Meta já homologado no DPA); opt-in obrigatório no consentimento.
-- **US-16**: Como paciente, quero poder optar por receber notificações via Telegram como alternativa ao WhatsApp, para usar o canal de minha preferência.
-  - Critérios de aceite: **bloqueado até atualização do DPA/Política de Privacidade incluindo Telegram como subprocessador** (aviso de 15 dias + direito de oposição da Controladora); mensagens roteadas pelo Adaptador de Canais.
+- **US-16**: Como paciente, quero receber notificações via Telegram (canal principal de comunicação da plataforma), para não perder lembretes e novidades do meu plano.
+  - Critérios de aceite: código já implementado (`services/telegram-bot`); **lançamento em produção com pacientes reais depende da formalização do aditivo de DPA** (ver `NutriDeby_Aditivo_DPA_Telegram.md`) — notificação às Controladoras e janela de 10 dias de oposição precisam ser concluídas antes; mensagens roteadas pelo Adaptador de Canais.
 
 ---
 

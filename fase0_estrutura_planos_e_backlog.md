@@ -35,7 +35,7 @@ Ordenado por prioridade de execução (não apenas importância) — considera d
 ### Sprint 1-2 — Fundação e Compliance
 | # | Item | Ref. | Prioridade |
 |---|---|---|---|
-| 1 | Atualizar DPA/Política de Privacidade incluindo Telegram como subprocessador | US-16 | P0 — bloqueia tudo |
+| 1 | Formalizar aditivo de DPA/Política de Privacidade incluindo Telegram (minuta pronta: `NutriDeby_Aditivo_DPA_Telegram.md`) — revisão jurídica, notificação às Controladoras, janela de 10 dias | US-16 | P0 — bloqueia lançamento em produção com pacientes reais |
 | 2 | Infra base: banco (Postgres+pgvector), ambientes dev/staging, CI/CD | — | P0 |
 | 3 | Cadastro de nutricionista + validação de CRN | US-01 | P0 |
 | 4 | Cadastro de paciente + fluxo de Termo de Consentimento | US-03, US-04 | P0 |
