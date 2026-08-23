@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>NutriDeby PWA — Opção 2: Foco em Progresso</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background:#0F1A15; color:#EAF2ED; }
+  .phone { max-width:390px; margin:24px auto; background:#132019; border-radius:28px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.35); border:1px solid #24352B; }
+  header { padding:20px 20px 0; display:flex; justify-content:space-between; align-items:center; }
+  header .name { font-size:16px; font-weight:600; }
+  header .avatar { width:36px; height:36px; border-radius:50%; background:#3FA66C; }
+  .ring-wrap { display:flex; justify-content:center; padding:24px 0 8px; }
+  .ring { width:180px; height:180px; border-radius:50%; background: conic-gradient(#3FA66C 0deg 260deg, #24352B 260deg 360deg); display:flex; align-items:center; justify-content:center; position:relative; }
+  .ring::before { content:""; position:absolute; width:150px; height:150px; border-radius:50%; background:#132019; }
+  .ring .center { position:relative; text-align:center; }
+  .ring .center .kcal { font-size:28px; font-weight:800; }
+  .ring .center .lbl { font-size:11px; color:#8FA79A; }
+  .macros { display:flex; justify-content:center; gap:20px; padding:8px 0 20px; }
+  .macros div { text-align:center; font-size:11px; color:#8FA79A; }
+  .macros div b { display:block; font-size:14px; color:#EAF2ED; }
+  .section { padding:0 20px; margin-bottom:18px; }
+  .section h3 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:#8FA79A; margin-bottom:10px; }
+  .pill-list { display:flex; gap:10px; overflow-x:auto; }
+  .pill { flex:0 0 auto; background:#1B2A22; border-radius:14px; padding:12px 14px; min-width:100px; }
+  .pill .t { font-size:11px; color:#8FA79A; }
+  .pill .n { font-size:13px; font-weight:600; margin-top:4px; }
+  .action { display:flex; align-items:center; justify-content:space-between; background:#1B2A22; border-radius:14px; padding:14px; margin-top:8px; }
+  .action span { font-size:13px; }
+  .fab { background:#3FA66C; color:#0F1A15; border:none; border-radius:10px; padding:8px 12px; font-size:12px; font-weight:700; }
+  nav { display:flex; justify-content:space-around; padding:14px 0; background:#0F1A15; }
+  nav div { font-size:10px; color:#5C7568; }
+  nav div.active { color:#3FA66C; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <div class="name">Olá, Camila</div>
+    <div class="avatar"></div>
+  </header>
+  <div class="ring-wrap">
+    <div class="ring"><div class="center"><div class="kcal">1840</div><div class="lbl">kcal restantes</div></div></div>
+  </div>
+  <div class="macros">
+    <div><b>120g</b>Proteína</div>
+    <div><b>180g</b>Carbo</div>
+    <div><b>60g</b>Gordura</div>
+  </div>
+  <div class="section">
+    <h3>Próximas refeições</h3>
+    <div class="pill-list">
+      <div class="pill"><div class="t">12:30</div><div class="n">Almoço</div></div>
+      <div class="pill"><div class="t">16:00</div><div class="n">Lanche</div></div>
+      <div class="pill"><div class="t">19:30</div><div class="n">Jantar</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Peso</h3>
+    <div class="action">
+      <span>68,4 kg <span style="color:#3FA66C;">▼ 0,6kg</span></span>
+      <button class="fab">Registrar</button>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Diário</h3>
+    <div class="action">
+      <span>Nenhuma refeição registrada hoje</span>
+      <button class="fab">+ Foto</button>
+    </div>
+  </div>
+  <nav>
+    <div class="active">Início</div>
+    <div>Plano</div>
+    <div>Diário</div>
+    <div>Chat</div>
+    <div>Perfil</div>
+  </nav>
+</div>
+</body>
+</html>

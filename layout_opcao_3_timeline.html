@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>NutriDeby PWA — Opção 3: Timeline do Dia</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background:#FAFAF8; color:#26302B; }
+  .phone { max-width:390px; margin:24px auto; background:#fff; border-radius:28px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.1); border:1px solid #EAEAE4; }
+  header { padding:20px; display:flex; justify-content:space-between; align-items:flex-start; }
+  header .date { font-size:12px; color:#8A8F87; }
+  header .title { font-size:20px; font-weight:700; margin-top:2px; }
+  .summary { display:flex; gap:8px; padding:0 20px 16px; }
+  .chip { flex:1; background:#F1F5F0; border-radius:12px; padding:10px; text-align:center; }
+  .chip .v { font-size:15px; font-weight:700; color:#3B7A57; }
+  .chip .k { font-size:10px; color:#8A8F87; }
+  .timeline { padding:0 20px; }
+  .item { display:flex; gap:12px; padding-bottom:20px; position:relative; }
+  .item::before { content:""; position:absolute; left:5px; top:22px; bottom:0; width:2px; background:#EAEAE4; }
+  .item:last-child::before { display:none; }
+  .tdot { width:12px; height:12px; border-radius:50%; background:#3B7A57; margin-top:4px; flex-shrink:0; z-index:1; }
+  .item.pending .tdot { background:#EAEAE4; }
+  .ibody { flex:1; background:#FAFAF8; border:1px solid #EFEFE9; border-radius:12px; padding:12px; }
+  .ibody .time { font-size:11px; color:#8A8F87; }
+  .ibody .title2 { font-size:14px; font-weight:600; margin-top:2px; }
+  .ibody .desc { font-size:12px; color:#8A8F87; margin-top:4px; }
+  .badge { font-size:10px; background:#DCEFE2; color:#3B7A57; padding:2px 8px; border-radius:10px; float:right; }
+  .add-btn { display:flex; align-items:center; justify-content:center; gap:6px; border:1.5px dashed #C9CFC5; border-radius:12px; padding:12px; font-size:13px; color:#8A8F87; margin:8px 20px 20px; }
+  nav { display:flex; justify-content:space-around; padding:14px 0; border-top:1px solid #EFEFE9; }
+  nav div { font-size:10px; color:#8A8F87; }
+  nav div.active { color:#3B7A57; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <div>
+      <div class="date">Hoje, 23 de agosto</div>
+      <div class="title">Sua jornada</div>
+    </div>
+  </header>
+  <div class="summary">
+    <div class="chip"><div class="v">1840</div><div class="k">kcal meta</div></div>
+    <div class="chip"><div class="v">68,4kg</div><div class="k">peso atual</div></div>
+    <div class="chip"><div class="v">-0,6kg</div><div class="k">na semana</div></div>
+  </div>
+  <div class="timeline">
+    <div class="item">
+      <div class="tdot"></div>
+      <div class="ibody">
+        <div class="time">07:30</div>
+        <div class="title2">Café da manhã <span class="badge">registrado</span></div>
+        <div class="desc">Aveia, banana e ovos</div>
+      </div>
+    </div>
+    <div class="item">
+      <div class="tdot"></div>
+      <div class="ibody">
+        <div class="time">12:30</div>
+        <div class="title2">Almoço <span class="badge">registrado</span></div>
+        <div class="desc">Arroz, feijão, frango grelhado</div>
+      </div>
+    </div>
+    <div class="item pending">
+      <div class="tdot"></div>
+      <div class="ibody">
+        <div class="time">16:00</div>
+        <div class="title2">Lanche da tarde</div>
+        <div class="desc">Ainda não registrado</div>
+      </div>
+    </div>
+    <div class="item pending">
+      <div class="tdot"></div>
+      <div class="ibody">
+        <div class="time">19:30</div>
+        <div class="title2">Jantar</div>
+        <div class="desc">Sugestão do plano disponível</div>
+      </div>
+    </div>
+  </div>
+  <div class="add-btn">+ Registrar refeição agora</div>
+  <nav>
+    <div class="active">Hoje</div>
+    <div>Plano</div>
+    <div>Evolução</div>
+    <div>Chat</div>
+    <div>Perfil</div>
+  </nav>
+</div>
+</body>
+</html>

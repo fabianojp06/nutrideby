@@ -1,0 +1,65 @@
+graph TD
+    subgraph Interfaces
+        A[PWA Paciente Web]
+        B[Admin Web Nutricionista]
+        C[WhatsApp Business API]
+        C2[Telegram Bot API]
+    end
+
+    subgraph API Gateway & Orquestração
+        D[API Gateway / Load Balancer]
+        D2[Adaptador de Canais WhatsApp/Telegram]
+        E[Orquestrador de Agentes LangChain/LangGraph]
+    end
+
+    subgraph Agentes Autônomos IA
+        F[Agente de Triagem e Anamnese]
+        G[Agente Clínico RAG]
+        H[Agente de Visão Computacional BodyScan/Refeições]
+        I[Agente de Engajamento e Nudging]
+    end
+
+    subgraph Serviços Core
+        J[Serviço de Prontuário Eletrônico]
+        K[Serviço de Prescrição e Cálculos]
+        L[Serviço de Agendamento]
+        M[Serviço Financeiro]
+    end
+
+    subgraph Bancos de Dados & Conhecimento
+        N[(PostgreSQL Relacional)]
+        O[(PostgreSQL + pgvector Embeddings)]
+        P[(Bases Nutricionais TBCA, TACO, USDA)]
+        Q[(Diretrizes Clínicas e Éticas CFN)]
+    end
+
+    A <--> D
+    B <--> D
+    C <--> D2
+    C2 <--> D2
+    D2 <--> D
+
+    D <--> E
+    D <--> J
+    D <--> K
+    D <--> L
+    D <--> M
+
+    E --> F
+    E --> G
+    E --> H
+    E --> I
+
+    F <--> O
+    G <--> O
+    G <--> P
+    G <--> Q
+    H <--> O
+    I <--> O
+
+    J <--> N
+    K <--> N
+    L <--> N
+    M <--> N
+
+    O -.-> N

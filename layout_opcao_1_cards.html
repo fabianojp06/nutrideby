@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>NutriDeby PWA — Opção 1: Cards</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background:#F4F6F5; color:#1C2A24; }
+  .phone { max-width:390px; margin:24px auto; background:#fff; border-radius:28px; box-shadow:0 8px 30px rgba(0,0,0,.12); overflow:hidden; border:1px solid #E3E8E6; }
+  header { background:#2E6B4F; color:#fff; padding:20px 20px 28px; }
+  header .greet { font-size:13px; opacity:.85; }
+  header .name { font-size:20px; font-weight:600; margin-top:2px; }
+  .content { padding:16px; margin-top:-16px; }
+  .card { background:#fff; border-radius:16px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+  .card h3 { margin:0 0 8px; font-size:14px; color:#5B6B63; text-transform:uppercase; letter-spacing:.04em; }
+  .macro-row { display:flex; justify-content:space-between; margin-top:10px; }
+  .macro { text-align:center; flex:1; }
+  .macro .val { font-size:18px; font-weight:700; color:#2E6B4F; }
+  .macro .lbl { font-size:11px; color:#8A968F; }
+  .meal { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #EEF1F0; }
+  .meal:last-child { border-bottom:none; }
+  .meal .t { font-size:12px; color:#8A968F; }
+  .meal .n { font-size:14px; font-weight:500; }
+  .btn { display:inline-block; background:#2E6B4F; color:#fff; padding:8px 14px; border-radius:20px; font-size:12px; font-weight:600; border:none; }
+  .weight-chip { display:flex; align-items:center; gap:8px; }
+  .weight-chip .big { font-size:26px; font-weight:700; }
+  .weight-chip .delta { font-size:12px; background:#DFF2E6; color:#2E6B4F; padding:2px 8px; border-radius:12px; }
+  nav { display:flex; justify-content:space-around; padding:12px 0; border-top:1px solid #EEF1F0; background:#fff; }
+  nav div { font-size:10px; color:#8A968F; text-align:center; }
+  nav div.active { color:#2E6B4F; font-weight:700; }
+  .dot { width:22px; height:22px; border-radius:50%; background:#E3E8E6; margin:0 auto 4px; }
+  nav div.active .dot { background:#2E6B4F; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <header>
+    <div class="greet">Boa tarde,</div>
+    <div class="name">Camila 👋</div>
+  </header>
+  <div class="content">
+    <div class="card">
+      <h3>Plano de Hoje</h3>
+      <div class="macro-row">
+        <div class="macro"><div class="val">1840</div><div class="lbl">kcal</div></div>
+        <div class="macro"><div class="val">120g</div><div class="lbl">proteína</div></div>
+        <div class="macro"><div class="val">60g</div><div class="lbl">gordura</div></div>
+        <div class="macro"><div class="val">180g</div><div class="lbl">carbo</div></div>
+      </div>
+      <div class="meal"><div><div class="n">Café da manhã</div><div class="t">07:30</div></div><button class="btn">Ver</button></div>
+      <div class="meal"><div><div class="n">Almoço</div><div class="t">12:30</div></div><button class="btn">Ver</button></div>
+      <div class="meal"><div><div class="n">Jantar</div><div class="t">19:30</div></div><button class="btn">Ver</button></div>
+    </div>
+    <div class="card">
+      <h3>Diário Alimentar</h3>
+      <p style="font-size:13px;color:#5B6B63;margin:0 0 10px;">Registre o que você comeu hoje</p>
+      <button class="btn" style="width:100%;padding:12px;border-radius:12px;">+ Adicionar refeição</button>
+    </div>
+    <div class="card">
+      <h3>Evolução</h3>
+      <div class="weight-chip">
+        <div class="big">68,4 kg</div>
+        <div class="delta">-0,6kg esta semana</div>
+      </div>
+    </div>
+  </div>
+  <nav>
+    <div class="active"><div class="dot"></div>Início</div>
+    <div><div class="dot"></div>Plano</div>
+    <div><div class="dot"></div>Diário</div>
+    <div><div class="dot"></div>Chat</div>
+    <div><div class="dot"></div>Perfil</div>
+  </nav>
+</div>
+</body>
+</html>
