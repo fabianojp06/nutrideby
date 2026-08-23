@@ -49,7 +49,7 @@ export async function fetchPendingConsentTerm(): Promise<ConsentTerm | null> {
   };
 }
 
-export async function acceptConsentTerm(termId: string): Promise<{ acceptedAt: string }> {
+export async function acceptConsentTerm(_termId: string): Promise<{ acceptedAt: string }> {
   await delay();
   return { acceptedAt: new Date().toISOString() };
 }
