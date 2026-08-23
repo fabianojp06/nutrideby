@@ -30,6 +30,7 @@ export class NutricionistasService {
       email: true,
       crn: true,
       telefone: true,
+      cpfCnpj: true,
       ativo: true,
       criadoEm: true,
     } as const;

@@ -46,6 +46,10 @@ model Nutricionista {
   senhaHash    String
   crn          String   @unique
   telefone     String?
+  // CPF/CNPJ — obrigatório para criar cliente na Asaas (integração de
+  // assinatura). Opcional no cadastro para não travar o onboarding;
+  // AssinaturasService valida a presença antes de chamar a Asaas.
+  cpfCnpj      String?
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
   ativo        Boolean  @default(true)
