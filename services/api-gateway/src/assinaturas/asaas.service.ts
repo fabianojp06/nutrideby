@@ -16,6 +16,16 @@ export interface AsaasAssinatura {
   value: number;
 }
 
+export interface AsaasFatura {
+  id: string;
+  value: number;
+  status: string;
+  dueDate: string;
+  paymentDate: string | null;
+  invoiceUrl: string;
+  bankSlipUrl: string | null;
+}
+
 interface CriarClienteParams {
   name: string;
   email: string;
@@ -58,6 +68,17 @@ export class AsaasService {
       nextDueDate: params.nextDueDate,
       description: params.descricao,
     });
+  }
+
+  // US-18: histórico de faturas. invoiceUrl/bankSlipUrl já são páginas
+  // hospedadas pela Asaas com o recibo/boleto em PDF — não precisamos gerar
+  // PDF próprio, só expor os links.
+  async listarFaturas(customerId: string): Promise<AsaasFatura[]> {
+    const resposta = await this.request<{ data: AsaasFatura[] }>(
+      'GET',
+      `/payments?customer=${customerId}&limit=50`,
+    );
+    return resposta.data;
   }
 
   private async request<T>(method: string, path: string, body?: unknown): Promise<T> {

@@ -135,4 +135,33 @@ export class AssinaturasService {
     if (!assinatura) throw new NotFoundException('Assinatura não encontrada.');
     return assinatura;
   }
+
+  // US-18: histórico de faturas com status (paga/pendente/falhou) e link
+  // do recibo/boleto (hospedado pela própria Asaas). Sem integração
+  // configurada ou sem cliente Asaas ainda criado, devolve lista vazia em
+  // vez de erro — mesmo padrão de degradação graciosa do create().
+  async listarFaturas(nutricionistaId: string) {
+    const assinatura = await this.findMine(nutricionistaId);
+    if (!this.asaas.isConfigured() || !assinatura.asaasCustomerId) return [];
+
+    const faturas = await this.asaas.listarFaturas(assinatura.asaasCustomerId);
+    return faturas.map((f) => ({
+      id: f.id,
+      valor: f.value,
+      status: mapearStatusFatura(f.status),
+      vencimento: f.dueDate,
+      pagoEm: f.paymentDate,
+      reciboUrl: f.invoiceUrl,
+      boletoUrl: f.bankSlipUrl,
+    }));
+  }
+}
+
+// Status de cobrança da Asaas -> rótulo em português usado pelo Admin Web
+// (ver critério de aceite de US-18: "status (paga/pendente/falhou)").
+function mapearStatusFatura(status: string): 'paga' | 'pendente' | 'falhou' | 'outro' {
+  if (['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'].includes(status)) return 'paga';
+  if (['PENDING', 'AWAITING_RISK_ANALYSIS'].includes(status)) return 'pendente';
+  if (['OVERDUE', 'CHARGEBACK_REQUESTED', 'CHARGEBACK_DISPUTE'].includes(status)) return 'falhou';
+  return 'outro';
 }

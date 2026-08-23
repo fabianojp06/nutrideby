@@ -51,6 +51,13 @@ export class AssinaturasController {
     return this.assinaturasService.findMine(user.sub);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('NUTRICIONISTA')
+  @Get('me/faturas')
+  listarFaturas(@CurrentUser() user: AuthenticatedUser) {
+    return this.assinaturasService.listarFaturas(user.sub);
+  }
+
   // Webhook público (chamado pela Asaas, não por um usuário autenticado do
   // NutriDeby) — autenticado por token compartilhado no header
   // `asaas-access-token`, configurado no painel da Asaas e em
