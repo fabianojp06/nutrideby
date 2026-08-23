@@ -113,3 +113,4 @@ Nutricionista solicita rascunho de plano alimentar ao Agente Clínico RAG, revis
 1. Gateway de pagamento definitivo (Stripe vs. Pix direto vs. ambos)?
 2. Telegram entra como substituto do WhatsApp ou canal adicional?
 3. Estrutura de planos de assinatura (valores, limites por número de pacientes)?
+4. **Canal principal de notificação: Telegram ou e-mail?** Ambas as opções têm minuta de aditivo de DPA pronta (`docs/compliance/NutriDeby_Aditivo_DPA_Telegram.md` e `NutriDeby_Aditivo_DPA_Email.md`) e comparativo de trade-offs (jurisdição do subprocessador, complexidade técnica, engajamento esperado). Decisão adiada — nenhuma das duas está implementada em produção ainda.
