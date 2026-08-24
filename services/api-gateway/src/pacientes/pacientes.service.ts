@@ -1,9 +1,15 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../common/audit/audit.service';
+import { LIMITE_PACIENTES_POR_PLANO } from '../common/planos';
 import { CreatePacienteDto } from './dto/create-paciente.dto';
 import { UpdatePacienteDto } from './dto/update-paciente.dto';
 import { AceitarConsentimentoDto } from './dto/aceitar-consentimento.dto';
@@ -22,6 +28,8 @@ export class PacientesService {
   async create(nutricionistaId: string, dto: CreatePacienteDto) {
     const existente = await this.prisma.paciente.findUnique({ where: { email: dto.email } });
     if (existente) throw new ConflictException('E-mail já cadastrado.');
+
+    await this.assertDentroDoLimiteDoPlano(nutricionistaId);
 
     const senhaHash = await bcrypt.hash(dto.senha, SALT_ROUNDS);
     const { senha: _senha, ...resto } = dto;
@@ -188,6 +196,30 @@ export class PacientesService {
       expiraEm,
       deepLink: `https://t.me/${botUsername}?start=${token}`,
     };
+  }
+
+  // Item 12: limite de pacientes ativos por plano de assinatura — o eixo
+  // de upsell mais natural (ver fase0_estrutura_planos_e_backlog.md).
+  // Sem assinatura ainda, bloqueia — cadastrar paciente exige plano ativo.
+  private async assertDentroDoLimiteDoPlano(nutricionistaId: string) {
+    const assinatura = await this.prisma.assinatura.findUnique({
+      where: { nutricionistaId },
+      select: { plano: true },
+    });
+    if (!assinatura) {
+      throw new ForbiddenException('Assine um plano antes de cadastrar pacientes.');
+    }
+
+    const limite = LIMITE_PACIENTES_POR_PLANO[assinatura.plano];
+    const totalAtivos = await this.prisma.paciente.count({
+      where: { nutricionistaId, ativo: true },
+    });
+
+    if (totalAtivos >= limite) {
+      throw new ForbiddenException(
+        `Limite de ${limite} pacientes ativos do plano ${assinatura.plano} atingido. Faça upgrade de plano para cadastrar mais pacientes.`,
+      );
+    }
   }
 
   private selectPublico() {
