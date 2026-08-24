@@ -7,3 +7,7 @@ export const LIMITE_PACIENTES_POR_PLANO: Record<PlanoAssinatura, number> = {
   PRO: 60,
   CLINICA: Infinity,
 };
+
+// Item 22: Agente Clínico RAG é diferencial do plano Pro — Starter não tem
+// acesso (custo de tokens de IA fica reservado ao plano pago mais caro).
+export const PLANOS_COM_ACESSO_RAG: PlanoAssinatura[] = ['PRO', 'CLINICA'];

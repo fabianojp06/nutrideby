@@ -20,6 +20,7 @@ import { CalculoNutricionalService } from './calculo-nutricional.service';
 import { CreatePlanoAlimentarDto } from './dto/create-plano-alimentar.dto';
 import { UpdatePlanoAlimentarDto } from './dto/update-plano-alimentar.dto';
 import { DuplicarPlanoAlimentarDto } from './dto/duplicar-plano-alimentar.dto';
+import { GerarRascunhoIaDto } from './dto/gerar-rascunho-ia.dto';
 
 // CRUD do nutricionista sobre planos alimentares de um paciente específico.
 @UseGuards(JwtAuthGuard, RolesGuard, AssinaturaAtivaGuard)
@@ -73,6 +74,15 @@ export class PlanosAlimentaresController {
   ) {
     const plano = await this.planosService.findOne(pacienteId, id, user.sub);
     return this.calculoService.calcular(plano.refeicoes);
+  }
+
+  @Post('rascunho-ia')
+  gerarRascunhoIA(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('pacienteId') pacienteId: string,
+    @Body() dto: GerarRascunhoIaDto,
+  ) {
+    return this.planosService.gerarRascunhoIA(user.sub, pacienteId, dto.perguntaNutricionista);
   }
 
   @Post(':id/duplicar')
