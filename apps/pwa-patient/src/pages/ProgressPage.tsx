@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { fetchWeightHistory, registerWeight, WeightEntry } from '@/services/mockApi';
+import { fetchWeightHistory, registerWeight, WeightEntry } from '@/services/api';
 import './ProgressPage.css';
 
 export function ProgressPage() {

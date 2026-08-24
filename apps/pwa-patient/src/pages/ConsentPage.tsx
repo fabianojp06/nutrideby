@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useConsent } from '@/hooks/useConsent';
-import { fetchPendingConsentTerm, ConsentTerm } from '@/services/mockApi';
+import { fetchPendingConsentTerm, ConsentTerm } from '@/services/api';
 import './ConsentPage.css';
 
 // Tela bloqueante: nenhuma outra rota é acessível antes da aceitação

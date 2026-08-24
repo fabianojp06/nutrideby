@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { fetchDiaryEntries, registerMealEntry, MealEntry } from '@/services/mockApi';
+import { fetchDiaryEntries, registerMealEntry, MealEntry } from '@/services/api';
 import './DiaryPage.css';
 
 // Fase 0: registro manual (texto/foto), sem análise de IA sobre a refeição.

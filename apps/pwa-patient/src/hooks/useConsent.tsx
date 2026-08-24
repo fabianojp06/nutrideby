@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode, useMemo } from 'react';
-import { acceptConsentTerm } from '@/services/mockApi';
+import { createContext, useContext, useState, ReactNode, useMemo, useEffect } from 'react';
+import { acceptConsentTerm } from '@/services/api';
+import { useAuth } from './useAuth';
 
 interface ConsentState {
   accepted: boolean;
@@ -8,12 +9,16 @@ interface ConsentState {
 
 const ConsentContext = createContext<ConsentState | undefined>(undefined);
 
-const STORAGE_KEY = 'nutrideby.consent.accepted';
-
 export function ConsentProvider({ children }: { children: ReactNode }) {
-  const [accepted, setAccepted] = useState<boolean>(
-    localStorage.getItem(STORAGE_KEY) === 'true',
-  );
+  // Fonte de verdade é o backend (statusConsentimento do JWT emitido no
+  // login), não uma flag local desacoplada — evita a tela liberar acesso
+  // no navegador enquanto o servidor ainda bloqueia (ou vice-versa).
+  const { statusConsentimento } = useAuth();
+  const [accepted, setAccepted] = useState(statusConsentimento === 'ACEITO');
+
+  useEffect(() => {
+    setAccepted(statusConsentimento === 'ACEITO');
+  }, [statusConsentimento]);
 
   const value = useMemo<ConsentState>(
     () => ({
@@ -22,7 +27,6 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
       // antes da confirmação explícita do Termo de Consentimento (LGPD).
       accept: async (termId: string) => {
         await acceptConsentTerm(termId);
-        localStorage.setItem(STORAGE_KEY, 'true');
         setAccepted(true);
       },
     }),

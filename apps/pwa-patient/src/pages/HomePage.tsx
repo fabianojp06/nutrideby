@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalorieRing } from '@/components/CalorieRing';
 import { useAuth } from '@/hooks/useAuth';
-import { fetchDailyProgress, DailyProgress } from '@/services/mockApi';
+import { fetchDailyProgress, DailyProgress } from '@/services/api';
 import './HomePage.css';
 
 export function HomePage() {
