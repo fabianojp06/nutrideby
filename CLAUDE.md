@@ -13,7 +13,7 @@ Documentação de referência (`docs/`):
 Demais documentos em `docs/negocio/` (plano de negócio, propostas, concorrência) e `docs/mockups/` (layouts HTML de referência).
 
 ## Decisões de stack (Fase 0)
-- **Monorepo** com pnpm workspaces
+- **Monorepo poliglota, SEM workspace unificado**: cada pacote (`apps/*`, `services/*`) tem seu próprio `package.json` e `package-lock.json`, e é instalado/buildado/deployado de forma independente com **npm** (não há pnpm/turbo; a menção antiga a "pnpm workspaces" era doc drift). O `rag-agent` é Python (FastAPI), fora do ecossistema Node. CI valida por pacote alterado via `dorny/paths-filter` (`.github/workflows/ci.yml`), rodando `npm ci` + build em cada um. Deploys são por-pacote (Railway `--path-as-root` para o api-gateway; Vercel com root = diretório do app) — qualquer adoção futura de workspace precisa reconfigurar esses deploys antes de mesclar.
 - **apps/admin-web**: Next.js + TypeScript + Tailwind + shadcn/ui — dashboard do nutricionista
 - **apps/pwa-patient**: Vite + React + TypeScript + vite-plugin-pwa — PWA instalável do paciente, layout "Opção 2" (dark, anel de progresso calórico) definido em `docs/mockups/layout_opcao_2_progresso.html`
 - **services/api-gateway**: NestJS + TypeScript — gateway/autenticação/roteamento
