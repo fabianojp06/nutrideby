@@ -6,7 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/patients/status-badge";
 import { EvolutionChart } from "@/components/patients/evolution-chart";
-import { getPaciente, getProntuario, getPlanosAlimentaresDoPaciente } from "@/lib/api";
+import {
+  getPaciente,
+  getProntuario,
+  getPlanosAlimentaresDoPaciente,
+  getRegistrosPeso,
+} from "@/lib/api";
 
 export default async function PacienteDetalhePage({
   params,
@@ -16,10 +21,31 @@ export default async function PacienteDetalhePage({
   const paciente = await getPaciente(params.id);
   if (!paciente) notFound();
 
-  const prontuario = await getProntuario(params.id);
-  const planos = await getPlanosAlimentaresDoPaciente(params.id);
-  const ultimoRegistro =
-    prontuario?.antropometria[prontuario.antropometria.length - 1];
+  const [prontuario, planos, registrosPeso] = await Promise.all([
+    getProntuario(params.id),
+    getPlanosAlimentaresDoPaciente(params.id),
+    getRegistrosPeso(params.id),
+  ]);
+
+  // Junta a antropometria do prontuário com o peso que o paciente lança na PWA
+  // (RegistroPeso). Para os pontos só-peso, calcula o IMC usando a última
+  // altura conhecida no prontuário, para o gráfico manter a linha de IMC.
+  const alturaRef =
+    [...(prontuario?.antropometria ?? [])]
+      .reverse()
+      .find((a) => a.alturaCm > 0)?.alturaCm ?? 0;
+  const evolucao = [
+    ...(prontuario?.antropometria ?? []),
+    ...registrosPeso.map((r) => ({
+      data: r.data,
+      pesoKg: r.pesoKg,
+      alturaCm: alturaRef,
+      imc: alturaRef
+        ? Number((r.pesoKg / Math.pow(alturaRef / 100, 2)).toFixed(1))
+        : 0,
+    })),
+  ].sort((a, b) => a.data.localeCompare(b.data));
+  const ultimoRegistro = evolucao[evolucao.length - 1];
 
   return (
     <AppShell>
@@ -110,8 +136,8 @@ export default async function PacienteDetalhePage({
           <CardDescription>Peso e IMC ao longo das consultas</CardDescription>
         </CardHeader>
         <CardContent>
-          {prontuario && prontuario.antropometria.length > 0 ? (
-            <EvolutionChart dados={prontuario.antropometria} />
+          {evolucao.length > 0 ? (
+            <EvolutionChart dados={evolucao} />
           ) : (
             <p className="text-sm text-muted-foreground">Sem registros ainda.</p>
           )}
