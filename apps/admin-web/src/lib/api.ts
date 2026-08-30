@@ -12,7 +12,7 @@
  * - GET /nutricionistas/me
  */
 
-import { request } from "@/lib/apiClient";
+import { request, ApiError } from "@/lib/apiClient";
 import {
   Assinatura,
   Fatura,
@@ -293,7 +293,15 @@ function mapStatusFatura(s: FaturaApi["status"]): StatusFatura {
 }
 
 export async function getFaturas(): Promise<Fatura[]> {
-  const faturas = await request<FaturaApi[]>("/assinaturas/me/faturas");
+  let faturas: FaturaApi[];
+  try {
+    faturas = await request<FaturaApi[]>("/assinaturas/me/faturas");
+  } catch (e) {
+    // Sem assinatura (404) ou sem plano ativo (403): não há faturas e a
+    // página não deve quebrar — devolve lista vazia.
+    if (e instanceof ApiError && (e.status === 404 || e.status === 403)) return [];
+    throw e;
+  }
   return faturas.map((f) => ({
     id: f.id,
     // GAP: gateway não retorna "competência" — derivada do vencimento.
