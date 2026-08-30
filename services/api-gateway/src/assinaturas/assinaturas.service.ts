@@ -136,6 +136,28 @@ export class AssinaturasService {
     return assinatura;
   }
 
+  // Inicia um teste grátis de 14 dias SEM cartão (self-service), para uma
+  // nutricionista que ainda não tem assinatura. Não envolve a Asaas — a
+  // cobrança só existe na conversão do trial em plano pago. Espelha o trial
+  // criado no cadastro (auth.service), mas exposto como ação para contas
+  // que ficaram sem assinatura.
+  async iniciarTrial(nutricionistaId: string) {
+    const existente = await this.prisma.assinatura.findUnique({
+      where: { nutricionistaId },
+    });
+    if (existente) {
+      throw new ConflictException('Nutricionista já possui assinatura.');
+    }
+    return this.prisma.assinatura.create({
+      data: {
+        nutricionistaId,
+        plano: 'STARTER',
+        status: 'TRIAL',
+        trialAte: new Date(Date.now() + TRIAL_DIAS * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
   // US-18: histórico de faturas com status (paga/pendente/falhou) e link
   // do recibo/boleto (hospedado pela própria Asaas). Sem integração
   // configurada ou sem cliente Asaas ainda criado, devolve lista vazia em

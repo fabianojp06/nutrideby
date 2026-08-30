@@ -44,6 +44,14 @@ export class AssinaturasController {
     return this.assinaturasService.create(user.sub, dto);
   }
 
+  // Inicia o teste grátis de 14 dias sem cartão (self-service).
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('NUTRICIONISTA')
+  @Post('trial')
+  iniciarTrial(@CurrentUser() user: AuthenticatedUser) {
+    return this.assinaturasService.iniciarTrial(user.sub);
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('NUTRICIONISTA')
   @Get('me')
