@@ -18,10 +18,12 @@ export default async function DashboardPage() {
             {pacientes.length} paciente(s) cadastrado(s)
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4" />
-          Novo paciente
-        </Button>
+        <Link href="/pacientes/novo">
+          <Button>
+            <Plus className="h-4 w-4" />
+            Novo paciente
+          </Button>
+        </Link>
       </div>
 
       <Card>
