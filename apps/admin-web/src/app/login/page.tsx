@@ -1,20 +1,62 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useFormState, useFormStatus } from "react-dom";
 import { Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { planosPrecos } from "@/lib/mock-data";
+import { planosPrecos } from "@/lib/planos-catalog";
+import {
+  AuthActionState,
+  loginNutricionista,
+  registrarNutricionista,
+} from "@/lib/auth";
 
 type Modo = "login" | "cadastro";
 type Plano = keyof typeof planosPrecos;
 
+function SubmitButton({ children }: { children: React.ReactNode }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? "Aguarde..." : children}
+    </Button>
+  );
+}
+
 export default function LoginPage() {
   const [modo, setModo] = useState<Modo>("login");
   const [planoEscolhido, setPlanoEscolhido] = useState<Plano>("pro");
+  const router = useRouter();
+
+  const estadoInicial: AuthActionState = {};
+  const [loginState, loginAction] = useFormState(
+    loginNutricionista,
+    estadoInicial
+  );
+  const [cadastroState, cadastroAction] = useFormState(
+    registrarNutricionista,
+    estadoInicial
+  );
+
+  // Sucesso da action = objeto sem `erro` e sem estado inicial. As actions
+  // gravam o cookie httpOnly no servidor; aqui só navegamos para o dashboard.
+  useEffect(() => {
+    if (loginState && !loginState.erro && loginState !== estadoInicial) {
+      router.push("/dashboard");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loginState]);
+
+  useEffect(() => {
+    if (cadastroState && !cadastroState.erro && cadastroState !== estadoInicial) {
+      router.push("/dashboard");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cadastroState]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-50 px-4 py-10">
@@ -46,50 +88,43 @@ export default function LoginPage() {
             </div>
 
             {modo === "login" ? (
-              <form
-                className="space-y-4"
-                onSubmit={(e) => e.preventDefault()}
-              >
+              <form className="space-y-4" action={loginAction}>
                 <div className="space-y-1.5">
                   <Label htmlFor="email">E-mail</Label>
-                  <Input id="email" type="email" placeholder="voce@clinica.com.br" required />
+                  <Input id="email" name="email" type="email" placeholder="voce@clinica.com.br" required />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="senha">Senha</Label>
-                  <Input id="senha" type="password" placeholder="••••••••" required />
+                  <Input id="senha" name="senha" type="password" placeholder="••••••••" required />
                 </div>
-                <Link href="/dashboard">
-                  <Button type="submit" className="w-full">
-                    Entrar
-                  </Button>
-                </Link>
+                {loginState.erro && (
+                  <p className="text-sm text-destructive">{loginState.erro}</p>
+                )}
+                <SubmitButton>Entrar</SubmitButton>
               </form>
             ) : (
-              <form
-                className="space-y-4"
-                onSubmit={(e) => e.preventDefault()}
-              >
+              <form className="space-y-4" action={cadastroAction}>
                 <div className="space-y-1.5">
                   <Label htmlFor="nome">Nome completo</Label>
-                  <Input id="nome" placeholder="Débora Oliveira" required />
+                  <Input id="nome" name="nome" placeholder="Débora Oliveira" required />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="crn">CRN</Label>
-                    <Input id="crn" placeholder="CRN-3 12345" required />
+                    <Input id="crn" name="crn" placeholder="CRN-3 12345" required />
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="cpfCnpj">CPF/CNPJ</Label>
-                    <Input id="cpfCnpj" placeholder="000.000.000-00" required />
+                    <Input id="cpfCnpj" name="cpfCnpj" placeholder="000.000.000-00" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="email2">E-mail</Label>
-                  <Input id="email2" type="email" placeholder="voce@clinica.com.br" required />
+                  <Input id="email2" name="email" type="email" placeholder="voce@clinica.com.br" required />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="senha2">Senha</Label>
-                  <Input id="senha2" type="password" placeholder="••••••••" required />
+                  <Input id="senha2" name="senha" type="password" placeholder="•••••••• (mín. 8)" required />
                 </div>
 
                 <div className="space-y-1.5">
@@ -116,23 +151,22 @@ export default function LoginPage() {
                     })}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Você será redirecionado ao checkout de pagamento. A conta fica
-                    &quot;pendente&quot; até a confirmação.
+                    A conta é criada sem plano ativo. A assinatura (Asaas) é um
+                    passo à parte — cadastre pacientes após ativar um plano.
                   </p>
                 </div>
 
-                <Link href="/dashboard">
-                  <Button type="submit" className="w-full">
-                    Criar conta e ir para o checkout
-                  </Button>
-                </Link>
+                {cadastroState.erro && (
+                  <p className="text-sm text-destructive">{cadastroState.erro}</p>
+                )}
+                <SubmitButton>Criar conta</SubmitButton>
               </form>
             )}
           </CardContent>
         </Card>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Ambiente de demonstração — dados mockados, sem backend conectado.
+          NutriDeby — dashboard da nutricionista.
         </p>
       </div>
     </div>

@@ -1,41 +1,328 @@
 /**
- * Camada de acesso à API — hoje retorna dados mockados.
- * Quando services/api-gateway estiver disponível, trocar as implementações
- * abaixo por fetch()/axios contra o gateway, mantendo as mesmas assinaturas.
+ * Fachada de domínio do Admin Web sobre o services/api-gateway (real).
+ * Mantém as assinaturas consumidas pelas páginas (getPacientes, getPaciente,
+ * getProntuario, getPlanosAlimentares, getPlanoAlimentar, getFaturas) e mapeia
+ * o SHAPE real do gateway para os tipos de src/types.
+ *
+ * Rotas reais (confirmadas nos *.controller.ts do gateway):
+ * - GET /pacientes ; GET /pacientes/:id
+ * - GET /pacientes/:pacienteId/prontuarios ; /:id            (NINHADAS, não flat)
+ * - GET /pacientes/:pacienteId/planos-alimentares ; /:id ; /:id/calculo
+ * - GET /assinaturas/me ; GET /assinaturas/me/faturas
+ * - GET /nutricionistas/me
  */
 
+import { request } from "@/lib/apiClient";
 import {
-  faturasMock,
-  pacientesMock,
-  planosAlimentaresMock,
-  prontuariosMock,
-} from "@/lib/mock-data";
-import { Fatura, Paciente, PlanoAlimentar, Prontuario } from "@/types";
+  Assinatura,
+  Fatura,
+  Nutricionista,
+  Paciente,
+  PlanoAlimentar,
+  Prontuario,
+  Refeicao,
+  StatusFatura,
+  StatusPaciente,
+} from "@/types";
+
+// ---------------------------------------------------------------------------
+// Shapes reais do gateway (parciais, só o que consumimos).
+// ---------------------------------------------------------------------------
+
+interface PacienteApi {
+  id: string;
+  nome: string;
+  email: string;
+  telefone: string | null;
+  dataNascimento: string | null;
+  statusConsentimento: "PENDENTE" | "ACEITO" | "REVOGADO";
+  ativo: boolean;
+}
+
+interface ProntuarioApi {
+  id: string;
+  pacienteId: string;
+  queixaPrincipal: string | null;
+  historicoClinico: string | null;
+  historicoFamiliar: string | null;
+  habitosAlimentares: string | null;
+  usoMedicamentos: string | null;
+  alergias: string | null;
+  intolerancias: string | null;
+  nivelAtividadeFisica: string | null;
+  observacoesGerais: string | null;
+  pesoKg: string | null;
+  alturaCm: string | null;
+  imc: string | null;
+  criadoEm: string;
+  atualizadoEm: string;
+}
+
+interface PlanoAlimentarApi {
+  id: string;
+  pacienteId: string;
+  titulo: string;
+  objetivo: string | null;
+  caloriasAlvo: number | null;
+  refeicoes: unknown;
+  observacoes: string | null;
+  aprovadoPeloNutri: boolean;
+  ativo: boolean;
+  criadoEm: string;
+}
+
+// Retorno de GET /pacientes/:pacienteId/planos-alimentares/:id/calculo
+interface CalculoApi {
+  porRefeicao: {
+    nome?: string;
+    horario?: string;
+    itens: {
+      descricao?: string;
+      alimentoCodigo?: number;
+      quantidadeGramas?: number;
+      fonte: { tabela: string; codigo: number; descricao: string } | null;
+      kcal?: number;
+      proteinaG?: number;
+      lipideosG?: number;
+      carboidratoG?: number;
+    }[];
+  }[];
+}
+
+interface FaturaApi {
+  id: string;
+  valor: number;
+  status: "paga" | "pendente" | "falhou" | "outro";
+  vencimento: string;
+  pagoEm?: string;
+  reciboUrl?: string;
+  boletoUrl?: string;
+}
+
+interface AssinaturaApi {
+  plano: "STARTER" | "PRO" | "CLINICA";
+  status: "TRIAL" | "ATIVA" | "INADIMPLENTE" | "CANCELADA" | "EXPIRADA";
+  trialAte: string | null;
+}
+
+interface NutricionistaApi {
+  id: string;
+  nome: string;
+  email: string;
+  crn: string;
+  telefone: string | null;
+  cpfCnpj: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Mapeamentos
+// ---------------------------------------------------------------------------
+
+function derivarStatusPaciente(p: PacienteApi): StatusPaciente {
+  if (!p.ativo) return "inativo";
+  if (p.statusConsentimento !== "ACEITO") return "aguardando_consentimento";
+  return "ativo";
+}
+
+function mapPaciente(p: PacienteApi): Paciente {
+  return {
+    id: p.id,
+    nome: p.nome,
+    email: p.email,
+    telefone: p.telefone ?? "",
+    dataNascimento: p.dataNascimento ?? "",
+    status: derivarStatusPaciente(p),
+    // GAP: gateway não expõe "última consulta". Ver relatório.
+    ultimaConsulta: undefined,
+  };
+}
 
 export async function getPacientes(): Promise<Paciente[]> {
-  return pacientesMock;
+  const pacientes = await request<PacienteApi[]>("/pacientes");
+  return pacientes.map(mapPaciente);
 }
 
 export async function getPaciente(id: string): Promise<Paciente | undefined> {
-  return pacientesMock.find((p) => p.id === id);
+  const p = await request<PacienteApi>(`/pacientes/${id}`);
+  return mapPaciente(p);
 }
 
+// O prontuário real é FLAT e é um snapshot por consulta. Reconstruímos:
+// - anamnese ← campos do prontuário MAIS RECENTE;
+// - antropometria[] ← série montada a partir de TODOS os prontuários com peso
+//   (aproximação da série; ver GAP no relatório: a série de peso auto-lançada
+//   pelo paciente vem de RegistroPeso, sem rota de nutricionista).
 export async function getProntuario(
   pacienteId: string
 ): Promise<Prontuario | undefined> {
-  return prontuariosMock[pacienteId];
+  const lista = await request<ProntuarioApi[]>(
+    `/pacientes/${pacienteId}/prontuarios`
+  );
+  if (lista.length === 0) return undefined;
+
+  // Gateway ordena criadoEm desc — o primeiro é o mais recente.
+  const recente = lista[0];
+
+  const restricoes = [recente.alergias, recente.intolerancias].filter(
+    (v): v is string => Boolean(v)
+  );
+  const condicoesClinicas = [
+    recente.historicoClinico,
+    recente.usoMedicamentos,
+  ].filter((v): v is string => Boolean(v));
+
+  const antropometria = lista
+    .filter((pr) => pr.pesoKg != null)
+    .map((pr) => ({
+      data: pr.criadoEm.slice(0, 10),
+      pesoKg: Number(pr.pesoKg),
+      alturaCm: pr.alturaCm != null ? Number(pr.alturaCm) : 0,
+      imc: pr.imc != null ? Number(pr.imc) : 0,
+    }))
+    // série cronológica ascendente para o gráfico de evolução
+    .reverse();
+
+  return {
+    pacienteId,
+    anamnese: {
+      queixaPrincipal: recente.queixaPrincipal ?? "",
+      // Front usa "historicoAlimentar"; real tem "habitosAlimentares".
+      historicoAlimentar: recente.habitosAlimentares ?? "",
+      // GAP: restricoes/condicoesClinicas não são arrays estruturados no
+      // schema — derivados de campos-texto (alergias/intolerâncias e
+      // histórico clínico/medicamentos). Ver relatório.
+      restricoes,
+      condicoesClinicas,
+      atualizadoEm: recente.atualizadoEm.slice(0, 10),
+    },
+    antropometria,
+  };
 }
 
-export async function getPlanosAlimentares(): Promise<PlanoAlimentar[]> {
-  return planosAlimentaresMock;
+// Lista planos de UM paciente (rota real é ninhada). A antiga getPlanosAlimentares()
+// mockada listava todos e a página filtrava por pacienteId — agora buscamos
+// direto os do paciente.
+export async function getPlanosAlimentaresDoPaciente(
+  pacienteId: string
+): Promise<PlanoAlimentar[]> {
+  const planos = await request<PlanoAlimentarApi[]>(
+    `/pacientes/${pacienteId}/planos-alimentares`
+  );
+  return planos.map((p) => mapPlanoResumo(p));
 }
 
+function mapPlanoResumo(p: PlanoAlimentarApi): PlanoAlimentar {
+  return {
+    id: p.id,
+    pacienteId: p.pacienteId,
+    nome: p.titulo,
+    criadoEm: p.criadoEm.slice(0, 10),
+    // GAP: gateway não guarda a origem (manual x rascunho de IA). Default
+    // "manual" — o disclaimer de IA na UI fica preservado, mas inerte até o
+    // backend expor esse campo. Ver relatório.
+    origem: "manual",
+    aprovado: p.aprovadoPeloNutri,
+    refeicoes: [],
+  };
+}
+
+// Detalhe do plano: exige pacienteId (rota ninhada). Junta o plano com o
+// resultado do endpoint /calculo (que traz os macros por item a partir da
+// TACO — não estão no JSON bruto de refeicoes).
 export async function getPlanoAlimentar(
+  pacienteId: string,
   id: string
 ): Promise<PlanoAlimentar | undefined> {
-  return planosAlimentaresMock.find((p) => p.id === id);
+  const [plano, calculo] = await Promise.all([
+    request<PlanoAlimentarApi>(
+      `/pacientes/${pacienteId}/planos-alimentares/${id}`
+    ),
+    request<CalculoApi>(
+      `/pacientes/${pacienteId}/planos-alimentares/${id}/calculo`
+    ),
+  ]);
+
+  const refeicoes: Refeicao[] = calculo.porRefeicao.map((r, ri) => ({
+    id: `ref-${ri}`,
+    nome: r.nome ?? "Refeição",
+    horario: r.horario ?? "",
+    itens: r.itens.map((item, ii) => ({
+      id: `item-${ri}-${ii}`,
+      nome: item.fonte?.descricao ?? item.descricao ?? "Item",
+      quantidade:
+        item.quantidadeGramas != null ? `${item.quantidadeGramas} g` : "—",
+      // GAP: backend só tem TACO (TBCA não existe). fonte sempre "TACO";
+      // itens sem alimentoCodigo (fonte null) entram com macros zerados.
+      fonte: "TACO",
+      kcal: Math.round(item.kcal ?? 0),
+      proteinasG: Math.round(item.proteinaG ?? 0),
+      carboidratosG: Math.round(item.carboidratoG ?? 0),
+      gordurasG: Math.round(item.lipideosG ?? 0),
+    })),
+  }));
+
+  return {
+    id: plano.id,
+    pacienteId: plano.pacienteId,
+    nome: plano.titulo,
+    criadoEm: plano.criadoEm.slice(0, 10),
+    origem: "manual", // GAP: ver mapPlanoResumo.
+    aprovado: plano.aprovadoPeloNutri,
+    refeicoes,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Assinatura / faturas / perfil
+// ---------------------------------------------------------------------------
+
+function competenciaDe(vencimento: string): string {
+  const meses = [
+    "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+    "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+  ];
+  const d = new Date(vencimento);
+  if (Number.isNaN(d.getTime())) return vencimento;
+  return `${meses[d.getMonth()]}/${d.getFullYear()}`;
+}
+
+function mapStatusFatura(s: FaturaApi["status"]): StatusFatura {
+  if (s === "paga") return "paga";
+  if (s === "falhou") return "falhou";
+  return "pendente"; // "pendente" e "outro" (Asaas raro) caem aqui.
 }
 
 export async function getFaturas(): Promise<Fatura[]> {
-  return faturasMock;
+  const faturas = await request<FaturaApi[]>("/assinaturas/me/faturas");
+  return faturas.map((f) => ({
+    id: f.id,
+    // GAP: gateway não retorna "competência" — derivada do vencimento.
+    competencia: competenciaDe(f.vencimento),
+    valor: f.valor,
+    status: mapStatusFatura(f.status),
+    vencimento: f.vencimento.slice(0, 10),
+    reciboUrl: f.reciboUrl,
+  }));
+}
+
+export async function getAssinatura(): Promise<Assinatura | undefined> {
+  try {
+    const a = await request<AssinaturaApi>("/assinaturas/me");
+    return { plano: a.plano, status: a.status, trialAte: a.trialAte };
+  } catch {
+    // Sem assinatura ainda (404) — trata como "sem plano".
+    return undefined;
+  }
+}
+
+export async function getNutricionistaAtual(): Promise<Nutricionista> {
+  const n = await request<NutricionistaApi>("/nutricionistas/me");
+  return {
+    id: n.id,
+    nome: n.nome,
+    email: n.email,
+    crn: n.crn,
+    cpfCnpj: n.cpfCnpj ?? "",
+    telefone: n.telefone ?? "",
+  };
 }

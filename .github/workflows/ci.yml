@@ -6,6 +6,12 @@ on:
   push:
     branches: [main]
 
+# dorny/paths-filter consulta a API do GitHub em eventos de pull_request
+# (diferente do push, que usa git) — exige pull-requests: read no token.
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -129,3 +135,22 @@ jobs:
       - run: pip install -r requirements.txt
       # Sem suíte de testes ainda — checagem de sintaxe/import estrutural do pacote.
       - run: python -m compileall -q app
+
+  # Gate agregador: sempre roda e é o ÚNICO status check exigido pela proteção
+  # da branch main. Falha se qualquer job necessário falhou/foi cancelado;
+  # 'skipped' (pacote não alterado via paths-filter) é aceito. Evita o deadlock
+  # de exigir jobs condicionais que nem sempre reportam.
+  ci-success:
+    needs: [changes, admin-web, pwa-patient, api-gateway, telegram-bot, rag-agent]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verifica resultado dos jobs
+        run: |
+          results="${{ join(needs.*.result, ',') }}"
+          echo "Resultados dos jobs: $results"
+          if echo "$results" | grep -qE 'failure|cancelled'; then
+            echo "::error::Um ou mais jobs de CI falharam."
+            exit 1
+          fi
+          echo "CI ok."

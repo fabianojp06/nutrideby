@@ -2,8 +2,8 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getFaturas } from "@/lib/api";
-import { nutricionistaAtual, planosPrecos } from "@/lib/mock-data";
+import { getAssinatura, getFaturas } from "@/lib/api";
+import { planoApiParaCatalogo, planosPrecos } from "@/lib/planos-catalog";
 import { Download } from "lucide-react";
 import { StatusFatura } from "@/types";
 
@@ -14,8 +14,14 @@ const statusConfig: Record<StatusFatura, { label: string; variant: "success" | "
 };
 
 export default async function AssinaturaPage() {
-  const faturas = await getFaturas();
-  const planoAtual = planosPrecos[nutricionistaAtual.plano];
+  const [faturas, assinatura] = await Promise.all([
+    getFaturas(),
+    getAssinatura(),
+  ]);
+  const planoAtualKey = assinatura
+    ? planoApiParaCatalogo(assinatura.plano)
+    : undefined;
+  const planoAtual = planoAtualKey ? planosPrecos[planoAtualKey] : undefined;
 
   return (
     <AppShell>
@@ -27,26 +33,37 @@ export default async function AssinaturaPage() {
           <CardDescription>Cobrança recorrente via Pix ou cartão de crédito</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between rounded-lg border border-brand-200 bg-brand-50 px-5 py-4">
-            <div>
-              <p className="text-lg font-semibold text-brand-900">{planoAtual.nome}</p>
-              <p className="text-sm text-muted-foreground">{planoAtual.limitePacientes}</p>
+          {planoAtual ? (
+            <div className="flex items-center justify-between rounded-lg border border-brand-200 bg-brand-50 px-5 py-4">
+              <div>
+                <p className="text-lg font-semibold text-brand-900">{planoAtual.nome}</p>
+                <p className="text-sm text-muted-foreground">{planoAtual.limitePacientes}</p>
+                {assinatura && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Situação: {assinatura.status}
+                  </p>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-semibold text-brand-900">
+                  R$ {planoAtual.preco.toFixed(2)}
+                  <span className="text-sm font-normal text-muted-foreground">/mês</span>
+                </p>
+                <Button variant="outline" size="sm" className="mt-2">
+                  Alterar plano
+                </Button>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-2xl font-semibold text-brand-900">
-                R$ {planoAtual.preco.toFixed(2)}
-                <span className="text-sm font-normal text-muted-foreground">/mês</span>
-              </p>
-              <Button variant="outline" size="sm" className="mt-2">
-                Alterar plano
-              </Button>
+          ) : (
+            <div className="rounded-lg border border-border bg-muted/40 px-5 py-4 text-sm text-muted-foreground">
+              Nenhum plano ativo. Assine um plano para cadastrar pacientes.
             </div>
-          </div>
+          )}
 
           <div className="mt-4 grid grid-cols-3 gap-3">
             {(Object.keys(planosPrecos) as (keyof typeof planosPrecos)[]).map((key) => {
               const plano = planosPrecos[key];
-              const atual = key === nutricionistaAtual.plano;
+              const atual = key === planoAtualKey;
               return (
                 <div
                   key={key}
@@ -93,10 +110,19 @@ export default async function AssinaturaPage() {
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <Button variant="ghost" size="sm">
-                        <Download className="h-4 w-4" />
-                        Recibo
-                      </Button>
+                      {fatura.reciboUrl ? (
+                        <a href={fatura.reciboUrl} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="sm">
+                            <Download className="h-4 w-4" />
+                            Recibo
+                          </Button>
+                        </a>
+                      ) : (
+                        <Button variant="ghost" size="sm" disabled>
+                          <Download className="h-4 w-4" />
+                          Recibo
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 );

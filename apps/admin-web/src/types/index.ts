@@ -3,7 +3,17 @@
  * Estrutura pensada para bater com o futuro contrato da API (services/api-gateway).
  */
 
+// Catálogo estático de planos exibido na UI (chaves em minúsculo).
 export type PlanoAssinatura = "starter" | "pro" | "clinica";
+
+// Enum de plano como o gateway retorna (GET /assinaturas/me).
+export type PlanoAssinaturaApi = "STARTER" | "PRO" | "CLINICA";
+export type StatusAssinatura =
+  | "TRIAL"
+  | "ATIVA"
+  | "INADIMPLENTE"
+  | "CANCELADA"
+  | "EXPIRADA";
 
 export interface Nutricionista {
   id: string;
@@ -11,7 +21,13 @@ export interface Nutricionista {
   email: string;
   crn: string;
   cpfCnpj: string;
-  plano: PlanoAssinatura;
+  telefone: string;
+}
+
+export interface Assinatura {
+  plano: PlanoAssinaturaApi;
+  status: StatusAssinatura;
+  trialAte: string | null;
 }
 
 export type StatusPaciente =
@@ -86,4 +102,5 @@ export interface Fatura {
   valor: number;
   status: StatusFatura;
   vencimento: string;
+  reciboUrl?: string;
 }

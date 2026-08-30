@@ -1,18 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, CreditCard, Leaf } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, Users, CreditCard, Leaf, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { nutricionistaAtual } from "@/lib/mock-data";
+import { logout } from "@/lib/auth";
+import { Nutricionista } from "@/types";
 
 const navItems = [
   { href: "/dashboard", label: "Pacientes", icon: Users },
   { href: "/assinatura", label: "Assinatura", icon: CreditCard },
 ];
 
-export function Sidebar() {
+export function Sidebar({ nutricionista }: { nutricionista: Nutricionista }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function sair() {
+    await logout();
+    router.push("/login");
+  }
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-border bg-brand-900 text-white">
@@ -52,8 +59,15 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-brand-800 px-4 py-4">
-        <p className="text-sm font-medium">{nutricionistaAtual.nome}</p>
-        <p className="text-xs text-brand-200">{nutricionistaAtual.crn}</p>
+        <p className="text-sm font-medium">{nutricionista.nome}</p>
+        <p className="text-xs text-brand-200">{nutricionista.crn}</p>
+        <button
+          onClick={sair}
+          className="mt-3 flex items-center gap-2 text-xs text-brand-200 hover:text-white"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          Sair
+        </button>
       </div>
     </aside>
   );
