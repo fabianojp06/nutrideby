@@ -147,6 +147,27 @@ export async function getPaciente(id: string): Promise<Paciente | undefined> {
   return mapPaciente(p);
 }
 
+interface RegistroPesoApi {
+  id: string;
+  pesoKg: string | number;
+  registradoEm: string;
+}
+
+// Peso auto-lançado pelo paciente na PWA (tabela RegistroPeso). Rota de nutri:
+// GET /pacientes/:pacienteId/peso. Complementa a antropometria do prontuário —
+// é o que faz o peso registrado pelo paciente aparecer na visão da nutri.
+export async function getRegistrosPeso(
+  pacienteId: string
+): Promise<{ data: string; pesoKg: number }[]> {
+  const registros = await request<RegistroPesoApi[]>(
+    `/pacientes/${pacienteId}/peso`
+  );
+  return registros.map((r) => ({
+    data: r.registradoEm.slice(0, 10),
+    pesoKg: Number(r.pesoKg),
+  }));
+}
+
 // O prontuário real é FLAT e é um snapshot por consulta. Reconstruímos:
 // - anamnese ← campos do prontuário MAIS RECENTE;
 // - antropometria[] ← série montada a partir de TODOS os prontuários com peso
