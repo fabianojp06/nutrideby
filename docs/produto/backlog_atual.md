@@ -1,0 +1,78 @@
+# NutriDeby — Backlog Atual (estado vivo)
+
+Retrato do backlog em 30/08/2026. Inclui itens **concluídos** e **pendentes**. O núcleo da Fase 0 está concluído e **validado ponta a ponta em produção** (nutri registra → cria paciente → paciente loga na PWA → registra peso → aparece na nutri).
+
+Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · ✅ concluído · P/M/G = esforço.
+
+---
+
+## ✅ Fase 0 — Concluído (produção)
+
+| Área | Item | Ref. |
+|---|---|:--:|
+| Onboarding | Cadastro de nutricionista + trial automático 14 dias | US-01¹ |
+| Onboarding | Cadastro de paciente pela nutri (loop de login validado) | US-03 |
+| LGPD | Termo de Consentimento + revogação | US-04/05 |
+| LGPD | Criptografia (repouso/trânsito) + log de auditoria | US-19/20 |
+| Prontuário | Gráfico de evolução antropométrica (+ peso do paciente) | US-07 |
+| Plano | Cálculo nutricional TACO | US-11 |
+| Plano | Duplicação de plano | US-10 |
+| Plano | Aprovação obrigatória + disclaimer CFN funcional (origem IA) | US-09 / GAP#5 |
+| IA | Agente Clínico RAG (rascunho, gate por plano) | US-08 |
+| Monetização | Asaas (assinatura Pix/cartão, webhook, faturas) | US-02/17 |
+| Monetização | Histórico de faturas + recibo (reciboUrl Asaas) | US-18 |
+| Monetização | Suspensão por inadimplência + limite por plano | US-17 |
+| PWA | Login, visualizar plano, diário, registro de peso | US-12/13/14 |
+| Admin Web | Sai do mock (auth httpOnly + leituras reais) | — |
+| Admin Web | Trial self-service + resiliência de erros (sem tela branca) | — |
+| Sincronização | Peso do paciente aparece na visão da nutri | GAP#3 |
+| Governança | Main protegida (PR + CI ci-success), ADRs, CI corrigido | — |
+| Infra | Env do admin-web ligada ao backend (Vercel) | — |
+
+¹ cadastro feito; validação de CRN ainda pendente (abaixo).
+
+---
+
+## 🎯 Fase 0 — Pendente
+
+### P0
+| # | Item | Origem | Esf. | Status |
+|:-:|---|---|:--:|:--:|
+| 1 | Decisão de canal + aditivo de DPA (teste do bot liberado) | US-16 | M | 🔴 Bloqueado (jurídico) |
+| 2 | Validação de CRN no cadastro | US-01 | P | ⚪ A iniciar |
+| 3 | Hospedar o rag-agent (IA do Pro em produção) | — | M | ⚪ A iniciar |
+
+### P1
+| # | Item | Origem | Esf. | Status |
+|:-:|---|---|:--:|:--:|
+| 4 | Checkout Asaas real (converter trial → pago; CPF/CNPJ no perfil) | GAP#9 | M | 🟡 Trial ok, pago não |
+| 5 | Endpoint fila de aprovação / plano por id global | GAP#1 | M | ⚪ A iniciar |
+| 6 | Hospedar o telegram-bot (após DPA) | US-16 | P | ⚪ A iniciar |
+| 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar |
+| 8 | Adaptador de Canais | — | M | ⚪ A iniciar |
+| 9 | R2 — disclaimer de IA também no PWA do paciente | review GAP#5 | P | ⚪ A iniciar |
+
+### P2 — hardening
+| # | Item | Esf. | Status |
+|:-:|---|:--:|:--:|
+| 10 | Testes E2E do gate de aprovação (não-negociável) | M | ⚪ A iniciar |
+| 11 | R1 — forçar `origem` no backend (quando houver persistência de rascunho IA) | P | ⚪ A iniciar |
+| 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
+| 13 | Ambiente de staging | M | ⚪ A iniciar |
+| 14 | Menores: `ultimaConsulta`, anamnese estruturada, TBCA, rótulo do gráfico | M | ⚪ A iniciar |
+
+---
+
+## 🔮 Fase 1/2 — Épicos de Expansão (fora da Fase 0)
+
+Detalhe em `fase1_2_epicos_ia_exames_loja.md`. Gate de aprovação embutido; bloqueio transversal jurídico/CFN/DPA.
+
+| Épico | O que é (gate embutido) | Depende de | Status |
+|---|---|:--:|:--:|
+| A · Análise de Exames | IA estrutura dados do exame (não diagnostica) → aprovação | Jurídico/DPA | 📋 Planejado |
+| B · Recomendação de Produtos | IA sugere produtos como rascunho → aprovação | Épicos A+C | 📋 Planejado |
+| C · Loja Virtual (e-commerce) | Catálogo/carrinho/checkout; reusa Asaas | Jurídico/DPA | 📋 Planejado |
+
+---
+
+**Próximos P0 sugeridos:** decisão de canal + DPA (jurídico), validação de CRN (US-01, rápido), hospedar o rag-agent.
