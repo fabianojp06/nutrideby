@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getAssinatura, getFaturas } from "@/lib/api";
+import { iniciarTrial } from "@/lib/assinatura-actions";
 import { planoApiParaCatalogo, planosPrecos } from "@/lib/planos-catalog";
 import { Download } from "lucide-react";
 import { StatusFatura } from "@/types";
@@ -55,8 +56,14 @@ export default async function AssinaturaPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-lg border border-border bg-muted/40 px-5 py-4 text-sm text-muted-foreground">
-              Nenhum plano ativo. Assine um plano para cadastrar pacientes.
+            <div className="rounded-lg border border-border bg-muted/40 px-5 py-5">
+              <p className="text-sm text-muted-foreground">
+                Nenhum plano ativo. Comece com um <strong>teste grátis de 14
+                dias</strong>, sem cartão — já libera o cadastro de pacientes.
+              </p>
+              <form action={iniciarTrial} className="mt-3">
+                <Button type="submit">Ativar teste grátis (14 dias)</Button>
+              </form>
             </div>
           )}
 
