@@ -6,6 +6,12 @@ on:
   push:
     branches: [main]
 
+# dorny/paths-filter consulta a API do GitHub em eventos de pull_request
+# (diferente do push, que usa git) — exige pull-requests: read no token.
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
