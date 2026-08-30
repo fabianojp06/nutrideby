@@ -10,10 +10,18 @@ import { Copy, Plus, Check } from "lucide-react";
 
 export default async function PlanoDetalhePage({
   params,
+  searchParams,
 }: {
   params: { id: string };
+  searchParams: { pacienteId?: string };
 }) {
-  const plano = await getPlanoAlimentar(params.id);
+  // A rota real do gateway é ninhada (/pacientes/:pacienteId/planos-alimentares/:id):
+  // não há como buscar um plano só pelo id. O pacienteId vem por query string
+  // no link da página do paciente. GAP: sem endpoint de plano por id global.
+  const pacienteId = searchParams.pacienteId;
+  if (!pacienteId) notFound();
+
+  const plano = await getPlanoAlimentar(pacienteId, params.id);
   if (!plano) notFound();
 
   const paciente = await getPaciente(plano.pacienteId);

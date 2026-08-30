@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/patients/status-badge";
 import { EvolutionChart } from "@/components/patients/evolution-chart";
-import { getPaciente, getProntuario, getPlanosAlimentares } from "@/lib/api";
+import { getPaciente, getProntuario, getPlanosAlimentaresDoPaciente } from "@/lib/api";
 
 export default async function PacienteDetalhePage({
   params,
@@ -17,9 +17,7 @@ export default async function PacienteDetalhePage({
   if (!paciente) notFound();
 
   const prontuario = await getProntuario(params.id);
-  const planos = (await getPlanosAlimentares()).filter(
-    (p) => p.pacienteId === params.id
-  );
+  const planos = await getPlanosAlimentaresDoPaciente(params.id);
   const ultimoRegistro =
     prontuario?.antropometria[prontuario.antropometria.length - 1];
 
@@ -132,7 +130,7 @@ export default async function PacienteDetalhePage({
           {planos.map((plano) => (
             <Link
               key={plano.id}
-              href={`/planos/${plano.id}`}
+              href={`/planos/${plano.id}?pacienteId=${plano.pacienteId}`}
               className="flex items-center justify-between rounded-md border border-border px-4 py-3 text-sm hover:bg-brand-50/60"
             >
               <div>
