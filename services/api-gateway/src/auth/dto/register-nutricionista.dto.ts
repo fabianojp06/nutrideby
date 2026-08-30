@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class RegisterNutricionistaDto {
   @IsString()
@@ -17,4 +17,10 @@ export class RegisterNutricionistaDto {
   @IsOptional()
   @IsString()
   telefone?: string;
+
+  // Plano escolhido no cadastro — inicia um TRIAL de 14 dias sem cartão.
+  // Opcional: default STARTER quando não informado.
+  @IsOptional()
+  @IsIn(['STARTER', 'PRO', 'CLINICA'])
+  plano?: 'STARTER' | 'PRO' | 'CLINICA';
 }
