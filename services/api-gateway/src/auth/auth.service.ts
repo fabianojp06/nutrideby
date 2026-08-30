@@ -27,14 +27,34 @@ export class AuthService {
     }
 
     const senhaHash = await bcrypt.hash(dto.senha, SALT_ROUNDS);
-    const nutricionista = await this.prisma.nutricionista.create({
-      data: {
-        nome: dto.nome,
-        email: dto.email,
-        senhaHash,
-        crn: dto.crn,
-        telefone: dto.telefone,
-      },
+
+    // Trial de 14 dias sem cartão (regra de produto): a nutricionista nasce
+    // com uma assinatura TRIAL para poder operar imediatamente (o
+    // AssinaturaAtivaGuard exige assinatura em todas as rotas de nutri). A
+    // Asaas só entra quando o trial converte em pago — o trial não cria
+    // cliente nem cobrança.
+    const TRIAL_DIAS = 14;
+    const trialAte = new Date(Date.now() + TRIAL_DIAS * 24 * 60 * 60 * 1000);
+
+    const nutricionista = await this.prisma.$transaction(async (tx) => {
+      const nutri = await tx.nutricionista.create({
+        data: {
+          nome: dto.nome,
+          email: dto.email,
+          senhaHash,
+          crn: dto.crn,
+          telefone: dto.telefone,
+        },
+      });
+      await tx.assinatura.create({
+        data: {
+          nutricionistaId: nutri.id,
+          plano: dto.plano ?? 'STARTER',
+          status: 'TRIAL',
+          trialAte,
+        },
+      });
+      return nutri;
     });
 
     return this.emitirTokens({
