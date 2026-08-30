@@ -38,6 +38,14 @@ enum SexoBiologico {
   FEMININO
 }
 
+// Origem do plano alimentar: criado manualmente pela nutri, ou derivado de um
+// rascunho do Agente Clínico RAG. IA_RASCUNHO dispara o disclaimer CFN
+// "sugestão para revisão do profissional" na UI.
+enum OrigemPlano {
+  MANUAL
+  IA_RASCUNHO
+}
+
 // Controladora (paga assinatura) — LGPD: controladora dos dados do paciente
 model Nutricionista {
   id           String   @id @default(uuid())
@@ -161,7 +169,8 @@ model PlanoAlimentar {
   caloriasAlvo      Int?
   refeicoes         Json // estrutura livre: [{ nome, horario, itens: [...] }]
   observacoes       String?
-  aprovadoPeloNutri Boolean  @default(false) // gate de compliance para output de IA (Fase futura)
+  origem            OrigemPlano @default(MANUAL) // MANUAL x IA_RASCUNHO — dispara o disclaimer CFN na UI
+  aprovadoPeloNutri Boolean  @default(false) // gate de compliance para output de IA
   ativo             Boolean  @default(true)
 
   criadoEm     DateTime @default(now())

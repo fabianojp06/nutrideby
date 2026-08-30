@@ -61,6 +61,15 @@ export default async function PlanoDetalhePage({
         </div>
       </div>
 
+      {plano.origem === "ia_rascunho" && (
+        <div className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <strong>Sugestão gerada por IA para revisão do profissional.</strong>{" "}
+          Este conteúdo é um rascunho do Agente Clínico e não substitui a
+          avaliação da nutricionista (Código de Ética CFN). Revise antes de
+          aprovar e enviar ao paciente.
+        </div>
+      )}
+
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Totais de macronutrientes</CardTitle>

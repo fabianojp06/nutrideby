@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreatePlanoAlimentarDto {
   @IsString()
@@ -25,4 +25,10 @@ export class CreatePlanoAlimentarDto {
   @IsOptional()
   @IsBoolean()
   aprovadoPeloNutri?: boolean;
+
+  // Origem do plano: MANUAL (default) ou IA_RASCUNHO quando salvo a partir de
+  // um rascunho do Agente RAG. Dispara o disclaimer CFN na UI.
+  @IsOptional()
+  @IsIn(['MANUAL', 'IA_RASCUNHO'])
+  origem?: 'MANUAL' | 'IA_RASCUNHO';
 }

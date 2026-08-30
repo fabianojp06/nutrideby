@@ -66,6 +66,7 @@ interface PlanoAlimentarApi {
   caloriasAlvo: number | null;
   refeicoes: unknown;
   observacoes: string | null;
+  origem: "MANUAL" | "IA_RASCUNHO";
   aprovadoPeloNutri: boolean;
   ativo: boolean;
   criadoEm: string;
@@ -238,10 +239,7 @@ function mapPlanoResumo(p: PlanoAlimentarApi): PlanoAlimentar {
     pacienteId: p.pacienteId,
     nome: p.titulo,
     criadoEm: p.criadoEm.slice(0, 10),
-    // GAP: gateway não guarda a origem (manual x rascunho de IA). Default
-    // "manual" — o disclaimer de IA na UI fica preservado, mas inerte até o
-    // backend expor esse campo. Ver relatório.
-    origem: "manual",
+    origem: p.origem === "IA_RASCUNHO" ? "ia_rascunho" : "manual",
     aprovado: p.aprovadoPeloNutri,
     refeicoes: [],
   };
@@ -287,7 +285,7 @@ export async function getPlanoAlimentar(
     pacienteId: plano.pacienteId,
     nome: plano.titulo,
     criadoEm: plano.criadoEm.slice(0, 10),
-    origem: "manual", // GAP: ver mapPlanoResumo.
+    origem: plano.origem === "IA_RASCUNHO" ? "ia_rascunho" : "manual",
     aprovado: plano.aprovadoPeloNutri,
     refeicoes,
   };

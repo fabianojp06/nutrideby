@@ -190,6 +190,9 @@ export class PlanosAlimentaresService {
         caloriasAlvo: original.caloriasAlvo,
         refeicoes: original.refeicoes as Prisma.InputJsonValue,
         observacoes: original.observacoes,
+        // Preserva a origem (uma cópia de rascunho de IA continua IA_RASCUNHO,
+        // mantendo o disclaimer CFN). A aprovação, sim, nasce false.
+        origem: original.origem,
         aprovadoPeloNutri: false,
       },
     });
