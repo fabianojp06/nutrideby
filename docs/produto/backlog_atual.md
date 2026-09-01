@@ -1,6 +1,6 @@
 # NutriDeby — Backlog Atual (estado vivo)
 
-Retrato do backlog em 30/08/2026. Inclui itens **concluídos** e **pendentes**. O núcleo da Fase 0 está concluído e **validado ponta a ponta em produção** (nutri registra → cria paciente → paciente loga na PWA → registra peso → aparece na nutri).
+Retrato do backlog em 01/09/2026. Inclui itens **concluídos** e **pendentes**. O núcleo da Fase 0 está concluído e **validado ponta a ponta em produção** (nutri registra → cria paciente → paciente loga na PWA → registra peso → aparece na nutri).
 
 Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · ✅ concluído · P/M/G = esforço.
 
@@ -10,7 +10,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 
 | Área | Item | Ref. |
 |---|---|:--:|
-| Onboarding | Cadastro de nutricionista + trial automático 14 dias | US-01¹ |
+| Onboarding | Cadastro de nutricionista + trial automático 14 dias + validação de CRN | US-01 |
 | Onboarding | Cadastro de paciente pela nutri (loop de login validado) | US-03 |
 | LGPD | Termo de Consentimento + revogação | US-04/05 |
 | LGPD | Criptografia (repouso/trânsito) + log de auditoria | US-19/20 |
@@ -29,8 +29,6 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | Governança | Main protegida (PR + CI ci-success), ADRs, CI corrigido | — |
 | Infra | Env do admin-web ligada ao backend (Vercel) | — |
 
-¹ cadastro feito; validação de CRN ainda pendente (abaixo).
-
 ---
 
 ## 🎯 Fase 0 — Pendente
@@ -39,8 +37,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
 | 1 | Decisão de canal + aditivo de DPA (teste do bot liberado) | US-16 | M | 🔴 Bloqueado (jurídico) |
-| 2 | Validação de CRN no cadastro | US-01 | P | ⚪ A iniciar |
-| 3 | Hospedar o rag-agent (IA do Pro em produção) | — | M | ⚪ A iniciar |
+| 2 | Hospedar o rag-agent (IA do Pro em produção) | — | M | ⚪ A iniciar |
 
 ### P1
 | # | Item | Origem | Esf. | Status |
@@ -75,4 +72,4 @@ Detalhe em `fase1_2_epicos_ia_exames_loja.md`. Gate de aprovação embutido; blo
 
 ---
 
-**Próximos P0 sugeridos:** decisão de canal + DPA (jurídico), validação de CRN (US-01, rápido), hospedar o rag-agent.
+**Próximos P0 sugeridos:** hospedar o rag-agent (IA do Pro em produção); decisão de canal + DPA segue bloqueada por jurídico.
