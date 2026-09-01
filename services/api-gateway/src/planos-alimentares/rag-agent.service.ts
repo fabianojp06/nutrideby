@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 interface DadosAntropometricosRag {
@@ -48,30 +53,55 @@ export class RagAgentService {
 
   async gerarRascunho(params: GerarRascunhoParams): Promise<RascunhoIA> {
     const baseUrl = this.config.get<string>('RAG_AGENT_BASE_URL', 'http://localhost:8000');
+    // Timeout configurável; default 20s (folga sobre o alvo de <15s da US-08).
+    const timeoutMs = this.config.get<number>('RAG_AGENT_TIMEOUT_MS', 20000);
 
-    const response = await fetch(`${baseUrl}/rascunho-plano-alimentar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prontuario: {
-          paciente_id: params.pacienteId,
-          data_nascimento: params.dataNascimento
-            ? params.dataNascimento.toISOString().slice(0, 10)
-            : undefined,
-          anamnese: params.anamnese,
-          dados_antropometricos: params.antropometria,
-        },
-        pergunta_nutricionista: params.perguntaNutricionista,
-        nutricionista_id: params.nutricionistaId,
-      }),
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    let response: Response;
+    try {
+      response = await fetch(`${baseUrl}/rascunho-plano-alimentar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          prontuario: {
+            paciente_id: params.pacienteId,
+            data_nascimento: params.dataNascimento
+              ? params.dataNascimento.toISOString().slice(0, 10)
+              : undefined,
+            anamnese: params.anamnese,
+            dados_antropometricos: params.antropometria,
+          },
+          pergunta_nutricionista: params.perguntaNutricionista,
+          nutricionista_id: params.nutricionistaId,
+        }),
+      });
+    } catch (err) {
+      const isTimeout = err instanceof Error && err.name === 'AbortError';
+      // Log sem PII: nunca o prontuário/rascunho — apenas o motivo da falha.
+      this.logger.error(
+        `rag-agent inacessível (${isTimeout ? 'timeout' : 'rede'}) após ${timeoutMs}ms`,
+      );
+      throw new ServiceUnavailableException(
+        isTimeout
+          ? 'O Agente Clínico está demorando para responder. Tente novamente em instantes.'
+          : 'Agente Clínico indisponível no momento. Tente novamente em instantes.',
+      );
+    } finally {
+      clearTimeout(timer);
+    }
 
     const payload = await response.json().catch(() => null);
 
     if (!response.ok) {
-      this.logger.error(`rag-agent falhou (${response.status}): ${JSON.stringify(payload)}`);
+      // Não logar o corpo (pode conter dado do prontuário) — só o status.
+      this.logger.error(`rag-agent respondeu ${response.status}`);
       throw new InternalServerErrorException(
-        payload?.detail ?? 'Falha ao gerar rascunho via Agente Clínico RAG.',
+        typeof payload?.detail === 'string'
+          ? payload.detail
+          : 'Falha ao gerar rascunho via Agente Clínico RAG.',
       );
     }
 
