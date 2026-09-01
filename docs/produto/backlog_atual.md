@@ -10,7 +10,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 
 | Área | Item | Ref. |
 |---|---|:--:|
-| Onboarding | Cadastro de nutricionista + trial automático 14 dias | US-01¹ |
+| Onboarding | Cadastro de nutricionista + trial automático 14 dias + **validação de CRN** | US-01 |
 | Onboarding | Cadastro de paciente pela nutri (loop de login validado) | US-03 |
 | LGPD | Termo de Consentimento + revogação | US-04/05 |
 | LGPD | Criptografia (repouso/trânsito) + log de auditoria | US-19/20 |
@@ -28,8 +28,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | Sincronização | Peso do paciente aparece na visão da nutri | GAP#3 |
 | Governança | Main protegida (PR + CI ci-success), ADRs, CI corrigido | — |
 | Infra | Env do admin-web ligada ao backend (Vercel) | — |
-
-¹ cadastro feito; validação de CRN ainda pendente (abaixo).
+| Onboarding | Validação de formato de CRN no cadastro (`@Matches`, mensagem no form) | US-01 |
 
 ---
 
@@ -39,8 +38,8 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
 | 1 | Decisão de canal + aditivo de DPA (teste do bot liberado) | US-16 | M | 🔴 Bloqueado (jurídico) |
-| 2 | Validação de CRN no cadastro | US-01 | P | ⚪ A iniciar |
-| 3 | Hospedar o rag-agent (IA do Pro em produção) | — | M | ⚪ A iniciar |
+| 2 | Hospedar o rag-agent (IA do Pro em produção) | — | M | ⚪ A iniciar |
+| ~~—~~ | ~~Validação de CRN no cadastro~~ | US-01 | P | ✅ Concluído |
 
 ### P1
 | # | Item | Origem | Esf. | Status |
@@ -75,4 +74,4 @@ Detalhe em `fase1_2_epicos_ia_exames_loja.md`. Gate de aprovação embutido; blo
 
 ---
 
-**Próximos P0 sugeridos:** decisão de canal + DPA (jurídico), validação de CRN (US-01, rápido), hospedar o rag-agent.
+**Próximos P0 sugeridos:** decisão de canal + DPA (jurídico — brief enviado à Controladora), hospedar o rag-agent (IA do Pro em produção).
