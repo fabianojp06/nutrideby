@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 
 import asyncpg
 
@@ -109,6 +110,14 @@ async def main() -> None:
     embedder = EmbeddingService(settings)
     conn = await asyncpg.connect(dsn=settings.database_url)
     try:
+        # Garante a estrutura (extensão pgvector + tabela knowledge_base) —
+        # idempotente (CREATE ... IF NOT EXISTS). Assim um único comando
+        # prepara e semeia a base.
+        schema_path = os.path.join(os.path.dirname(__file__), "..", "db", "schema.sql")
+        with open(schema_path, "r", encoding="utf-8") as fh:
+            await conn.execute(fh.read())
+        logger.info("schema aplicado (pgvector + knowledge_base).")
+
         colunas = await resolver_colunas(conn)
         if "descricao" not in colunas or "codigo" not in colunas:
             raise SystemExit("Tabela alimentos_taco não encontrada ou sem colunas esperadas.")
