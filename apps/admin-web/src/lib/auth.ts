@@ -86,6 +86,11 @@ export async function registrarNutricionista(
     if (e instanceof ApiError && e.status === 409) {
       return { erro: "E-mail ou CRN já cadastrado." };
     }
+    // 400 = erro de validação (ex.: CRN em formato inválido) — mostra a
+    // mensagem do gateway, que orienta o formato correto.
+    if (e instanceof ApiError && e.status === 400) {
+      return { erro: e.message };
+    }
     return { erro: "Não foi possível criar a conta. Tente novamente." };
   }
 }

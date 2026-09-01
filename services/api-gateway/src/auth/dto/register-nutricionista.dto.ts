@@ -1,4 +1,10 @@
-import { IsEmail, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, Matches, MinLength } from 'class-validator';
+
+// CRN (Conselho Regional de Nutricionistas): "CRN-<região> <número>".
+// Regiões 1–11; número de 3 a 6 dígitos; categoria opcional (ex.: /P).
+// Separadores flexíveis (espaço/hífen) e case-insensitive para não rejeitar
+// variações válidas de digitação, mas exige a estrutura CRN + região + número.
+const CRN_REGEX = /^CRN[-\s]?(1[01]|[1-9])[-\s]?\d{3,6}(\/[A-Za-z])?$/i;
 
 export class RegisterNutricionistaDto {
   @IsString()
@@ -12,6 +18,10 @@ export class RegisterNutricionistaDto {
   senha!: string;
 
   @IsString()
+  @Matches(CRN_REGEX, {
+    message:
+      'CRN inválido. Use o formato CRN-<região> <número>, por exemplo: CRN-3 12345.',
+  })
   crn!: string;
 
   @IsOptional()
