@@ -49,6 +49,22 @@ class VoyageAIEmbeddingClient(BaseEmbeddingClient):
             raise EmbeddingProviderError(str(exc)) from exc
         return result.embeddings[0]
 
+    async def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        try:
+            import voyageai  # import tardio
+        except ImportError as exc:
+            raise EmbeddingProviderError(
+                "Pacote 'voyageai' não instalado. Adicione-o ao requirements.txt."
+            ) from exc
+
+        client = voyageai.AsyncClient(api_key=self._api_key)
+        try:
+            result = await client.embed(texts, model=self._model, input_type="document")
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Falha ao gerar embeddings (lote) via Voyage AI")
+            raise EmbeddingProviderError(str(exc)) from exc
+        return result.embeddings
+
 
 class OpenAIEmbeddingClient(BaseEmbeddingClient):
     """Cliente OpenAI — apenas para embeddings (nunca para geração de texto clínico)."""
@@ -73,6 +89,22 @@ class OpenAIEmbeddingClient(BaseEmbeddingClient):
             raise EmbeddingProviderError(str(exc)) from exc
         return response.data[0].embedding
 
+    async def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        try:
+            from openai import AsyncOpenAI
+        except ImportError as exc:
+            raise EmbeddingProviderError(
+                "Pacote 'openai' não instalado. Adicione-o ao requirements.txt."
+            ) from exc
+
+        client = AsyncOpenAI(api_key=self._api_key)
+        try:
+            response = await client.embeddings.create(input=texts, model=self._model)
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Falha ao gerar embeddings (lote) via OpenAI")
+            raise EmbeddingProviderError(str(exc)) from exc
+        return [d.embedding for d in response.data]
+
 
 class EmbeddingService:
     """Fábrica + fachada para geração de embeddings, isolando o provedor concreto."""
@@ -95,3 +127,6 @@ class EmbeddingService:
 
     async def embed_query(self, text: str) -> list[float]:
         return await self._client.embed(text)
+
+    async def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        return await self._client.embed_batch(texts)
