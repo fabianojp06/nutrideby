@@ -29,6 +29,8 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | Governança | Main protegida (PR + CI ci-success), ADRs, CI corrigido | — |
 | Infra | Env do admin-web ligada ao backend (Vercel) | — |
 | Onboarding | Validação de formato de CRN no cadastro (`@Matches`, mensagem no form) | US-01 |
+| IA | **rag-agent hospedado** (Railway) + gateway ligado por rede interna + timeout | — |
+| IA | Base de conhecimento pgvector semeada com a **TACO (597 alimentos)** | — |
 
 ---
 
@@ -38,7 +40,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
 | 1 | Decisão de canal + aditivo de DPA (teste do bot liberado) | US-16 | M | 🔴 Bloqueado (jurídico) |
-| 2 | Hospedar o rag-agent (IA do Pro em produção) | — | M | ⚪ A iniciar |
+| ~~—~~ | ~~Hospedar o rag-agent~~ | — | M | ✅ Concluído |
 | ~~—~~ | ~~Validação de CRN no cadastro~~ | US-01 | P | ✅ Concluído |
 
 ### P1
@@ -74,4 +76,4 @@ Detalhe em `fase1_2_epicos_ia_exames_loja.md`. Gate de aprovação embutido; blo
 
 ---
 
-**Próximos P0 sugeridos:** decisão de canal + DPA (jurídico — brief enviado à Controladora), hospedar o rag-agent (IA do Pro em produção).
+**P0 restante:** só a decisão de canal + DPA (jurídico — brief enviado à Controladora). Demais frentes são P1/P2. Sugestão de próximo: **checkout Asaas real** (P1) ou **setup de testes + E2E do gate** (P2).
