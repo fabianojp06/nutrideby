@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/patients/status-badge";
 import { EvolutionChart } from "@/components/patients/evolution-chart";
+import { GerarRascunhoIA } from "./gerar-rascunho-ia";
 import {
   getPaciente,
   getProntuario,
@@ -59,9 +60,12 @@ export default async function PacienteDetalhePage({
             {paciente.email} · {paciente.telefone}
           </p>
         </div>
-        <Link href={`/planos/novo?pacienteId=${paciente.id}`}>
-          <Button>Novo plano alimentar</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <GerarRascunhoIA pacienteId={paciente.id} />
+          <Link href={`/planos/novo?pacienteId=${paciente.id}`}>
+            <Button>Novo plano alimentar</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
