@@ -46,8 +46,8 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 ### P1
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
-| 4 | Checkout Asaas — **FRONTEND** (perfil CPF/CNPJ + botão assinar pago) | GAP#9 | M | 🟡 Backend ✅ (PR#24); falta frontend (Onda 2) |
 | 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar (sessão dedicada) |
+| ~~4~~ | ~~Checkout Asaas — frontend (perfil CPF/CNPJ + assinar pago)~~ | GAP#9 | M | ✅ Backend PR#24 + frontend PR#28 |
 | ~~5~~ | ~~Fila de aprovação / plano por id global~~ | GAP#1 | M | ✅ Concluído (PR#23) |
 | ~~6~~ | ~~Hospedar o telegram-bot~~ | US-16 | P | ✅ Concluído (para testes) |
 | ~~8~~ | ~~Adaptador de Canais~~ | — | M | ✅ Concluído (PR#25, inerte/DPA) |
