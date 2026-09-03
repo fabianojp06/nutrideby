@@ -15,8 +15,14 @@ class Settings(BaseSettings):
     # --- Anthropic (geração — único provedor permitido pelo DPA assinado) ---
     anthropic_api_key: str = Field(..., description="Chave da API Anthropic (Claude)")
     anthropic_model: str = Field(
-        default="claude-opus-5",
-        description="Modelo Claude usado para geração dos rascunhos clínicos",
+        default="claude-sonnet-5",
+        description=(
+            "Modelo Claude usado para geração dos rascunhos clínicos. Sonnet-5 "
+            "por padrão: latência muito menor que Opus (~60s -> alvo <15s da US-08) "
+            "e qualidade suficiente para um RASCUNHO revisado/aprovado pela nutri. "
+            "Provedor segue sendo Anthropic (DPA). Override via env ANTHROPIC_MODEL "
+            "(ex.: claude-opus-5) se quiser priorizar qualidade sobre velocidade."
+        ),
     )
 
     # --- Embeddings (provedor configurável — não é geração, DPA não restringe) ---
