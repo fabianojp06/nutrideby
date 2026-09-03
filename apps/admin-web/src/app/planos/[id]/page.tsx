@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MacroTotals } from "@/components/plans/macro-totals";
 import { getPlanoAlimentar, getPaciente } from "@/lib/api";
-import { Copy, Plus, Check } from "lucide-react";
+import { AprovarPlanoButton } from "./aprovar-plano-button";
+import { Copy, Plus } from "lucide-react";
 
 export default async function PlanoDetalhePage({
   params,
@@ -53,10 +54,10 @@ export default async function PlanoDetalhePage({
             Duplicar
           </Button>
           {!plano.aprovado && (
-            <Button>
-              <Check className="h-4 w-4" />
-              Aprovar e enviar
-            </Button>
+            <AprovarPlanoButton
+              pacienteId={plano.pacienteId}
+              planoId={plano.id}
+            />
           )}
         </div>
       </div>
