@@ -46,7 +46,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 ### P1
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
-| 17 | **Ligar ações de plano no admin** — ✅ Aprovar (PR#35), ✅ Duplicar (PR#37), ✅ Rascunho IA (PR#39); falta: **editor de plano completo (criar+editar refeições/itens com TACO)** — descoberto que "Novo plano" também está quebrado; o mesmo editor resolve criar e editar | GAP UX (bloqueia ciclo da nutri) | G | 🟡 3/4 (falta o editor) |
+| ~~17~~ | ~~**Ligar ações de plano no admin**~~ — ✅ Aprovar (PR#35), Duplicar (PR#37), Rascunho IA (PR#39), Editor criar+editar (PR#41). Conserta o "Novo plano" quebrado. Ciclo da nutri fecha ponta a ponta | GAP UX | G | ✅ 4/4 |
 | 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar (sessão dedicada) |
 | ~~4~~ | ~~Checkout Asaas — frontend (perfil CPF/CNPJ + assinar pago)~~ | GAP#9 | M | ✅ Backend PR#24 + frontend PR#28 |
 | ~~5~~ | ~~Fila de aprovação / plano por id global~~ | GAP#1 | M | ✅ Concluído (PR#23) |
