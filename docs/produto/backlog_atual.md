@@ -47,7 +47,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
 | ~~17~~ | ~~**Ligar ações de plano no admin**~~ — ✅ Aprovar (PR#35), Duplicar (PR#37), Rascunho IA (PR#39), Editor criar+editar (PR#41). Conserta o "Novo plano" quebrado. Ciclo da nutri fecha ponta a ponta | GAP UX | G | ✅ 4/4 |
-| 18 | **Editor de prontuário/antropometria no admin** — hoje a nutri não consegue registrar/editar peso, altura e anamnese pela UI (backend pronto: `POST/PATCH /pacientes/:id/prontuarios`); descoberto ao habilitar o RAG (altura só via script). Mesma classe do item 17 | GAP UX (bloqueia RAG e cálculo) | M | ⚪ A iniciar |
+| ~~18~~ | ~~**Editor de prontuário/antropometria no admin**~~ — registrar/editar anamnese + peso/altura/medidas, IMC automático; conserta a dependência de script. Backend já auditava (`PRONTUARIO_CRIADO/ATUALIZADO`) | GAP UX | M | ✅ PR#50 |
 | 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar (sessão dedicada) |
 | ~~4~~ | ~~Checkout Asaas — frontend (perfil CPF/CNPJ + assinar pago)~~ | GAP#9 | M | ✅ Backend PR#24 + frontend PR#28 |
 | ~~5~~ | ~~Fila de aprovação / plano por id global~~ | GAP#1 | M | ✅ Concluído (PR#23) |
