@@ -3,12 +3,14 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { StatusAssinatura } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../common/audit/audit.service';
 import { AsaasService } from './asaas.service';
 import { CreateAssinaturaDto } from './dto/create-assinatura.dto';
+import { ConverterParaPagoDto } from './dto/converter-para-pago.dto';
 
 const TRIAL_DIAS = 14;
 
@@ -35,40 +37,12 @@ export class AssinaturasService {
       ? new Date(dto.trialAte)
       : new Date(Date.now() + TRIAL_DIAS * 24 * 60 * 60 * 1000);
 
-    let asaasCustomerId: string | undefined;
-    let asaasSubscriptionId: string | undefined;
-
     // Integração real com a Asaas só roda se ASAAS_API_KEY estiver
     // configurada — em dev/CI sem a chave, a assinatura fica só local em
     // TRIAL (comportamento anterior a este commit), sem quebrar o fluxo.
-    if (this.asaas.isConfigured()) {
-      const nutricionista = await this.prisma.nutricionista.findUniqueOrThrow({
-        where: { id: nutricionistaId },
-        select: { nome: true, email: true, cpfCnpj: true },
-      });
-
-      if (!nutricionista.cpfCnpj) {
-        throw new BadRequestException(
-          'Complete seu CPF/CNPJ no perfil antes de assinar um plano (obrigatório para cobrança).',
-        );
-      }
-
-      const cliente = await this.asaas.criarCliente({
-        name: nutricionista.nome,
-        email: nutricionista.email,
-        cpfCnpj: nutricionista.cpfCnpj,
-      });
-
-      const assinaturaAsaas = await this.asaas.criarAssinatura({
-        customer: cliente.id,
-        value: PRECO_POR_PLANO[dto.plano],
-        nextDueDate: trialAte.toISOString().slice(0, 10),
-        descricao: `NutriDeby — Plano ${dto.plano}`,
-      });
-
-      asaasCustomerId = cliente.id;
-      asaasSubscriptionId = assinaturaAsaas.id;
-    }
+    const cobranca = this.asaas.isConfigured()
+      ? await this.provisionarCobrancaAsaas(nutricionistaId, dto.plano, trialAte)
+      : undefined;
 
     const assinatura = await this.prisma.assinatura.create({
       data: {
@@ -76,8 +50,8 @@ export class AssinaturasService {
         plano: dto.plano,
         status: 'TRIAL',
         trialAte,
-        asaasCustomerId,
-        asaasSubscriptionId,
+        asaasCustomerId: cobranca?.asaasCustomerId,
+        asaasSubscriptionId: cobranca?.asaasSubscriptionId,
       },
     });
 
@@ -87,9 +61,94 @@ export class AssinaturasService {
       acao: 'ASSINATURA_CRIADA',
       entidade: 'Assinatura',
       entidadeId: assinatura.id,
-      detalhes: { plano: dto.plano, asaasSubscriptionId: asaasSubscriptionId ?? null },
+      detalhes: { plano: dto.plano, asaasSubscriptionId: cobranca?.asaasSubscriptionId ?? null },
     });
     return assinatura;
+  }
+
+  // Converte uma assinatura em TRIAL (criada no cadastro ou via
+  // POST /assinaturas/trial) em um plano PAGO, criando cliente + assinatura
+  // recorrente na Asaas. A cobrança só passa a ATIVA quando a Asaas confirma
+  // o pagamento (webhook) — aqui a assinatura permanece em TRIAL com os IDs
+  // da Asaas vinculados, mesmo padrão do create().
+  async converterParaPago(nutricionistaId: string, dto: ConverterParaPagoDto) {
+    const assinatura = await this.prisma.assinatura.findUnique({
+      where: { nutricionistaId },
+    });
+    if (!assinatura) {
+      throw new NotFoundException(
+        'Assinatura não encontrada. Inicie um teste grátis antes de assinar um plano.',
+      );
+    }
+    if (assinatura.status === StatusAssinatura.ATIVA) {
+      throw new ConflictException('Assinatura já está ativa.');
+    }
+    if (assinatura.asaasSubscriptionId) {
+      throw new ConflictException(
+        'Já existe uma cobrança pendente para esta assinatura. Conclua o pagamento em aberto.',
+      );
+    }
+    if (!this.asaas.isConfigured()) {
+      throw new ServiceUnavailableException(
+        'Cobrança indisponível: gateway de pagamento não configurado.',
+      );
+    }
+
+    const trialAte = assinatura.trialAte ?? new Date();
+    const cobranca = await this.provisionarCobrancaAsaas(nutricionistaId, dto.plano, trialAte);
+
+    const atualizada = await this.prisma.assinatura.update({
+      where: { id: assinatura.id },
+      data: {
+        plano: dto.plano,
+        asaasCustomerId: cobranca.asaasCustomerId,
+        asaasSubscriptionId: cobranca.asaasSubscriptionId,
+      },
+    });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'ASSINATURA_CONVERTIDA_PAGO',
+      entidade: 'Assinatura',
+      entidadeId: atualizada.id,
+      detalhes: { plano: dto.plano, asaasSubscriptionId: cobranca.asaasSubscriptionId },
+    });
+    return atualizada;
+  }
+
+  // Cria (ou reaproveita) o cliente e a assinatura recorrente na Asaas.
+  // Exige cpfCnpj no perfil — sem ele não há como emitir cobrança.
+  private async provisionarCobrancaAsaas(
+    nutricionistaId: string,
+    plano: CreateAssinaturaDto['plano'],
+    nextDueDate: Date,
+  ): Promise<{ asaasCustomerId: string; asaasSubscriptionId: string }> {
+    const nutricionista = await this.prisma.nutricionista.findUniqueOrThrow({
+      where: { id: nutricionistaId },
+      select: { nome: true, email: true, cpfCnpj: true },
+    });
+
+    if (!nutricionista.cpfCnpj) {
+      throw new BadRequestException(
+        'Complete seu CPF/CNPJ no perfil antes de assinar um plano (obrigatório para cobrança).',
+      );
+    }
+
+    const cliente = await this.asaas.criarCliente({
+      name: nutricionista.nome,
+      email: nutricionista.email,
+      cpfCnpj: nutricionista.cpfCnpj,
+    });
+
+    const assinaturaAsaas = await this.asaas.criarAssinatura({
+      customer: cliente.id,
+      value: PRECO_POR_PLANO[plano],
+      nextDueDate: nextDueDate.toISOString().slice(0, 10),
+      descricao: `NutriDeby — Plano ${plano}`,
+    });
+
+    return { asaasCustomerId: cliente.id, asaasSubscriptionId: assinaturaAsaas.id };
   }
 
   // Chamado pelo webhook da Asaas (ver AssinaturasController) quando o

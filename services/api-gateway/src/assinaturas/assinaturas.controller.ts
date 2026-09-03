@@ -17,6 +17,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { AssinaturasService } from './assinaturas.service';
 import { CreateAssinaturaDto } from './dto/create-assinatura.dto';
+import { ConverterParaPagoDto } from './dto/converter-para-pago.dto';
 import { AsaasWebhookDto } from './dto/asaas-webhook.dto';
 
 // Eventos de cobrança da Asaas -> nosso enum StatusAssinatura. Só
@@ -42,6 +43,17 @@ export class AssinaturasController {
   @Post()
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateAssinaturaDto) {
     return this.assinaturasService.create(user.sub, dto);
+  }
+
+  // Converte o trial atual em plano pago (cria cobrança recorrente na Asaas).
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('NUTRICIONISTA')
+  @Post('converter-para-pago')
+  converterParaPago(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ConverterParaPagoDto,
+  ) {
+    return this.assinaturasService.converterParaPago(user.sub, dto);
   }
 
   // Inicia o teste grátis de 14 dias sem cartão (self-service).
