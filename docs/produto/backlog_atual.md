@@ -57,8 +57,9 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 ### P2 — hardening
 | Ordem | # | Item | Esf. | Status |
 |:--:|:-:|---|:--:|:--:|
-| **1º** | 11 | R1 — forçar `origem` no backend (quando houver persistência de rascunho IA) | P | ⚪ A iniciar |
+| **1º** | 11 | R1 — forçar `origem` no backend + **DTO de criar/editar plano NÃO aceitar `aprovadoPeloNutri`** (aprovação só via rota dedicada; risco latente confirmado na revisão do PR#45) | P | ⚪ A iniciar |
 | **1º** | 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
+| **1º** | 19 | **Otimizar latência do rag-agent** (~60s hoje; meta US-08 <15s — rever max_tokens/modelo/streaming). Timeouts subidos p/ 90s como paliativo (gateway + Vercel) | M | ⚪ A iniciar |
 | **3º** | 13 | Ambiente de staging | M | ⚪ A iniciar |
 | — | 14 | Menores: `ultimaConsulta`, anamnese estruturada, TBCA, rótulo do gráfico | M | ⚪ A iniciar |
 | — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ A iniciar |
