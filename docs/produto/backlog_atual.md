@@ -56,19 +56,18 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 ### P2 — hardening
 | Ordem | # | Item | Esf. | Status |
 |:--:|:-:|---|:--:|:--:|
-| **1º** | 15 | **Compliance:** mascarar `cpfCnpj` no log de erro da Asaas (`asaas.service.ts`) — PII em log | P | ⚪ A iniciar |
-| **2º** | 11 | R1 — forçar `origem` no backend (quando houver persistência de rascunho IA) | P | ⚪ A iniciar |
-| **2º** | 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
-| **4º** | 13 | Ambiente de staging | M | ⚪ A iniciar |
+| **1º** | 11 | R1 — forçar `origem` no backend (quando houver persistência de rascunho IA) | P | ⚪ A iniciar |
+| **1º** | 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
+| **3º** | 13 | Ambiente de staging | M | ⚪ A iniciar |
 | — | 14 | Menores: `ultimaConsulta`, anamnese estruturada, TBCA, rótulo do gráfico | M | ⚪ A iniciar |
 | — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ A iniciar |
-| ~~1º~~ | ~~10~~ | ~~Testes E2E do gate de aprovação (não-negociável)~~ | M | ✅ PR#31 (jest + specs service/controller; teste de mutação; gateando no CI) |
+| ~~1º~~ | ~~10~~ | ~~Testes E2E do gate de aprovação (não-negociável)~~ | M | ✅ PR#31 (jest + specs; teste de mutação; gateando no CI) |
+| ~~2º~~ | ~~15~~ | ~~Mascarar `cpfCnpj` no log de erro da Asaas~~ | P | ✅ PR#33 (common/sanitize + testes; deployado) |
 
-**Ordem de prioridade recomendada** (atualizada em 02/09/2026 — item 10 concluído). O item 4 do P1 (codegen) entra no meio desta fila:
-1. **Log Asaas (15)** — correção rápida de LGPD já identificada em review; baixo esforço.
-2. **R1 (11) + cripto no CI (12)** — fecham brechas de compliance; complementam os testes.
-3. **Codegen (P1-7)** — elimina classe inteira de bugs de contrato; exige sessão dedicada (mexe em contrato de 3 pacotes).
-4. **Staging (13)** — importante, mas maior esforço e menor urgência agora.
+**Ordem de prioridade recomendada** (atualizada em 03/09/2026 — itens 10 e 15 concluídos). O item 4 do P1 (codegen) entra no meio desta fila:
+1. **R1 (11) + cripto no CI (12)** — fecham brechas de compliance; complementam os testes.
+2. **Codegen (P1-7)** — elimina classe inteira de bugs de contrato; exige sessão dedicada (mexe em contrato de 3 pacotes).
+3. **Staging (13)** — importante, mas maior esforço e menor urgência agora.
 
 > Observação: 4 dos 6 itens restantes são compliance/LGPD — o núcleo já funciona; o trabalho restante é sobretudo **blindar** as regras existentes contra regressões.
 
