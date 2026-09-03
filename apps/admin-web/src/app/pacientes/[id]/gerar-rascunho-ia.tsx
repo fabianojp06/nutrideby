@@ -1,10 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Sparkles } from "lucide-react";
-import { gerarRascunhoIA, RascunhoIaState } from "@/lib/planos-actions";
+import { Sparkles, FilePlus2 } from "lucide-react";
+import {
+  gerarRascunhoIA,
+  RascunhoIaState,
+  salvarRascunhoIaComoPlano,
+} from "@/lib/planos-actions";
 
 const MIN_CHARS = 3;
 const MAX_CHARS = 4000;
@@ -19,10 +24,13 @@ const DISCLAIMER_FALLBACK =
   "substitui a avaliação da nutricionista (Código de Ética CFN).";
 
 export function GerarRascunhoIA({ pacienteId }: { pacienteId: string }) {
+  const router = useRouter();
   const [aberto, setAberto] = useState(false);
   const [pergunta, setPergunta] = useState("");
   const [pending, startTransition] = useTransition();
   const [resultado, setResultado] = useState<RascunhoIaState | null>(null);
+  const [salvando, iniciarSalvar] = useTransition();
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null);
 
   const tamanho = pergunta.trim().length;
   const valido = tamanho >= MIN_CHARS && tamanho <= MAX_CHARS;
@@ -30,9 +38,33 @@ export function GerarRascunhoIA({ pacienteId }: { pacienteId: string }) {
   function gerar() {
     if (!valido) return;
     setResultado(null);
+    setErroSalvar(null);
     startTransition(async () => {
       const r = await gerarRascunhoIA(pacienteId, pergunta.trim());
       setResultado(r);
+    });
+  }
+
+  // Salva o texto da IA como um PlanoAlimentar em RASCUNHO (origem IA_RASCUNHO,
+  // nao-aprovado) e leva ao editor para a nutri estruturar as refeicoes. Nada
+  // vai ao paciente ate a aprovacao explicita.
+  function salvarComoPlano(textoRascunho: string) {
+    setErroSalvar(null);
+    iniciarSalvar(async () => {
+      const r = await salvarRascunhoIaComoPlano(
+        pacienteId,
+        pergunta.trim(),
+        textoRascunho
+      );
+      if (r.erro) {
+        setErroSalvar(r.erro);
+        return;
+      }
+      if (r.novoPlano) {
+        router.push(
+          `/planos/${r.novoPlano.id}/editar?pacienteId=${r.novoPlano.pacienteId}`
+        );
+      }
     });
   }
 
@@ -107,6 +139,25 @@ export function GerarRascunhoIA({ pacienteId }: { pacienteId: string }) {
             Este rascunho é uma referência para você montar o plano — não é
             enviado ao paciente.
           </p>
+
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => salvarComoPlano(rascunho.rascunho)}
+              disabled={salvando}
+            >
+              <FilePlus2 className="h-4 w-4" />
+              {salvando ? "Salvando..." : "Salvar como rascunho de plano"}
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              Cria um plano em rascunho (não-aprovado) e abre o editor para você
+              estruturar as refeições e aprovar.
+            </span>
+          </div>
+          {erroSalvar && (
+            <p className="text-sm text-destructive">{erroSalvar}</p>
+          )}
 
           <div>
             <h3 className="mb-1 text-sm font-semibold text-foreground">
