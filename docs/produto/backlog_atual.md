@@ -46,6 +46,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 ### P1
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
+| 17 | **Ligar ações de plano no admin** — ✅ Aprovar (PR#35); faltam: duplicar, gerar rascunho IA, editar refeições/itens | GAP UX (bloqueia ciclo da nutri) | M | 🟡 1/4 (Aprovar feito) |
 | 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar (sessão dedicada) |
 | ~~4~~ | ~~Checkout Asaas — frontend (perfil CPF/CNPJ + assinar pago)~~ | GAP#9 | M | ✅ Backend PR#24 + frontend PR#28 |
 | ~~5~~ | ~~Fila de aprovação / plano por id global~~ | GAP#1 | M | ✅ Concluído (PR#23) |
