@@ -11,6 +11,11 @@ export interface ConsentTerm {
   body: string;
 }
 
+// Origem do plano vinda do gateway. `ia_rascunho` sinaliza que o plano
+// nasceu de um rascunho gerado por IA (já revisado/aprovado pela nutri,
+// pois o paciente só recebe planos aprovados) — dispara o disclaimer CFN.
+export type PlanOrigin = 'manual' | 'ia_rascunho';
+
 export interface DailyProgress {
   kcalGoal: number;
   kcalConsumed: number;
@@ -19,6 +24,8 @@ export interface DailyProgress {
   nextMeals: { time: string; label: string }[];
   weight: { current: number; deltaLastWeek: number };
   diaryEntriesToday: number;
+  // Origem do plano ativo (null quando não há plano ativo aprovado).
+  planOrigin: PlanOrigin | null;
 }
 
 export interface WeightEntry {
@@ -152,6 +159,11 @@ interface PlanoAlimentarApi {
   aprovadoPeloNutri: boolean;
   refeicoes: { nome?: string; horario?: string }[];
   ativo: boolean;
+  origem?: 'MANUAL' | 'IA_RASCUNHO';
+}
+
+function mapOrigem(origem?: 'MANUAL' | 'IA_RASCUNHO'): PlanOrigin {
+  return origem === 'IA_RASCUNHO' ? 'ia_rascunho' : 'manual';
 }
 
 interface CalculoApi {
@@ -200,5 +212,6 @@ export async function fetchDailyProgress(): Promise<DailyProgress> {
       deltaLastWeek: ultimoPeso && pesoAnterior ? ultimoPeso.kg - pesoAnterior.kg : 0,
     },
     diaryEntriesToday: diarioHoje.length,
+    planOrigin: planoAtivo ? mapOrigem(planoAtivo.origem) : null,
   };
 }
