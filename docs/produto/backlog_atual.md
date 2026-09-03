@@ -47,6 +47,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
 | ~~17~~ | ~~**Ligar ações de plano no admin**~~ — ✅ Aprovar (PR#35), Duplicar (PR#37), Rascunho IA (PR#39), Editor criar+editar (PR#41). Conserta o "Novo plano" quebrado. Ciclo da nutri fecha ponta a ponta | GAP UX | G | ✅ 4/4 |
+| 18 | **Editor de prontuário/antropometria no admin** — hoje a nutri não consegue registrar/editar peso, altura e anamnese pela UI (backend pronto: `POST/PATCH /pacientes/:id/prontuarios`); descoberto ao habilitar o RAG (altura só via script). Mesma classe do item 17 | GAP UX (bloqueia RAG e cálculo) | M | ⚪ A iniciar |
 | 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar (sessão dedicada) |
 | ~~4~~ | ~~Checkout Asaas — frontend (perfil CPF/CNPJ + assinar pago)~~ | GAP#9 | M | ✅ Backend PR#24 + frontend PR#28 |
 | ~~5~~ | ~~Fila de aprovação / plano por id global~~ | GAP#1 | M | ✅ Concluído (PR#23) |
@@ -59,7 +60,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 |:--:|:-:|---|:--:|:--:|
 | **1º** | 11 | R1 — forçar `origem` no backend + **DTO de criar/editar plano NÃO aceitar `aprovadoPeloNutri`** (aprovação só via rota dedicada; risco latente confirmado na revisão do PR#45) | P | ⚪ A iniciar |
 | **1º** | 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
-| **1º** | 19 | **Otimizar latência do rag-agent** (~60s hoje; meta US-08 <15s — rever max_tokens/modelo/streaming). Timeouts subidos p/ 90s como paliativo (gateway + Vercel) | M | ⚪ A iniciar |
+| **1º** | 19 | **Otimizar latência do rag-agent** (~60s hoje; meta US-08 <15s — rever max_tokens/modelo/streaming). Timeouts subidos p/ 90s como paliativo (gateway + Vercel) | M | 🟡 Em andamento |
 | **3º** | 13 | Ambiente de staging | M | ⚪ A iniciar |
 | — | 14 | Menores: `ultimaConsulta`, anamnese estruturada, TBCA, rótulo do gráfico | M | ⚪ A iniciar |
 | — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ A iniciar |
