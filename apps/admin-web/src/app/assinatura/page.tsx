@@ -2,9 +2,10 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getAssinatura, getFaturas } from "@/lib/api";
+import { getAssinatura, getFaturas, getNutricionistaAtual } from "@/lib/api";
 import { iniciarTrial } from "@/lib/assinatura-actions";
 import { planoApiParaCatalogo, planosPrecos } from "@/lib/planos-catalog";
+import { AssinarPlano } from "./assinar-plano";
 import { Download } from "lucide-react";
 import { StatusFatura } from "@/types";
 
@@ -15,10 +16,12 @@ const statusConfig: Record<StatusFatura, { label: string; variant: "success" | "
 };
 
 export default async function AssinaturaPage() {
-  const [faturas, assinatura] = await Promise.all([
+  const [faturas, assinatura, nutricionista] = await Promise.all([
     getFaturas(),
     getAssinatura(),
+    getNutricionistaAtual(),
   ]);
+  const temCpfCnpj = Boolean(nutricionista.cpfCnpj);
   const planoAtualKey = assinatura
     ? planoApiParaCatalogo(assinatura.plano)
     : undefined;
@@ -50,9 +53,6 @@ export default async function AssinaturaPage() {
                   R$ {planoAtual.preco.toFixed(2)}
                   <span className="text-sm font-normal text-muted-foreground">/mês</span>
                 </p>
-                <Button variant="outline" size="sm" className="mt-2">
-                  Alterar plano
-                </Button>
               </div>
             </div>
           ) : (
@@ -67,25 +67,10 @@ export default async function AssinaturaPage() {
             </div>
           )}
 
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            {(Object.keys(planosPrecos) as (keyof typeof planosPrecos)[]).map((key) => {
-              const plano = planosPrecos[key];
-              const atual = key === planoAtualKey;
-              return (
-                <div
-                  key={key}
-                  className={`rounded-md border p-3 text-sm ${
-                    atual ? "border-brand-500 bg-brand-50" : "border-border"
-                  }`}
-                >
-                  <p className="font-medium">{plano.nome}</p>
-                  <p className="text-muted-foreground">R$ {plano.preco.toFixed(2)}/mês</p>
-                  <p className="text-xs text-muted-foreground">{plano.limitePacientes}</p>
-                  {atual && <Badge className="mt-2">Plano atual</Badge>}
-                </div>
-              );
-            })}
-          </div>
+          <AssinarPlano
+            planoAtualApi={assinatura?.plano}
+            temCpfCnpj={temCpfCnpj}
+          />
         </CardContent>
       </Card>
 

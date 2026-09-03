@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, CreditCard, Leaf, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, CreditCard, Leaf, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/lib/auth";
 import { Nutricionista } from "@/types";
@@ -10,6 +10,7 @@ import { Nutricionista } from "@/types";
 const navItems = [
   { href: "/dashboard", label: "Pacientes", icon: Users },
   { href: "/assinatura", label: "Assinatura", icon: CreditCard },
+  { href: "/perfil", label: "Meu perfil", icon: User },
 ];
 
 export function Sidebar({ nutricionista }: { nutricionista: Nutricionista }) {
