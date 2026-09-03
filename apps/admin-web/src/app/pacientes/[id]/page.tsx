@@ -69,6 +69,9 @@ export default async function PacienteDetalhePage({
         </div>
         <div className="flex items-center gap-2">
           <GerarRascunhoIA pacienteId={paciente.id} />
+          <Link href={`/pacientes/${paciente.id}/prontuario`}>
+            <Button variant="outline">Registrar prontuário</Button>
+          </Link>
           <Link href={`/planos/novo?pacienteId=${paciente.id}`}>
             <Button>Novo plano alimentar</Button>
           </Link>
