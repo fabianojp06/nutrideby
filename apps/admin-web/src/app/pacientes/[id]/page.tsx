@@ -14,6 +14,13 @@ import {
   getRegistrosPeso,
 } from "@/lib/api";
 
+// A geração de rascunho por IA (Agente Clínico RAG) roda como Server Action a
+// partir desta rota e pode levar até ~60s (Voyage + Claude). Sem isto, a função
+// serverless da Vercel encerraria antes e o usuário veria "indisponível". O
+// gateway tem timeout próprio (RAG_AGENT_TIMEOUT_MS=90s); este alinha o teto da
+// Vercel. Sujeito ao limite do plano da Vercel.
+export const maxDuration = 90;
+
 export default async function PacienteDetalhePage({
   params,
 }: {
