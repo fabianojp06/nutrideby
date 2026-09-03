@@ -266,3 +266,50 @@ export async function gerarRascunhoIA(
     return { erro: "Não foi possível gerar o rascunho." };
   }
 }
+
+export interface SalvarRascunhoState {
+  erro?: string;
+  novoPlano?: { id: string; pacienteId: string };
+}
+
+// Salva um RASCUNHO gerado pela IA como um PlanoAlimentar em modo rascunho.
+// COMPLIANCE: origem = IA_RASCUNHO (dispara o disclaimer CFN) e SEM enviar
+// aprovadoPeloNutri (nasce nao-aprovado -> NAO visivel ao paciente). O texto
+// livre da IA nao mapeia para a estrutura de refeicoes, entao vai em
+// `observacoes`; a nutri estrutura as refeicoes no editor e so entao aprova.
+// NUNCA se cria um plano aprovado a partir de saida de IA.
+export async function salvarRascunhoIaComoPlano(
+  pacienteId: string,
+  perguntaNutricionista: string,
+  textoRascunho: string
+): Promise<SalvarRascunhoState> {
+  const base = perguntaNutricionista.trim().slice(0, 60) || "sem descrição";
+  const titulo = `Rascunho IA — ${base}`;
+
+  let novoPlano: PlanoCriadoApi;
+  try {
+    novoPlano = await request<PlanoCriadoApi>(
+      `/pacientes/${pacienteId}/planos-alimentares`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          titulo,
+          observacoes: textoRascunho,
+          refeicoes: [],
+          origem: "IA_RASCUNHO",
+        }),
+      }
+    );
+  } catch (e) {
+    if (e instanceof ApiError) {
+      if (e.status === 401) return { erro: "Sessão expirada. Entre novamente." };
+      if (e.status === 403) return { erro: "Este paciente não pertence à sua conta." };
+      if (e.status === 404) return { erro: "Paciente não encontrado." };
+      return { erro: e.message };
+    }
+    return { erro: "Não foi possível salvar o rascunho como plano." };
+  }
+
+  revalidatePath(`/pacientes/${pacienteId}`);
+  return { novoPlano: { id: novoPlano.id, pacienteId: novoPlano.pacienteId } };
+}
