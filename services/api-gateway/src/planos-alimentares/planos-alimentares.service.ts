@@ -50,6 +50,38 @@ export class PlanosAlimentaresService {
     });
   }
 
+  // GAP#1 (fila de aprovação): visão GLOBAL do nutricionista com todos os
+  // planos pendentes de aprovação (aprovadoPeloNutri=false, ativo=true) de
+  // TODOS os seus pacientes. Rota de NUTRI — não filtra aprovadoPeloNutri=true
+  // (o objetivo é justamente listar os não-aprovados); nunca exposta ao paciente.
+  async findPendentesAprovacao(nutricionistaId: string) {
+    const planos = await this.prisma.planoAlimentar.findMany({
+      where: {
+        ativo: true,
+        aprovadoPeloNutri: false,
+        paciente: { nutricionistaId },
+      },
+      orderBy: { criadoEm: 'desc' },
+      select: {
+        id: true,
+        titulo: true,
+        origem: true,
+        criadoEm: true,
+        pacienteId: true,
+        paciente: { select: { nome: true } },
+      },
+    });
+
+    return planos.map((plano) => ({
+      id: plano.id,
+      pacienteId: plano.pacienteId,
+      pacienteNome: plano.paciente.nome,
+      titulo: plano.titulo,
+      origem: plano.origem,
+      criadoEm: plano.criadoEm,
+    }));
+  }
+
   async findOne(pacienteId: string, id: string, nutricionistaId?: string) {
     if (nutricionistaId) {
       await this.assertPacienteDoNutricionista(nutricionistaId, pacienteId);
