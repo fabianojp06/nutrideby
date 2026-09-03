@@ -46,12 +46,12 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 ### P1
 | # | Item | Origem | Esf. | Status |
 |:-:|---|---|:--:|:--:|
-| 4 | Checkout Asaas real (converter trial → pago; CPF/CNPJ no perfil) | GAP#9 | M | 🟡 Trial ok, pago não |
-| 5 | Endpoint fila de aprovação / plano por id global | GAP#1 | M | ⚪ A iniciar |
-| 6 | Hospedar o telegram-bot (após DPA) | US-16 | P | ⚪ A iniciar |
-| 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar |
-| 8 | Adaptador de Canais | — | M | ⚪ A iniciar |
-| 9 | R2 — disclaimer de IA também no PWA do paciente | review GAP#5 | P | ⚪ A iniciar |
+| 4 | Checkout Asaas — **FRONTEND** (perfil CPF/CNPJ + botão assinar pago) | GAP#9 | M | 🟡 Backend ✅ (PR#24); falta frontend (Onda 2) |
+| 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar (sessão dedicada) |
+| ~~5~~ | ~~Fila de aprovação / plano por id global~~ | GAP#1 | M | ✅ Concluído (PR#23) |
+| ~~6~~ | ~~Hospedar o telegram-bot~~ | US-16 | P | ✅ Concluído (para testes) |
+| ~~8~~ | ~~Adaptador de Canais~~ | — | M | ✅ Concluído (PR#25, inerte/DPA) |
+| ~~9~~ | ~~R2 — disclaimer de IA no PWA~~ | review GAP#5 | P | ✅ Concluído (PR#26) |
 
 ### P2 — hardening
 | # | Item | Esf. | Status |
@@ -61,6 +61,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
 | 13 | Ambiente de staging | M | ⚪ A iniciar |
 | 14 | Menores: `ultimaConsulta`, anamnese estruturada, TBCA, rótulo do gráfico | M | ⚪ A iniciar |
+| 15 | **Compliance:** mascarar `cpfCnpj` no log de erro da Asaas (`asaas.service.ts`) — PII em log | review PR#24 | P | ⚪ A iniciar |
 
 ---
 
@@ -76,4 +77,16 @@ Detalhe em `fase1_2_epicos_ia_exames_loja.md`. Gate de aprovação embutido; blo
 
 ---
 
-**P0 restante:** só a decisão de canal + DPA (jurídico — brief enviado à Controladora). Demais frentes são P1/P2. Sugestão de próximo: **checkout Asaas real** (P1) ou **setup de testes + E2E do gate** (P2).
+## 🛠️ Épico — Painel do Operador (WSS+13)
+
+**Registrado em 02/09/2026.** Hoje o sistema tem só 2 papéis (`NUTRICIONISTA`, `PACIENTE`) — **não existe conta/admin do Operador**. A WSS+13 (Operadora) administra a plataforma por **acesso de infra** (Railway, banco, deploys, scripts). Suficiente na fase de testes; vira necessidade ao operar em escala.
+
+**Escopo previsto:** papel `OPERADOR` + área de gestão da plataforma — onboarding/suporte a nutricionistas, gestão de assinaturas/cobrança, métricas da plataforma, gestão da base de conhecimento do RAG, e supervisão de auditoria/compliance.
+
+**⚠️ Fronteira de LGPD (não-negociável no design):** a WSS+13 é **Operadora, não Controladora**. O painel **NÃO** pode dar acesso irrestrito a dado clínico do paciente (prontuários, planos). Gestão de nutris/cobrança/config da plataforma — sim; navegar dado de saúde do paciente — só com base legal/DPA específica (ex.: suporte com consentimento), nunca por default.
+
+**Status:** 📋 Planejado (épico novo, fora da Fase 0). Não iniciar sem decisão de escopo + revisão do recorte de LGPD.
+
+---
+
+**P0 restante:** só a decisão de canal + DPA (jurídico — brief enviado à Controladora). A Onda 1 (itens 5, 6, 8, 9 + backend do 4) foi executada com 4 agentes em paralelo. Próximos: **Onda 2** (checkout Asaas frontend), **item 7** (codegen, sessão dedicada), e o follow-up de compliance (item 15). Épico novo registrado: **Painel do Operador**.
