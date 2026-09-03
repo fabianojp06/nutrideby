@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { mascararDadosSensiveis } from '../common/sanitize';
 
 export interface AsaasCliente {
   id: string;
@@ -97,7 +98,10 @@ export class AsaasService {
     const payload = await response.json().catch(() => null);
 
     if (!response.ok) {
-      this.logger.error(`Asaas ${method} ${path} falhou (${response.status}): ${JSON.stringify(payload)}`);
+      // O payload de erro da Asaas pode ecoar o cpfCnpj enviado na criação do
+      // cliente — mascarar antes de logar (PII nunca em log em texto plano).
+      const detalhe = mascararDadosSensiveis(JSON.stringify(payload));
+      this.logger.error(`Asaas ${method} ${path} falhou (${response.status}): ${detalhe}`);
       throw new InternalServerErrorException('Falha ao comunicar com o gateway de pagamento.');
     }
 
