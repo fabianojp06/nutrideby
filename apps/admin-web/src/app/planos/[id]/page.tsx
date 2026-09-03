@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MacroTotals } from "@/components/plans/macro-totals";
-import { getPlanoAlimentar, getPaciente } from "@/lib/api";
+import { getPlanoAlimentar, getPaciente, getPacientes } from "@/lib/api";
 import { AprovarPlanoButton } from "./aprovar-plano-button";
-import { Copy, Plus } from "lucide-react";
+import { DuplicarPlanoButton } from "./duplicar-plano-button";
+import { Plus } from "lucide-react";
 
 export default async function PlanoDetalhePage({
   params,
@@ -25,7 +26,10 @@ export default async function PlanoDetalhePage({
   const plano = await getPlanoAlimentar(pacienteId, params.id);
   if (!plano) notFound();
 
-  const paciente = await getPaciente(plano.pacienteId);
+  const [paciente, pacientes] = await Promise.all([
+    getPaciente(plano.pacienteId),
+    getPacientes(),
+  ]);
 
   return (
     <AppShell>
@@ -49,10 +53,12 @@ export default async function PlanoDetalhePage({
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Copy className="h-4 w-4" />
-            Duplicar
-          </Button>
+          <DuplicarPlanoButton
+            pacienteOrigemId={plano.pacienteId}
+            planoId={plano.id}
+            pacientes={pacientes}
+            pacienteAtualId={plano.pacienteId}
+          />
           {!plano.aprovado && (
             <AprovarPlanoButton
               pacienteId={plano.pacienteId}
