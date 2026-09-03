@@ -292,6 +292,86 @@ export async function getPlanoAlimentar(
 }
 
 // ---------------------------------------------------------------------------
+// Editor de plano (item 17, fatia 4): busca TACO + leitura CRUA do plano.
+// ---------------------------------------------------------------------------
+
+// Alimento da base TACO (valores por 100g). Shape de GET /alimentos.
+export interface AlimentoTaco {
+  codigo: number;
+  descricao: string;
+  kcal: number;
+  proteinaG: number;
+  lipideosG: number;
+  carboidratoG: number;
+  fibraG: number;
+}
+
+// GET /alimentos?search=<termo> — busca na base TACO para o editor de plano.
+export async function getAlimentos(search: string): Promise<AlimentoTaco[]> {
+  const query = search.trim() ? `?search=${encodeURIComponent(search.trim())}` : "";
+  return request<AlimentoTaco[]>(`/alimentos${query}`);
+}
+
+// Estrutura CRUA de refeições (o JSON exatamente como o gateway persiste e como
+// o cálculo TACO espera). NÃO confundir com o tipo Refeicao de exibição (que já
+// vem calculado via /calculo). Só os campos abaixo são reconhecidos pelo cálculo.
+export interface ItemRefeicaoRaw {
+  descricao?: string;
+  alimentoCodigo?: number;
+  quantidadeGramas?: number;
+}
+
+export interface RefeicaoRaw {
+  nome?: string;
+  horario?: string;
+  itens?: ItemRefeicaoRaw[];
+}
+
+export interface PlanoAlimentarRaw {
+  id: string;
+  pacienteId: string;
+  titulo: string;
+  objetivo: string;
+  caloriasAlvo: number | null;
+  observacoes: string;
+  refeicoes: RefeicaoRaw[];
+  aprovadoPeloNutri: boolean;
+}
+
+// Leitura CRUA do plano para EDIÇÃO (GET /pacientes/:pacienteId/planos-alimentares/:id).
+// Diferente de getPlanoAlimentar (que mapeia via /calculo para EXIBIÇÃO): aqui
+// devolvemos o JSON de refeicoes intacto, para o editor reidratar os campos.
+export async function getPlanoAlimentarRaw(
+  pacienteId: string,
+  id: string
+): Promise<PlanoAlimentarRaw | undefined> {
+  let plano: PlanoAlimentarApi;
+  try {
+    plano = await request<PlanoAlimentarApi>(
+      `/pacientes/${pacienteId}/planos-alimentares/${id}`
+    );
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) return undefined;
+    throw e;
+  }
+
+  const refeicoesRaw = Array.isArray(plano.refeicoes)
+    ? (plano.refeicoes as RefeicaoRaw[])
+    : [];
+
+  return {
+    id: plano.id,
+    pacienteId: plano.pacienteId,
+    titulo: plano.titulo,
+    objetivo: plano.objetivo ?? "",
+    caloriasAlvo: plano.caloriasAlvo,
+    observacoes: plano.observacoes ?? "",
+    refeicoes: refeicoesRaw,
+    aprovadoPeloNutri: plano.aprovadoPeloNutri,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Assinatura / faturas / perfil
 // ---------------------------------------------------------------------------
 

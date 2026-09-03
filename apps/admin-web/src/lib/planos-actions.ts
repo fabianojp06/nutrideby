@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ApiError, request } from "@/lib/apiClient";
+import { getAlimentos, AlimentoTaco, RefeicaoRaw } from "@/lib/api";
 
 export interface AprovarPlanoState {
   erro?: string;
@@ -96,6 +97,114 @@ export async function duplicarPlano(
     sucesso: "Plano duplicado como rascunho.",
     novoPlano: { id: novoPlano.id, pacienteId: novoPlano.pacienteId },
   };
+}
+
+// Item 17 (fatia 4): dados que o editor envia ao criar/atualizar um plano.
+// Espelha CreatePlanoAlimentarDto (menos aprovadoPeloNutri e origem, que o
+// editor NUNCA envia — compliance: criar/editar não aprova nada).
+export interface DadosPlano {
+  titulo: string;
+  objetivo?: string;
+  caloriasAlvo?: number;
+  observacoes?: string;
+  refeicoes: RefeicaoRaw[];
+}
+
+export interface CriarPlanoState {
+  erro?: string;
+  novoPlano?: { id: string; pacienteId: string };
+}
+
+interface PlanoCriadoApi {
+  id: string;
+  pacienteId: string;
+}
+
+// Item 17 (fatia 4): cria um plano via
+// POST /pacientes/:pacienteId/planos-alimentares. NÃO envia aprovadoPeloNutri
+// (nasce false/rascunho) nem origem (default MANUAL no backend). O plano NÃO
+// vai ao paciente até ser aprovado no botão dedicado.
+export async function criarPlano(
+  pacienteId: string,
+  dados: DadosPlano
+): Promise<CriarPlanoState> {
+  let novoPlano: PlanoCriadoApi;
+  try {
+    novoPlano = await request<PlanoCriadoApi>(
+      `/pacientes/${pacienteId}/planos-alimentares`,
+      { method: "POST", body: JSON.stringify(dados) }
+    );
+  } catch (e) {
+    if (e instanceof ApiError) {
+      if (e.status === 401) return { erro: "Sessão expirada. Entre novamente." };
+      if (e.status === 403) {
+        return { erro: "Este paciente não pertence à sua conta." };
+      }
+      if (e.status === 404) return { erro: "Paciente não encontrado." };
+      if (e.status === 400) return { erro: e.message };
+      return { erro: e.message };
+    }
+    return { erro: "Não foi possível criar o plano." };
+  }
+
+  revalidatePath(`/pacientes/${pacienteId}`);
+  return { novoPlano: { id: novoPlano.id, pacienteId: novoPlano.pacienteId } };
+}
+
+export interface AtualizarPlanoState {
+  erro?: string;
+  sucesso?: string;
+}
+
+// Item 17 (fatia 4): atualiza um plano via
+// PATCH /pacientes/:pacienteId/planos-alimentares/:id.
+// COMPLIANCE: NÃO envia aprovadoPeloNutri — o backend mantém o valor atual. A
+// aprovação é ação separada (botão Aprovar). Editar não aprova nem rebaixa.
+export async function atualizarPlano(
+  pacienteId: string,
+  planoId: string,
+  dados: DadosPlano
+): Promise<AtualizarPlanoState> {
+  try {
+    await request(
+      `/pacientes/${pacienteId}/planos-alimentares/${planoId}`,
+      { method: "PATCH", body: JSON.stringify(dados) }
+    );
+  } catch (e) {
+    if (e instanceof ApiError) {
+      if (e.status === 401) return { erro: "Sessão expirada. Entre novamente." };
+      if (e.status === 403) {
+        return { erro: "Este paciente não pertence à sua conta." };
+      }
+      if (e.status === 404) return { erro: "Plano não encontrado." };
+      if (e.status === 400) return { erro: e.message };
+      return { erro: e.message };
+    }
+    return { erro: "Não foi possível salvar o plano." };
+  }
+
+  revalidatePath(`/planos/${planoId}`);
+  revalidatePath(`/planos/${planoId}/editar`);
+  revalidatePath(`/pacientes/${pacienteId}`);
+  return { sucesso: "Plano salvo." };
+}
+
+// Busca TACO exposta como server action para o editor (client component). O
+// apiClient usa cookies (server-only), então a busca não pode sair direto do
+// navegador — passa por aqui, reaproveitando o token httpOnly.
+export async function buscarAlimentos(
+  termo: string
+): Promise<{ erro?: string; alimentos?: AlimentoTaco[] }> {
+  if (!termo.trim()) return { alimentos: [] };
+  try {
+    const alimentos = await getAlimentos(termo);
+    return { alimentos };
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 401) {
+      return { erro: "Sessão expirada. Entre novamente." };
+    }
+    return { erro: "Não foi possível buscar alimentos." };
+  }
 }
 
 export interface FonteRag {
