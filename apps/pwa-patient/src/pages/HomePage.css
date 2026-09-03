@@ -92,6 +92,26 @@
   color: var(--accent);
 }
 
+.ia-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 20px 16px;
+  padding: 10px 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.ia-disclaimer__icon {
+  flex: 0 0 auto;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
 .fab {
   background: var(--accent);
   color: var(--bg);
