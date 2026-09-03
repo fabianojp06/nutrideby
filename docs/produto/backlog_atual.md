@@ -54,14 +54,23 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | ~~9~~ | ~~R2 — disclaimer de IA no PWA~~ | review GAP#5 | P | ✅ Concluído (PR#26) |
 
 ### P2 — hardening
-| # | Item | Esf. | Status |
-|:-:|---|:--:|:--:|
-| 10 | Testes E2E do gate de aprovação (não-negociável) | M | ⚪ A iniciar |
-| 11 | R1 — forçar `origem` no backend (quando houver persistência de rascunho IA) | P | ⚪ A iniciar |
-| 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
-| 13 | Ambiente de staging | M | ⚪ A iniciar |
-| 14 | Menores: `ultimaConsulta`, anamnese estruturada, TBCA, rótulo do gráfico | M | ⚪ A iniciar |
-| 15 | **Compliance:** mascarar `cpfCnpj` no log de erro da Asaas (`asaas.service.ts`) — PII em log | review PR#24 | P | ⚪ A iniciar |
+| Ordem | # | Item | Esf. | Status |
+|:--:|:-:|---|:--:|:--:|
+| **1º** | 10 | Testes E2E do gate de aprovação (não-negociável) | M | ⚪ A iniciar |
+| **2º** | 15 | **Compliance:** mascarar `cpfCnpj` no log de erro da Asaas (`asaas.service.ts`) — PII em log | P | ⚪ A iniciar |
+| **3º** | 11 | R1 — forçar `origem` no backend (quando houver persistência de rascunho IA) | P | ⚪ A iniciar |
+| **3º** | 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
+| **5º** | 13 | Ambiente de staging | M | ⚪ A iniciar |
+| — | 14 | Menores: `ultimaConsulta`, anamnese estruturada, TBCA, rótulo do gráfico | M | ⚪ A iniciar |
+
+**Ordem de prioridade recomendada** (definida em 02/09/2026, para retomada futura — não iniciada). O item 4 do P1 (codegen) entra no meio desta fila:
+1. **Testes E2E do gate (10)** — protege a regra de compliance mais crítica (nenhum output de IA ao paciente sem aprovação); hoje sem rede de segurança automatizada.
+2. **Log Asaas (15)** — correção rápida de LGPD já identificada em review; baixo esforço.
+3. **R1 (11) + cripto no CI (12)** — fecham brechas de compliance; complementam os testes.
+4. **Codegen (P1-7)** — elimina classe inteira de bugs de contrato; exige sessão dedicada (mexe em contrato de 3 pacotes).
+5. **Staging (13)** — importante, mas maior esforço e menor urgência agora.
+
+> Observação: 4 dos 6 itens restantes são compliance/LGPD — o núcleo já funciona; o trabalho restante é sobretudo **blindar** as regras existentes contra regressões.
 
 ---
 
