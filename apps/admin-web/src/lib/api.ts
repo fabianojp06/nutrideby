@@ -372,6 +372,82 @@ export async function getPlanoAlimentarRaw(
 }
 
 // ---------------------------------------------------------------------------
+// Editor de prontuário (item 18): leitura CRUA do prontuário mais recente.
+// ---------------------------------------------------------------------------
+
+// Prontuário CRU para EDIÇÃO. Diferente de getProntuario (que mapeia p/ exibição
+// e deriva restrições/condições, perdendo campos): aqui devolvemos TODOS os
+// campos, com os numéricos já convertidos (backend serializa Decimal como string,
+// ex.: pesoKg "90.00"). Todos opcionais/null. Usado para pré-preencher o form
+// de nova consulta a partir do último registro.
+export interface ProntuarioRaw {
+  id: string;
+  pacienteId: string;
+  queixaPrincipal: string | null;
+  historicoClinico: string | null;
+  historicoFamiliar: string | null;
+  habitosAlimentares: string | null;
+  usoMedicamentos: string | null;
+  alergias: string | null;
+  intolerancias: string | null;
+  nivelAtividadeFisica: string | null;
+  observacoesGerais: string | null;
+  pesoKg: number | null;
+  alturaCm: number | null;
+  circunferenciaCintura: number | null;
+  circunferenciaQuadril: number | null;
+  percentualGordura: number | null;
+  imc: number | null;
+  criadoEm: string;
+  atualizadoEm: string;
+}
+
+// Shape cru do gateway com os campos antropométricos completos (ProntuarioApi
+// acima é parcial — só o que a exibição consome). Aqui precisamos de todos.
+interface ProntuarioRawApi extends ProntuarioApi {
+  circunferenciaCintura: string | null;
+  circunferenciaQuadril: string | null;
+  percentualGordura: string | null;
+}
+
+function numOuNull(v: string | null): number | null {
+  return v != null ? Number(v) : null;
+}
+
+// GET /pacientes/:pacienteId/prontuarios → lista ordenada por criadoEm DESC.
+// Devolve o [0] (mais recente) cru, ou undefined se não houver nenhum.
+export async function getProntuarioRaw(
+  pacienteId: string
+): Promise<ProntuarioRaw | undefined> {
+  const lista = await request<ProntuarioRawApi[]>(
+    `/pacientes/${pacienteId}/prontuarios`
+  );
+  if (lista.length === 0) return undefined;
+  const p = lista[0];
+  return {
+    id: p.id,
+    pacienteId: p.pacienteId,
+    queixaPrincipal: p.queixaPrincipal,
+    historicoClinico: p.historicoClinico,
+    historicoFamiliar: p.historicoFamiliar,
+    habitosAlimentares: p.habitosAlimentares,
+    usoMedicamentos: p.usoMedicamentos,
+    alergias: p.alergias,
+    intolerancias: p.intolerancias,
+    nivelAtividadeFisica: p.nivelAtividadeFisica,
+    observacoesGerais: p.observacoesGerais,
+    pesoKg: numOuNull(p.pesoKg),
+    alturaCm: numOuNull(p.alturaCm),
+    circunferenciaCintura: numOuNull(p.circunferenciaCintura),
+    circunferenciaQuadril: numOuNull(p.circunferenciaQuadril),
+    percentualGordura: numOuNull(p.percentualGordura),
+    imc: numOuNull(p.imc),
+    criadoEm: p.criadoEm,
+    atualizadoEm: p.atualizadoEm,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Assinatura / faturas / perfil
 // ---------------------------------------------------------------------------
 
