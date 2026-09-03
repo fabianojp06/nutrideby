@@ -8,7 +8,7 @@ import { MacroTotals } from "@/components/plans/macro-totals";
 import { getPlanoAlimentar, getPaciente, getPacientes } from "@/lib/api";
 import { AprovarPlanoButton } from "./aprovar-plano-button";
 import { DuplicarPlanoButton } from "./duplicar-plano-button";
-import { Plus } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 export default async function PlanoDetalhePage({
   params,
@@ -53,6 +53,12 @@ export default async function PlanoDetalhePage({
           </div>
         </div>
         <div className="flex gap-2">
+          <Link href={`/planos/${plano.id}/editar?pacienteId=${plano.pacienteId}`}>
+            <Button variant="outline">
+              <Pencil className="h-4 w-4" />
+              Editar plano
+            </Button>
+          </Link>
           <DuplicarPlanoButton
             pacienteOrigemId={plano.pacienteId}
             planoId={plano.id}
@@ -95,10 +101,6 @@ export default async function PlanoDetalhePage({
                 <CardTitle>{refeicao.nome}</CardTitle>
                 <CardDescription>{refeicao.horario}</CardDescription>
               </div>
-              <Button variant="ghost" size="sm">
-                <Plus className="h-4 w-4" />
-                Item
-              </Button>
             </CardHeader>
             <CardContent className="p-0">
               <table className="w-full text-sm">
@@ -132,11 +134,6 @@ export default async function PlanoDetalhePage({
             </CardContent>
           </Card>
         ))}
-
-        <Button variant="outline" className="w-full">
-          <Plus className="h-4 w-4" />
-          Adicionar refeição
-        </Button>
       </div>
     </AppShell>
   );
