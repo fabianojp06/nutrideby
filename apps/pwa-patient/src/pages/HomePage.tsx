@@ -43,6 +43,15 @@ export function HomePage() {
         </div>
       </div>
 
+      {progress.planOrigin === 'ia_rascunho' && (
+        <div className="ia-disclaimer" role="note">
+          <span className="ia-disclaimer__icon" aria-hidden="true">
+            ✨
+          </span>
+          <span>Sugestão gerada por IA e revisada pela sua nutricionista.</span>
+        </div>
+      )}
+
       <section className="section">
         <h3>Próximas refeições</h3>
         <div className="pill-list">
