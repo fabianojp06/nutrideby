@@ -3,6 +3,7 @@
 // para minimizar mudança nas páginas que já consomem esses tipos.
 import { apiClient } from './apiClient';
 import { decodeJwt } from './jwt';
+import type { components } from './api-types';
 
 export interface ConsentTerm {
   id: string;
@@ -95,10 +96,8 @@ export async function login(email: string, password: string): Promise<LoginResul
 
 // --- Peso (US-14) ---
 
-interface RegistroPesoApi {
-  pesoKg: string;
-  registradoEm: string;
-}
+// Fonte única de tipos (item 7): gerados do contrato OpenAPI do gateway.
+type RegistroPesoApi = components['schemas']['RegistroPesoDto'];
 
 export async function fetchWeightHistory(): Promise<WeightEntry[]> {
   const registros = await apiClient.request<RegistroPesoApi[]>('/me/peso');
@@ -115,12 +114,7 @@ export async function registerWeight(kg: number): Promise<WeightEntry> {
 
 // --- Diário alimentar (US-13) ---
 
-interface RegistroDiarioApi {
-  id: string;
-  texto: string | null;
-  fotoUrl: string | null;
-  registradoEm: string;
-}
+type RegistroDiarioApi = components['schemas']['RegistroDiarioDto'];
 
 function mapDiario(r: RegistroDiarioApi): MealEntry {
   return {
@@ -152,15 +146,10 @@ export async function registerMealEntry(entry: Omit<MealEntry, 'id'>): Promise<M
 
 // --- Dashboard (Home) ---
 
-interface PlanoAlimentarApi {
-  id: string;
-  titulo: string;
-  caloriasAlvo: number | null;
-  aprovadoPeloNutri: boolean;
-  refeicoes: { nome?: string; horario?: string }[];
-  ativo: boolean;
-  origem?: 'MANUAL' | 'IA_RASCUNHO';
-}
+type PlanoAlimentarApi = components['schemas']['PlanoAlimentarDto'];
+
+// `refeicoes` é JSON livre no contrato; a PWA só lê nome/horario.
+type RefeicaoPwa = { nome?: string; horario?: string };
 
 function mapOrigem(origem?: 'MANUAL' | 'IA_RASCUNHO'): PlanOrigin {
   return origem === 'IA_RASCUNHO' ? 'ia_rascunho' : 'manual';
@@ -185,7 +174,7 @@ export async function fetchDailyProgress(): Promise<DailyProgress> {
   const kcalGoal = planoAtivo?.caloriasAlvo ?? calculo?.total.kcal ?? 0;
 
   const agora = new Date().toTimeString().slice(0, 5);
-  const nextMeals = (planoAtivo?.refeicoes ?? [])
+  const nextMeals = ((planoAtivo?.refeicoes ?? []) as RefeicaoPwa[])
     .filter((r) => r.horario && r.horario >= agora)
     .sort((a, b) => (a.horario ?? '').localeCompare(b.horario ?? ''))
     .slice(0, 3)

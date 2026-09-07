@@ -80,6 +80,10 @@ jobs:
           cache: npm
           cache-dependency-path: apps/pwa-patient/package-lock.json
       - run: npm ci
+      # Tipos gerados do contrato OpenAPI do gateway (item 7).
+      - run: npm run types:gen
+      - name: src/services/api-types.ts está atualizado com o contrato?
+        run: git diff --exit-code src/services/api-types.ts
       # tsc -b (type check) + vite build — mesmo comando usado no deploy da Vercel
       - run: npm run build
 
