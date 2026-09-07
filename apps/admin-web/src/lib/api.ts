@@ -291,16 +291,9 @@ export async function getPlanoAlimentar(
 // Editor de plano (item 17, fatia 4): busca TACO + leitura CRUA do plano.
 // ---------------------------------------------------------------------------
 
-// Alimento da base TACO (valores por 100g). Shape de GET /alimentos.
-export interface AlimentoTaco {
-  codigo: number;
-  descricao: string;
-  kcal: number;
-  proteinaG: number;
-  lipideosG: number;
-  carboidratoG: number;
-  fibraG: number;
-}
+// Alimento da base TACO (valores por 100g). Fonte única de tipos (item 7):
+// gerado do contrato OpenAPI. Campos nutricionais são `number | null`.
+export type AlimentoTaco = components["schemas"]["AlimentoTacoDto"];
 
 // GET /alimentos?search=<termo> — busca na base TACO para o editor de plano.
 export async function getAlimentos(search: string): Promise<AlimentoTaco[]> {

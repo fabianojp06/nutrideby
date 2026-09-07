@@ -615,6 +615,37 @@ export interface components {
             event: string;
             payment?: components["schemas"]["AsaasWebhookPaymentDto"];
         };
+        AlimentoTacoDto: {
+            codigo: number;
+            categoria: string;
+            descricao: string;
+            umidadePercent: number | null;
+            kcal: number | null;
+            kj: number | null;
+            proteinaG: number | null;
+            lipideosG: number | null;
+            colesterolMg: number | null;
+            carboidratoG: number | null;
+            fibraG: number | null;
+            cinzasG: number | null;
+            calcioMg: number | null;
+            magnesioMg: number | null;
+            manganesMg: number | null;
+            fosforoMg: number | null;
+            ferroMg: number | null;
+            sodioMg: number | null;
+            potassioMg: number | null;
+            cobreMg: number | null;
+            zincoMg: number | null;
+            retinolMcg: number | null;
+            reMcg: number | null;
+            raeMcg: number | null;
+            tiaminaMg: number | null;
+            riboflavinaMg: number | null;
+            piridoxinaMg: number | null;
+            niacinaMg: number | null;
+            vitaminaCMg: number | null;
+        };
         CreateRegistroPesoDto: {
             pesoKg: number;
         };
@@ -1371,7 +1402,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AlimentoTacoDto"][];
+                };
             };
         };
     };
@@ -1390,7 +1423,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AlimentoTacoDto"];
+                };
             };
         };
     };

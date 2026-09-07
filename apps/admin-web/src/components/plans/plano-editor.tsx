@@ -495,7 +495,7 @@ function ItemEditor({
                     >
                       <span>{a.descricao}</span>
                       <span className="shrink-0 text-xs text-muted-foreground">
-                        {Math.round(a.kcal)} kcal/100g
+                        {Math.round(a.kcal ?? 0)} kcal/100g
                       </span>
                     </button>
                   ))}
