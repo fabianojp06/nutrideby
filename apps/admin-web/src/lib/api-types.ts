@@ -1939,6 +1939,13 @@ export interface operations {
                     "application/json": components["schemas"]["AnamneseAutodeclaradaDto"];
                 };
             };
+            /** @description Paciente não tem anamnese auto-declarada. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     AnamneseController_incorporar: {
@@ -1979,6 +1986,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AnamneseAutodeclaradaDto"];
                 };
+            };
+            /** @description Paciente ainda não respondeu a anamnese. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
