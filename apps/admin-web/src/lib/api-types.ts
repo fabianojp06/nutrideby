@@ -637,8 +637,55 @@ export interface components {
             atualizadoEm: string;
         };
         UpdatePlanoAlimentarDto: Record<string, never>;
+        FonteTacoDto: {
+            /** @example TACO */
+            tabela: string;
+            codigo: number;
+            descricao: string;
+        };
+        ItemCalculadoDto: {
+            descricao?: string;
+            alimentoCodigo?: number;
+            quantidadeGramas?: number;
+            fonte: components["schemas"]["FonteTacoDto"] | null;
+            kcal?: number;
+            proteinaG?: number;
+            lipideosG?: number;
+            carboidratoG?: number;
+            fibraG?: number;
+        };
+        MacrosDto: {
+            kcal: number;
+            proteinaG: number;
+            lipideosG: number;
+            carboidratoG: number;
+            fibraG: number;
+        };
+        RefeicaoCalculadaDto: {
+            nome?: string;
+            horario?: string;
+            itens: components["schemas"]["ItemCalculadoDto"][];
+            total: components["schemas"]["MacrosDto"];
+        };
+        CalculoNutricionalDto: {
+            porRefeicao: components["schemas"]["RefeicaoCalculadaDto"][];
+            total: components["schemas"]["MacrosDto"];
+            itensSemFonte: components["schemas"]["ItemCalculadoDto"][];
+        };
         GerarRascunhoIaDto: {
             perguntaNutricionista: string;
+        };
+        FonteRagDto: {
+            source: string;
+            trecho: string;
+            similaridade: number;
+        };
+        RascunhoIaDto: {
+            rascunho: string;
+            fontesUtilizadas: components["schemas"]["FonteRagDto"][];
+            modeloUtilizado: string;
+            /** @description Disclaimer CFN — "sugestão para revisão do profissional". */
+            disclaimer: string;
         };
         DuplicarPlanoAlimentarDto: {
             pacienteDestinoId: string;
@@ -1288,7 +1335,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CalculoNutricionalDto"];
+                };
             };
         };
     };
@@ -1307,6 +1356,14 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RascunhoIaDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -1404,7 +1461,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CalculoNutricionalDto"];
+                };
             };
         };
     };

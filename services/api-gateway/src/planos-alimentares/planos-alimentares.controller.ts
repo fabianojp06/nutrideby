@@ -19,6 +19,8 @@ import { PlanosAlimentaresService } from './planos-alimentares.service';
 import { CalculoNutricionalService } from './calculo-nutricional.service';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { PlanoAlimentarDto } from './dto/plano-alimentar.dto';
+import { CalculoNutricionalDto } from './dto/calculo-nutricional.dto';
+import { RascunhoIaDto } from './dto/rascunho-ia.dto';
 import { CreatePlanoAlimentarDto } from './dto/create-plano-alimentar.dto';
 import { UpdatePlanoAlimentarDto } from './dto/update-plano-alimentar.dto';
 import { DuplicarPlanoAlimentarDto } from './dto/duplicar-plano-alimentar.dto';
@@ -83,6 +85,7 @@ export class PlanosAlimentaresController {
   }
 
   @Get(':id/calculo')
+  @ApiOkResponse({ type: CalculoNutricionalDto })
   async calcular(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
@@ -93,6 +96,7 @@ export class PlanosAlimentaresController {
   }
 
   @Post('rascunho-ia')
+  @ApiOkResponse({ type: RascunhoIaDto })
   gerarRascunhoIA(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,

@@ -1,6 +1,7 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { PlanoAlimentarDto } from './dto/plano-alimentar.dto';
+import { CalculoNutricionalDto } from './dto/calculo-nutricional.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ConsentGuard } from '../common/guards/consent.guard';
@@ -39,6 +40,7 @@ export class MeusPlanosAlimentaresController {
   // nutricionista), mas sob a ótica do próprio paciente — usado pelo
   // dashboard da PWA (meta calórica/macros do dia).
   @Get(':id/calculo')
+  @ApiOkResponse({ type: CalculoNutricionalDto })
   async calcular(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     const plano = await this.planosService.findOne(user.sub, id);
     return this.calculoService.calcular(plano.refeicoes);
