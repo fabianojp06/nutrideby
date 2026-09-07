@@ -516,6 +516,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pacientes/{pacienteId}/anamnese": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AnamneseController_buscarMaisRecente"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pacientes/{pacienteId}/anamnese/{id}/incorporar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AnamneseController_incorporar"];
+        trace?: never;
+    };
+    "/api/me/anamnese": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MinhaAnamneseController_minhaAnamnese"];
+        put?: never;
+        post: operations["MinhaAnamneseController_enviar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -801,6 +849,66 @@ export interface components {
         CreateRegistroDiarioDto: {
             texto?: string;
             fotoUrl?: string;
+        };
+        AnamneseAutodeclaradaDto: {
+            id: string;
+            pacienteId: string;
+            /** @enum {string} */
+            status: "PENDENTE_REVISAO" | "INCORPORADA";
+            /** Format: date-time */
+            respondidoEm: string;
+            /** Format: date-time */
+            incorporadoEm: string | null;
+            incorporadoPorNutriId: string | null;
+            objetivo: string | null;
+            queixaPrincipal: string | null;
+            historicoClinico: string | null;
+            historicoFamiliar: string | null;
+            habitosAlimentares: string | null;
+            usoMedicamentos: string | null;
+            alergias: string | null;
+            intolerancias: string | null;
+            nivelAtividadeFisica: string | null;
+            preferenciasAversoes: string | null;
+            rotinaRefeicoes: string | null;
+            consumoAgua: string | null;
+            habitoIntestinal: string | null;
+            sono: string | null;
+            consumoAlcool: string | null;
+            tabagismo: string | null;
+            gestacaoLactacao: string | null;
+            praticaExercicio: string | null;
+            suplementos: string | null;
+            observacoesGerais: string | null;
+            /** @description Decimal serializado como string, ex.: "72.50". */
+            pesoDeclaradoKg: string | null;
+            alturaDeclaradaCm: string | null;
+        };
+        CreateAnamneseAutodeclaradaDto: {
+            objetivo?: string;
+            queixaPrincipal?: string;
+            historicoClinico?: string;
+            historicoFamiliar?: string;
+            habitosAlimentares?: string;
+            usoMedicamentos?: string;
+            alergias?: string;
+            intolerancias?: string;
+            nivelAtividadeFisica?: string;
+            preferenciasAversoes?: string;
+            rotinaRefeicoes?: string;
+            consumoAgua?: string;
+            habitoIntestinal?: string;
+            sono?: string;
+            consumoAlcool?: string;
+            tabagismo?: string;
+            gestacaoLactacao?: string;
+            praticaExercicio?: string;
+            suplementos?: string;
+            observacoesGerais?: string;
+            /** @description Peso auto-declarado (kg). Provisório, não oficial. */
+            pesoDeclaradoKg?: number;
+            /** @description Altura auto-declarada (cm). Provisória, não oficial. */
+            alturaDeclaradaCm?: number;
         };
     };
     responses: never;
@@ -1802,6 +1910,97 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RegistroDiarioDto"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AnamneseController_buscarMaisRecente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pacienteId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnamneseAutodeclaradaDto"];
+                };
+            };
+        };
+    };
+    AnamneseController_incorporar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pacienteId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnamneseAutodeclaradaDto"];
+                };
+            };
+        };
+    };
+    MinhaAnamneseController_minhaAnamnese: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnamneseAutodeclaradaDto"];
+                };
+            };
+        };
+    };
+    MinhaAnamneseController_enviar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAnamneseAutodeclaradaDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnamneseAutodeclaradaDto"];
                 };
             };
             201: {

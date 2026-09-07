@@ -216,6 +216,27 @@ export async function fetchMealPlan(): Promise<MealPlan | null> {
   };
 }
 
+// --- Anamnese de pré-consulta auto-declarada (item 20) ---
+
+// Tipos gerados do contrato OpenAPI (item 7) — não redigitar à mão.
+export type Anamnese = components['schemas']['AnamneseAutodeclaradaDto'];
+export type AnamneseInput = components['schemas']['CreateAnamneseAutodeclaradaDto'];
+export type AnamneseStatus = Anamnese['status'];
+
+// Retorna null quando o paciente nunca respondeu (backend faz findFirst).
+export async function getMinhaAnamnese(): Promise<Anamnese | null> {
+  return apiClient.request<Anamnese | null>('/me/anamnese');
+}
+
+// Envia/atualiza a anamnese PENDENTE. Todos os campos são opcionais; enviamos
+// apenas os preenchidos (dado de saúde vai só no body, nunca em URL/query).
+export async function enviarAnamnese(dados: AnamneseInput): Promise<Anamnese> {
+  return apiClient.request<Anamnese>('/me/anamnese', {
+    method: 'POST',
+    body: JSON.stringify(dados),
+  });
+}
+
 export async function fetchDailyProgress(): Promise<DailyProgress> {
   const [planos, historicoPeso, diarioHoje] = await Promise.all([
     apiClient.request<PlanoAlimentarApi[]>('/me/planos-alimentares'),
