@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import time
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
@@ -45,6 +46,7 @@ async def gerar_rascunho_plano_alimentar(
         f"Pergunta: {payload.pergunta_nutricionista}"
     )
 
+    t_embed = time.perf_counter()
     try:
         query_embedding = await embedding_service.embed_query(query_text)
     except EmbeddingProviderError as exc:
@@ -54,6 +56,9 @@ async def gerar_rascunho_plano_alimentar(
             detail=f"Falha ao gerar embedding: {exc}",
         ) from exc
 
+    ms_embed = (time.perf_counter() - t_embed) * 1000
+
+    t_rag = time.perf_counter()
     try:
         contextos = await knowledge_base_service.buscar_contexto_relevante(query_embedding)
     except Exception as exc:  # noqa: BLE001
@@ -62,7 +67,9 @@ async def gerar_rascunho_plano_alimentar(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Falha ao consultar base de conhecimento clínico.",
         ) from exc
+    ms_rag = (time.perf_counter() - t_rag) * 1000
 
+    t_llm = time.perf_counter()
     try:
         rascunho_texto = await llm_service.gerar_rascunho(
             prontuario=payload.prontuario,
@@ -75,6 +82,12 @@ async def gerar_rascunho_plano_alimentar(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Falha ao gerar rascunho: {exc}",
         ) from exc
+
+    ms_llm = (time.perf_counter() - t_llm) * 1000
+    logger.info(
+        "latência rascunho: embedding=%.0fms rag=%.0fms llm=%.0fms total=%.0fms",
+        ms_embed, ms_rag, ms_llm, ms_embed + ms_rag + ms_llm,
+    )
 
     # O campo `disclaimer` é fixo no schema (frozen + validator) — não é
     # possível omiti-lo ou sobrescrevê-lo aqui, por design de compliance.

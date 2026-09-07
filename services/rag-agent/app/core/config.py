@@ -24,6 +24,23 @@ class Settings(BaseSettings):
             "(ex.: claude-opus-5) se quiser priorizar qualidade sobre velocidade."
         ),
     )
+    anthropic_max_tokens: int = Field(
+        default=1600,
+        description=(
+            "Teto de tokens do rascunho. 1600 cobre um rascunho enxuto de ~1 página "
+            "em tópicos (o valor antigo, 4096, permitia respostas 2-3x mais longas e "
+            "lentas). Suba via ANTHROPIC_MAX_TOKENS se os rascunhos vierem truncados."
+        ),
+    )
+    anthropic_thinking_mode: str = Field(
+        default="disabled",
+        description=(
+            "'disabled' (padrão) desliga o extended thinking na geração do rascunho — "
+            "principal alavanca de latência (US-08, alvo <15s): sem thinking o Sonnet-5 "
+            "responde direto. 'adaptive' religa o thinking (mais qualidade, mais lento). "
+            "Escape hatch sem deploy: ANTHROPIC_THINKING_MODE=adaptive."
+        ),
+    )
 
     # --- Embeddings (provedor configurável — não é geração, DPA não restringe) ---
     embedding_provider: str = Field(
