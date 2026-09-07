@@ -240,10 +240,136 @@
   color: var(--text-muted);
 }
 
-.mp-obs p {
-  margin: 0;
+/* --- markdown das observações --- */
+.mp-md {
   font-size: 14px;
   line-height: 1.55;
   color: var(--text);
-  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.mp-md > :first-child {
+  margin-top: 0;
+}
+
+.mp-md > :last-child {
+  margin-bottom: 0;
+}
+
+.mp-md p {
+  margin: 0 0 10px;
+}
+
+.mp-md h1,
+.mp-md h2,
+.mp-md h3,
+.mp-md h4 {
+  margin: 18px 0 8px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.mp-md h1 {
+  font-size: 18px;
+}
+
+.mp-md h2 {
+  font-size: 16px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mp-md h3 {
+  font-size: 14px;
+}
+
+.mp-md h4 {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.mp-md strong {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mp-md em {
+  font-style: italic;
+}
+
+.mp-md ul,
+.mp-md ol {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+.mp-md li {
+  margin: 4px 0;
+}
+
+.mp-md li::marker {
+  color: var(--accent);
+}
+
+.mp-md a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.mp-md hr {
+  margin: 16px 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+.mp-md blockquote {
+  margin: 0 0 10px;
+  padding: 4px 12px;
+  border-left: 3px solid var(--border);
+  color: var(--text-muted);
+}
+
+.mp-md code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 12px;
+  background: var(--accent-soft);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+}
+
+.mp-md pre {
+  margin: 0 0 10px;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+
+.mp-md pre code {
+  background: none;
+  padding: 0;
+}
+
+.mp-md table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
+.mp-md th,
+.mp-md td {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.mp-md th {
+  background: var(--surface);
+  font-weight: 700;
 }
