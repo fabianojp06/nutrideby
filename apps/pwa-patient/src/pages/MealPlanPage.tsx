@@ -20,16 +20,25 @@ export function MealPlanPage() {
 
   return (
     <div className="screen meal-plan-page">
-      <header className="page-header">
+      <header className="mp-topbar">
         <h1>Meu plano</h1>
       </header>
 
-      {state.status === 'loading' && <p className="mp-muted">Carregando...</p>}
+      {state.status === 'loading' && (
+        <p className="mp-state">Carregando seu plano…</p>
+      )}
 
       {state.status === 'empty' && (
-        <p className="mp-muted">
-          Você ainda não tem um plano alimentar aprovado pela sua nutricionista.
-        </p>
+        <div className="mp-state mp-state--empty">
+          <div className="mp-state__icon" aria-hidden="true">
+            🥗
+          </div>
+          <p>Você ainda não tem um plano alimentar aprovado.</p>
+          <span>
+            Assim que sua nutricionista revisar e liberar seu plano, ele aparece
+            aqui.
+          </span>
+        </div>
       )}
 
       {state.status === 'ready' && <PlanoView plano={state.plano} />}
@@ -40,60 +49,84 @@ export function MealPlanPage() {
 function PlanoView({ plano }: { plano: MealPlan }) {
   return (
     <>
-      <section className="section">
-        <div className="mp-title">{plano.titulo}</div>
-        <div className="mp-summary">
-          <span>
-            <b>{plano.totalKcal}</b> kcal/dia
-          </span>
-          <span>P {plano.macros.protein}g</span>
-          <span>C {plano.macros.carbs}g</span>
-          <span>G {plano.macros.fat}g</span>
+      <section className="mp-hero">
+        <div className="mp-hero__title">{plano.titulo}</div>
+        <div className="mp-hero__kcal">
+          <b>{plano.totalKcal.toLocaleString('pt-BR')}</b>
+          <span>kcal / dia</span>
+        </div>
+        <div className="mp-hero__macros">
+          <div>
+            <b>{plano.macros.protein}g</b>
+            <span>Proteína</span>
+          </div>
+          <div>
+            <b>{plano.macros.carbs}g</b>
+            <span>Carbo</span>
+          </div>
+          <div>
+            <b>{plano.macros.fat}g</b>
+            <span>Gordura</span>
+          </div>
         </div>
       </section>
 
       {plano.origem === 'ia_rascunho' && (
-        <div className="ia-disclaimer" role="note">
-          <span className="ia-disclaimer__icon" aria-hidden="true">
+        <div className="mp-note" role="note">
+          <span className="mp-note__icon" aria-hidden="true">
             ✓
           </span>
           <span>
-            Plano elaborado com apoio de IA e revisado e aprovado pela sua
-            nutricionista.
+            Elaborado com apoio de IA e <strong>revisado e aprovado</strong> pela
+            sua nutricionista.
           </span>
         </div>
       )}
 
-      {plano.refeicoes.map((refeicao, i) => (
-        <section className="section" key={`${refeicao.nome}-${i}`}>
-          <div className="mp-meal-head">
-            <h3>
-              {refeicao.horario ? `${refeicao.horario} · ` : ''}
-              {refeicao.nome}
-            </h3>
-            <span className="mp-meal-kcal">{refeicao.totalKcal} kcal</span>
-          </div>
-          <ul className="mp-items">
-            {refeicao.itens.length === 0 && (
-              <li className="mp-muted">Sem itens.</li>
+      <div className="mp-meals">
+        {plano.refeicoes.map((refeicao, i) => (
+          <article className="mp-meal" key={`${refeicao.nome}-${i}`}>
+            <div className="mp-meal__head">
+              <div className="mp-meal__when">
+                {refeicao.horario && (
+                  <span className="mp-meal__time">{refeicao.horario}</span>
+                )}
+                <h2>{refeicao.nome}</h2>
+              </div>
+              <span className="mp-meal__kcal">{refeicao.totalKcal} kcal</span>
+            </div>
+
+            {refeicao.itens.length === 0 ? (
+              <p className="mp-meal__empty">Sem itens registrados.</p>
+            ) : (
+              <ul className="mp-meal__items">
+                {refeicao.itens.map((item, j) => (
+                  <li key={j}>
+                    <span className="mp-item__name">{item.descricao}</span>
+                    {(item.quantidadeGramas != null || item.kcal != null) && (
+                      <span className="mp-item__meta">
+                        {[
+                          item.quantidadeGramas != null
+                            ? `${item.quantidadeGramas} g`
+                            : null,
+                          item.kcal != null ? `${item.kcal} kcal` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
             )}
-            {refeicao.itens.map((item, j) => (
-              <li key={j}>
-                <span className="mp-item-name">{item.descricao}</span>
-                <span className="mp-item-qty">
-                  {item.quantidadeGramas != null ? `${item.quantidadeGramas} g` : ''}
-                  {item.kcal != null ? ` · ${item.kcal} kcal` : ''}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+          </article>
+        ))}
+      </div>
 
       {plano.observacoes && (
-        <section className="section">
+        <section className="mp-obs">
           <h3>Observações da nutricionista</h3>
-          <p className="mp-obs">{plano.observacoes}</p>
+          <p>{plano.observacoes}</p>
         </section>
       )}
     </>
