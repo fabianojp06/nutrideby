@@ -1,0 +1,102 @@
+.meal-plan-page {
+  padding-bottom: 24px;
+}
+
+.mp-muted {
+  margin: 0 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mp-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.mp-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.mp-summary b {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.mp-meal-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mp-meal-kcal {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.mp-items {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.mp-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.mp-items li:last-child {
+  border-bottom: none;
+}
+
+.mp-item-name {
+  color: var(--text);
+}
+
+.mp-item-qty {
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mp-obs {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* Espelha o disclaimer da Home (ADR-0007) para quando esta tela for aberta
+   direto, sem passar pela Home. */
+.meal-plan-page .ia-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 20px 16px;
+  padding: 10px 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.meal-plan-page .ia-disclaimer__icon {
+  flex: 0 0 auto;
+  font-size: 14px;
+  line-height: 1.4;
+}
