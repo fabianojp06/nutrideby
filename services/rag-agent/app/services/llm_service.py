@@ -7,6 +7,7 @@ provedor de LLM neste módulo.
 from __future__ import annotations
 
 import logging
+import time
 
 import anthropic
 
@@ -30,6 +31,8 @@ Regras obrigatórias:
   "sugere-se avaliar").
 - A decisão final e a responsabilidade técnica são sempre do nutricionista.
 - Responda em português do Brasil, em formato claro e estruturado (tópicos/seções).
+- Seja objetivo e conciso: um rascunho enxuto de meia a uma página, direto ao ponto.
+  Não escreva introduções longas, não repita o prontuário, não feche com resumos.
 """
 
 
@@ -73,19 +76,38 @@ Gere um rascunho de plano alimentar / orientação nutricional para revisão do 
         contextos: list[FonteContexto],
     ) -> str:
         prompt = self._montar_prompt(prontuario, pergunta_nutricionista, contextos)
+
+        kwargs: dict = {
+            "model": self._settings.anthropic_model,
+            "max_tokens": self._settings.anthropic_max_tokens,
+            "system": SYSTEM_PROMPT,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        # Extended thinking desligado por padrão é a principal alavanca de
+        # latência (US-08). ANTHROPIC_THINKING_MODE=adaptive religa.
+        if self._settings.anthropic_thinking_mode == "disabled":
+            kwargs["thinking"] = {"type": "disabled"}
+
+        inicio = time.perf_counter()
         try:
-            response = await self._client.messages.create(
-                model=self._settings.anthropic_model,
-                max_tokens=4096,
-                system=SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": prompt}],
-            )
+            # Streaming: evita timeout de HTTP em geração longa e dá métrica de
+            # tempo até o primeiro token. Acumulamos e devolvemos o texto final.
+            async with self._client.messages.stream(**kwargs) as stream:
+                response = await stream.get_final_message()
         except anthropic.APIStatusError as exc:
             logger.exception("Erro da API Anthropic ao gerar rascunho")
             raise LLMGenerationError(f"Erro da API Anthropic: {exc.message}") from exc
         except anthropic.APIConnectionError as exc:
             logger.exception("Falha de conexão com a API Anthropic")
             raise LLMGenerationError("Falha de conexão com a API Anthropic") from exc
+
+        logger.info(
+            "rascunho gerado: %.1fs, %s tokens de saída (thinking=%s, max_tokens=%s)",
+            time.perf_counter() - inicio,
+            getattr(response.usage, "output_tokens", "?"),
+            self._settings.anthropic_thinking_mode,
+            self._settings.anthropic_max_tokens,
+        )
 
         if response.stop_reason == "refusal":
             raise LLMGenerationError(
