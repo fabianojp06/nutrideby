@@ -1,4 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { PlanoPendenteDto } from './dto/plano-alimentar.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AssinaturaAtivaGuard } from '../common/guards/assinatura-ativa.guard';
@@ -18,6 +20,7 @@ export class FilaAprovacaoController {
   constructor(private readonly planosService: PlanosAlimentaresService) {}
 
   @Get('pendentes')
+  @ApiOkResponse({ type: PlanoPendenteDto, isArray: true })
   pendentes(@CurrentUser() user: AuthenticatedUser) {
     return this.planosService.findPendentesAprovacao(user.sub);
   }

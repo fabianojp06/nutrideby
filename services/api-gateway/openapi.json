@@ -259,6 +259,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProntuarioDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": ""
           }
@@ -278,7 +288,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProntuarioDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -306,7 +326,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProntuarioDto"
+                }
+              }
+            }
           }
         }
       },
@@ -342,7 +369,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProntuarioDto"
+                }
+              }
+            }
           }
         }
       },
@@ -397,6 +431,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanoAlimentarDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": ""
           }
@@ -416,7 +460,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlanoAlimentarDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -444,7 +498,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanoAlimentarDto"
+                }
+              }
+            }
           }
         }
       },
@@ -480,7 +541,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanoAlimentarDto"
+                }
+              }
+            }
           }
         }
       },
@@ -533,6 +601,16 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanoAlimentarDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": ""
           }
@@ -636,6 +714,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanoAlimentarDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": ""
           }
@@ -648,7 +736,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlanoAlimentarDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -668,7 +766,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanoAlimentarDto"
+                }
+              }
+            }
           }
         }
       }
@@ -699,7 +804,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlanoPendenteDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -931,7 +1046,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegistroPesoDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -951,7 +1076,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegistroDiarioDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -971,6 +1106,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroPesoDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": ""
           }
@@ -981,7 +1126,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegistroPesoDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1001,6 +1156,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroDiarioDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": ""
           }
@@ -1011,7 +1176,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegistroDiarioDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1248,6 +1423,107 @@
           }
         }
       },
+      "ProntuarioDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pacienteId": {
+            "type": "string"
+          },
+          "queixaPrincipal": {
+            "type": "string",
+            "nullable": true
+          },
+          "historicoClinico": {
+            "type": "string",
+            "nullable": true
+          },
+          "historicoFamiliar": {
+            "type": "string",
+            "nullable": true
+          },
+          "habitosAlimentares": {
+            "type": "string",
+            "nullable": true
+          },
+          "usoMedicamentos": {
+            "type": "string",
+            "nullable": true
+          },
+          "alergias": {
+            "type": "string",
+            "nullable": true
+          },
+          "intolerancias": {
+            "type": "string",
+            "nullable": true
+          },
+          "nivelAtividadeFisica": {
+            "type": "string",
+            "nullable": true
+          },
+          "observacoesGerais": {
+            "type": "string",
+            "nullable": true
+          },
+          "pesoKg": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal serializado como string, ex.: \"90.00\"."
+          },
+          "alturaCm": {
+            "type": "string",
+            "nullable": true
+          },
+          "circunferenciaCintura": {
+            "type": "string",
+            "nullable": true
+          },
+          "circunferenciaQuadril": {
+            "type": "string",
+            "nullable": true
+          },
+          "percentualGordura": {
+            "type": "string",
+            "nullable": true
+          },
+          "imc": {
+            "type": "string",
+            "nullable": true
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "atualizadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "queixaPrincipal",
+          "historicoClinico",
+          "historicoFamiliar",
+          "habitosAlimentares",
+          "usoMedicamentos",
+          "alergias",
+          "intolerancias",
+          "nivelAtividadeFisica",
+          "observacoesGerais",
+          "pesoKg",
+          "alturaCm",
+          "circunferenciaCintura",
+          "circunferenciaQuadril",
+          "percentualGordura",
+          "imc",
+          "criadoEm",
+          "atualizadoEm"
+        ]
+      },
       "UpdateProntuarioDto": {
         "type": "object",
         "properties": {}
@@ -1286,6 +1562,76 @@
           "refeicoes"
         ]
       },
+      "PlanoAlimentarDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pacienteId": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "objetivo": {
+            "type": "string",
+            "nullable": true
+          },
+          "caloriasAlvo": {
+            "type": "number",
+            "nullable": true
+          },
+          "refeicoes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "JSON livre: [{ nome, horario, itens: [{ descricao?, alimentoCodigo?, quantidadeGramas? }] }]."
+          },
+          "observacoes": {
+            "type": "string",
+            "nullable": true
+          },
+          "origem": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "IA_RASCUNHO"
+            ]
+          },
+          "aprovadoPeloNutri": {
+            "type": "boolean",
+            "description": "Gate de compliance. Nas rotas /me/* nunca vem false."
+          },
+          "ativo": {
+            "type": "boolean"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "atualizadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "titulo",
+          "objetivo",
+          "caloriasAlvo",
+          "refeicoes",
+          "observacoes",
+          "origem",
+          "aprovadoPeloNutri",
+          "ativo",
+          "criadoEm",
+          "atualizadoEm"
+        ]
+      },
       "UpdatePlanoAlimentarDto": {
         "type": "object",
         "properties": {}
@@ -1312,6 +1658,42 @@
         },
         "required": [
           "pacienteDestinoId"
+        ]
+      },
+      "PlanoPendenteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pacienteId": {
+            "type": "string"
+          },
+          "pacienteNome": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "origem": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "IA_RASCUNHO"
+            ]
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "pacienteNome",
+          "titulo",
+          "origem",
+          "criadoEm"
         ]
       },
       "CreateAssinaturaDto": {
@@ -1636,6 +2018,67 @@
           "piridoxinaMg",
           "niacinaMg",
           "vitaminaCMg"
+        ]
+      },
+      "RegistroPesoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pacienteId": {
+            "type": "string"
+          },
+          "pesoKg": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "registradoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "pesoKg",
+          "registradoEm"
+        ]
+      },
+      "RegistroDiarioDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pacienteId": {
+            "type": "string"
+          },
+          "texto": {
+            "type": "string",
+            "nullable": true
+          },
+          "fotoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "registradoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "texto",
+          "fotoUrl",
+          "registradoEm"
         ]
       },
       "CreateRegistroPesoDto": {

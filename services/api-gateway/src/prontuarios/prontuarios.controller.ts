@@ -15,7 +15,9 @@ import { RequireAssinaturaAtiva } from '../common/decorators/require-assinatura-
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/types/authenticated-user';
+import { ApiOkResponse } from '@nestjs/swagger';
 import { ProntuariosService } from './prontuarios.service';
+import { ProntuarioDto } from './dto/prontuario.dto';
 import { CreateProntuarioDto } from './dto/create-prontuario.dto';
 import { UpdateProntuarioDto } from './dto/update-prontuario.dto';
 
@@ -30,6 +32,7 @@ export class ProntuariosController {
   constructor(private readonly prontuariosService: ProntuariosService) {}
 
   @Post()
+  @ApiOkResponse({ type: ProntuarioDto })
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
@@ -39,11 +42,13 @@ export class ProntuariosController {
   }
 
   @Get()
+  @ApiOkResponse({ type: ProntuarioDto, isArray: true })
   findAll(@CurrentUser() user: AuthenticatedUser, @Param('pacienteId') pacienteId: string) {
     return this.prontuariosService.findAllByPaciente(user.sub, pacienteId);
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: ProntuarioDto })
   findOne(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
@@ -53,6 +58,7 @@ export class ProntuariosController {
   }
 
   @Patch(':id')
+  @ApiOkResponse({ type: ProntuarioDto })
   update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
