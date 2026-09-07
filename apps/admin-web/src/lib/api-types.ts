@@ -603,9 +603,41 @@ export interface components {
             plano: "STARTER" | "PRO" | "CLINICA";
             trialAte?: string;
         };
+        AssinaturaDto: {
+            id: string;
+            nutricionistaId: string;
+            /** @enum {string} */
+            plano: "STARTER" | "PRO" | "CLINICA";
+            /** @enum {string} */
+            status: "TRIAL" | "ATIVA" | "INADIMPLENTE" | "CANCELADA" | "EXPIRADA";
+            /** Format: date-time */
+            trialAte: string | null;
+            /** Format: date-time */
+            inadimplenteDesde: string | null;
+            asaasCustomerId: string | null;
+            asaasSubscriptionId: string | null;
+            /** Format: date-time */
+            criadoEm: string;
+            /** Format: date-time */
+            atualizadoEm: string;
+        };
         ConverterParaPagoDto: {
             /** @enum {string} */
             plano: "STARTER" | "PRO" | "CLINICA";
+        };
+        FaturaDto: {
+            id: string;
+            valor: number;
+            /** @enum {string} */
+            status: "paga" | "pendente" | "falhou" | "outro";
+            /** @description Data de vencimento (YYYY-MM-DD). */
+            vencimento: string;
+            /** @description Data de pagamento (YYYY-MM-DD). */
+            pagoEm: string | null;
+            /** @description Página do recibo/fatura hospedada pela Asaas. */
+            reciboUrl: string | null;
+            /** @description Página do boleto hospedada pela Asaas. */
+            boletoUrl: string | null;
         };
         AsaasWebhookPaymentDto: {
             subscription?: string;
@@ -1288,11 +1320,21 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssinaturaDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AssinaturaDto"];
+                };
             };
         };
     };
@@ -1309,11 +1351,21 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssinaturaDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AssinaturaDto"];
+                };
             };
         };
     };
@@ -1326,11 +1378,21 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssinaturaDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AssinaturaDto"];
+                };
             };
         };
     };
@@ -1347,7 +1409,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AssinaturaDto"];
+                };
             };
         };
     };
@@ -1364,7 +1428,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FaturaDto"][];
+                };
             };
         };
     };
