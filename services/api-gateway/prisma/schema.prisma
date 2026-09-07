@@ -46,6 +46,15 @@ enum OrigemPlano {
   IA_RASCUNHO
 }
 
+// Item 20 — anamnese de pré-consulta auto-declarada pelo paciente.
+// PENDENTE_REVISAO: enviada pelo paciente, aguardando a nutri. INCORPORADA:
+// a nutri revisou e assinou (transpôs para o Prontuario oficial). Gate de
+// revisão profissional, em espírito igual ao aprovadoPeloNutri do plano.
+enum StatusAnamnese {
+  PENDENTE_REVISAO
+  INCORPORADA
+}
+
 // Controladora (paga assinatura) — LGPD: controladora dos dados do paciente
 model Nutricionista {
   id           String   @id @default(uuid())
@@ -96,8 +105,54 @@ model Paciente {
   planosAlimentares PlanoAlimentar[]
   registrosPeso    RegistroPeso[]
   registrosDiario  RegistroDiario[]
+  anamnesesAutodeclaradas AnamneseAutodeclarada[]
 
   @@map("pacientes")
+}
+
+// Item 20 — anamnese auto-declarada pelo paciente ANTES da consulta.
+// Entidade SEPARADA do Prontuario: é dado auto-declarado (não oficial). A
+// nutri revisa e incorpora (transpõe manualmente para o Prontuario via
+// POST /pacientes/:id/prontuarios); este registro nunca escreve no prontuário.
+// Antropometria aqui é provisória/auto-declarada — não confundir com a do
+// Prontuario, medida pela nutri na consulta.
+model AnamneseAutodeclarada {
+  id         String   @id @default(uuid())
+  pacienteId String
+  paciente   Paciente @relation(fields: [pacienteId], references: [id])
+
+  status                StatusAnamnese @default(PENDENTE_REVISAO)
+  respondidoEm          DateTime       @default(now())
+  incorporadoEm         DateTime?
+  incorporadoPorNutriId String?
+
+  // Anamnese auto-declarada
+  objetivo             String?
+  queixaPrincipal      String?
+  historicoClinico     String?
+  historicoFamiliar    String?
+  habitosAlimentares   String?
+  usoMedicamentos      String?
+  alergias             String?
+  intolerancias        String?
+  nivelAtividadeFisica String?
+  preferenciasAversoes String?
+  rotinaRefeicoes      String?
+  consumoAgua          String?
+  habitoIntestinal     String?
+  sono                 String?
+  consumoAlcool        String?
+  tabagismo            String?
+  gestacaoLactacao     String?
+  praticaExercicio     String?
+  suplementos          String?
+  observacoesGerais    String?
+
+  // Antropometria auto-declarada (provisória)
+  pesoDeclaradoKg   Decimal? @db.Decimal(5, 2)
+  alturaDeclaradaCm Decimal? @db.Decimal(5, 2)
+
+  @@map("anamneses_autodeclaradas")
 }
 
 // US-14: paciente registra o próprio peso periodicamente (distinto do
