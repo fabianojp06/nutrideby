@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsIn, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreatePlanoAlimentarDto {
   @IsString()
@@ -22,12 +22,10 @@ export class CreatePlanoAlimentarDto {
   @IsString()
   observacoes?: string;
 
-  @IsOptional()
-  @IsBoolean()
-  aprovadoPeloNutri?: boolean;
-
   // Origem do plano: MANUAL (default) ou IA_RASCUNHO quando salvo a partir de
-  // um rascunho do Agente RAG. Dispara o disclaimer CFN na UI.
+  // um rascunho do Agente RAG. Dispara o disclaimer CFN na UI. Imutável após a
+  // criação (não está no UpdatePlanoAlimentarDto) — um plano de IA não pode ser
+  // "lavado" para MANUAL e escapar do disclaimer.
   @IsOptional()
   @IsIn(['MANUAL', 'IA_RASCUNHO'])
   origem?: 'MANUAL' | 'IA_RASCUNHO';

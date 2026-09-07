@@ -99,6 +99,12 @@ jobs:
       # Sem config de ESLint neste pacote ainda — build (tsc) já é o gate de tipos.
       - run: npm run build
       - run: npm test -- --passWithNoTests
+      # Contrato OpenAPI (item 7): o openapi.json versionado é a fonte única de
+      # tipos dos frontends. Falha o CI se alguém mudou rota/DTO e esqueceu de
+      # rodar `npm run openapi:generate`.
+      - run: npm run openapi:generate
+      - name: openapi.json está atualizado com as rotas/DTOs?
+        run: git diff --exit-code openapi.json
 
   telegram-bot:
     needs: changes

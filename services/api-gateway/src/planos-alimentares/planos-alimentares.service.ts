@@ -18,7 +18,15 @@ export class PlanosAlimentaresService {
   async create(nutricionistaId: string, pacienteId: string, dto: CreatePlanoAlimentarDto) {
     await this.assertPacienteDoNutricionista(nutricionistaId, pacienteId);
     const plano = await this.prisma.planoAlimentar.create({
-      data: { ...dto, refeicoes: dto.refeicoes as Prisma.InputJsonValue, pacienteId },
+      data: {
+        ...dto,
+        refeicoes: dto.refeicoes as Prisma.InputJsonValue,
+        pacienteId,
+        // Nunca nasce aprovado — aprovação é ação explícita e separada
+        // (aprovar()). Redundante com o default do schema e o whitelist do
+        // ValidationPipe, mas deixa a regra de compliance visível no código.
+        aprovadoPeloNutri: false,
+      },
     });
 
     await this.audit.registrar({
@@ -115,6 +123,29 @@ export class PlanosAlimentaresService {
       acao: 'PLANO_ALIMENTAR_ATUALIZADO',
       entidade: 'PlanoAlimentar',
       entidadeId: id,
+    });
+    return plano;
+  }
+
+  // US-09: aprovação do plano pelo nutricionista. Ação SENSÍVEL de compliance —
+  // é o único caminho que marca aprovadoPeloNutri=true e, portanto, o único que
+  // libera um plano (inclusive rascunho de IA) para o paciente ver na PWA
+  // (rotas /me/* filtram aprovadoPeloNutri=true). Deliberadamente NÃO faz parte
+  // do update() genérico: editar um plano nunca aprova nem rebaixa.
+  async aprovar(nutricionistaId: string, pacienteId: string, id: string) {
+    await this.findOne(pacienteId, id, nutricionistaId);
+    const plano = await this.prisma.planoAlimentar.update({
+      where: { id },
+      data: { aprovadoPeloNutri: true },
+    });
+
+    await this.audit.registrar({
+      nutricionistaId,
+      ator: nutricionistaId,
+      acao: 'PLANO_ALIMENTAR_APROVADO',
+      entidade: 'PlanoAlimentar',
+      entidadeId: id,
+      detalhes: { origem: plano.origem },
     });
     return plano;
   }
