@@ -66,6 +66,15 @@ export class PlanosAlimentaresController {
     return this.planosService.update(user.sub, pacienteId, id, dto);
   }
 
+  @Post(':id/aprovar')
+  aprovar(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('pacienteId') pacienteId: string,
+    @Param('id') id: string,
+  ) {
+    return this.planosService.aprovar(user.sub, pacienteId, id);
+  }
+
   @Get(':id/calculo')
   async calcular(
     @CurrentUser() user: AuthenticatedUser,
