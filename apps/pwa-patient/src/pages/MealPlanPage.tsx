@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { fetchMealPlan, MealPlan } from '@/services/api';
 import './MealPlanPage.css';
 
@@ -126,7 +127,9 @@ function PlanoView({ plano }: { plano: MealPlan }) {
       {plano.observacoes && (
         <section className="mp-obs">
           <h3>Observações da nutricionista</h3>
-          <p>{plano.observacoes}</p>
+          <div className="mp-md">
+            <ReactMarkdown>{plano.observacoes}</ReactMarkdown>
+          </div>
         </section>
       )}
     </>
