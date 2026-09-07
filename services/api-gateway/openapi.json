@@ -640,7 +640,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculoNutricionalDto"
+                }
+              }
+            }
           }
         }
       }
@@ -669,6 +676,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RascunhoIaDto"
+                }
+              }
+            }
+          },
           "201": {
             "description": "",
             "content": {
@@ -793,7 +810,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculoNutricionalDto"
+                }
+              }
+            }
           }
         }
       }
@@ -1636,6 +1660,142 @@
         "type": "object",
         "properties": {}
       },
+      "FonteTacoDto": {
+        "type": "object",
+        "properties": {
+          "tabela": {
+            "type": "string",
+            "example": "TACO"
+          },
+          "codigo": {
+            "type": "number"
+          },
+          "descricao": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "tabela",
+          "codigo",
+          "descricao"
+        ]
+      },
+      "ItemCalculadoDto": {
+        "type": "object",
+        "properties": {
+          "descricao": {
+            "type": "string"
+          },
+          "alimentoCodigo": {
+            "type": "number"
+          },
+          "quantidadeGramas": {
+            "type": "number"
+          },
+          "fonte": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FonteTacoDto"
+              }
+            ]
+          },
+          "kcal": {
+            "type": "number"
+          },
+          "proteinaG": {
+            "type": "number"
+          },
+          "lipideosG": {
+            "type": "number"
+          },
+          "carboidratoG": {
+            "type": "number"
+          },
+          "fibraG": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fonte"
+        ]
+      },
+      "MacrosDto": {
+        "type": "object",
+        "properties": {
+          "kcal": {
+            "type": "number"
+          },
+          "proteinaG": {
+            "type": "number"
+          },
+          "lipideosG": {
+            "type": "number"
+          },
+          "carboidratoG": {
+            "type": "number"
+          },
+          "fibraG": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "kcal",
+          "proteinaG",
+          "lipideosG",
+          "carboidratoG",
+          "fibraG"
+        ]
+      },
+      "RefeicaoCalculadaDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "horario": {
+            "type": "string"
+          },
+          "itens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemCalculadoDto"
+            }
+          },
+          "total": {
+            "$ref": "#/components/schemas/MacrosDto"
+          }
+        },
+        "required": [
+          "itens",
+          "total"
+        ]
+      },
+      "CalculoNutricionalDto": {
+        "type": "object",
+        "properties": {
+          "porRefeicao": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RefeicaoCalculadaDto"
+            }
+          },
+          "total": {
+            "$ref": "#/components/schemas/MacrosDto"
+          },
+          "itensSemFonte": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemCalculadoDto"
+            }
+          }
+        },
+        "required": [
+          "porRefeicao",
+          "total",
+          "itensSemFonte"
+        ]
+      },
       "GerarRascunhoIaDto": {
         "type": "object",
         "properties": {
@@ -1647,6 +1807,52 @@
         },
         "required": [
           "perguntaNutricionista"
+        ]
+      },
+      "FonteRagDto": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "trecho": {
+            "type": "string"
+          },
+          "similaridade": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "source",
+          "trecho",
+          "similaridade"
+        ]
+      },
+      "RascunhoIaDto": {
+        "type": "object",
+        "properties": {
+          "rascunho": {
+            "type": "string"
+          },
+          "fontesUtilizadas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FonteRagDto"
+            }
+          },
+          "modeloUtilizado": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string",
+            "description": "Disclaimer CFN — \"sugestão para revisão do profissional\"."
+          }
+        },
+        "required": [
+          "rascunho",
+          "fontesUtilizadas",
+          "modeloUtilizado",
+          "disclaimer"
         ]
       },
       "DuplicarPlanoAlimentarDto": {

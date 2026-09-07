@@ -45,22 +45,8 @@ type ProntuarioApi = components["schemas"]["ProntuarioDto"];
 type PlanoAlimentarApi = components["schemas"]["PlanoAlimentarDto"];
 
 // Retorno de GET /pacientes/:pacienteId/planos-alimentares/:id/calculo
-interface CalculoApi {
-  porRefeicao: {
-    nome?: string;
-    horario?: string;
-    itens: {
-      descricao?: string;
-      alimentoCodigo?: number;
-      quantidadeGramas?: number;
-      fonte: { tabela: string; codigo: number; descricao: string } | null;
-      kcal?: number;
-      proteinaG?: number;
-      lipideosG?: number;
-      carboidratoG?: number;
-    }[];
-  }[];
-}
+// Fonte única de tipos (item 7): gerado do contrato OpenAPI.
+type CalculoApi = components["schemas"]["CalculoNutricionalDto"];
 
 // Fonte única de tipos (item 7): gerados do contrato OpenAPI do gateway.
 type FaturaApi = components["schemas"]["FaturaDto"];

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ApiError, request } from "@/lib/apiClient";
+import type { components } from "@/lib/api-types";
 import { getAlimentos, AlimentoTaco, RefeicaoRaw } from "@/lib/api";
 
 export interface AprovarPlanoState {
@@ -207,18 +208,9 @@ export async function buscarAlimentos(
   }
 }
 
-export interface FonteRag {
-  source: string;
-  trecho: string;
-  similaridade: number;
-}
-
-export interface RascunhoIa {
-  rascunho: string;
-  fontesUtilizadas: FonteRag[];
-  modeloUtilizado: string;
-  disclaimer: string;
-}
+// Fonte única de tipos (item 7): gerados do contrato OpenAPI do gateway.
+export type FonteRag = components["schemas"]["FonteRagDto"];
+export type RascunhoIa = components["schemas"]["RascunhoIaDto"];
 
 export interface RascunhoIaState {
   erro?: string;

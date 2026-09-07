@@ -155,9 +155,7 @@ function mapOrigem(origem?: 'MANUAL' | 'IA_RASCUNHO'): PlanOrigin {
   return origem === 'IA_RASCUNHO' ? 'ia_rascunho' : 'manual';
 }
 
-interface CalculoApi {
-  total: { kcal: number; proteinaG: number; lipideosG: number; carboidratoG: number };
-}
+type CalculoApi = components['schemas']['CalculoNutricionalDto'];
 
 export async function fetchDailyProgress(): Promise<DailyProgress> {
   const [planos, historicoPeso, diarioHoje] = await Promise.all([
