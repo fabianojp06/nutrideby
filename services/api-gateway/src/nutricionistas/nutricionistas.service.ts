@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateNutricionistaDto } from './dto/update-nutricionista.dto';
+import { NutricionistaMeDto } from './dto/nutricionista-me.dto';
 
 @Injectable()
 export class NutricionistasService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findMe(id: string) {
+  async findMe(id: string): Promise<NutricionistaMeDto> {
     const nutricionista = await this.prisma.nutricionista.findUnique({
       where: { id },
       select: this.selectPublico(),
@@ -15,7 +16,7 @@ export class NutricionistasService {
     return nutricionista;
   }
 
-  async updateMe(id: string, dto: UpdateNutricionistaDto) {
+  async updateMe(id: string, dto: UpdateNutricionistaDto): Promise<NutricionistaMeDto> {
     return this.prisma.nutricionista.update({
       where: { id },
       data: dto,

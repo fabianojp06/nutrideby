@@ -1,8 +1,11 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
-import { buildOpenApiDocument } from '../src/swagger';
+// Importa do BUILD (dist/), não do src/: o plugin CLI do @nestjs/swagger injeta
+// o metadata das propriedades de DTO só na compilação. Rodar via ts-node sobre
+// src/ geraria schemas vazios. Exige `npm run build` antes (o CI já faz).
+import { AppModule } from '../dist/src/app.module';
+import { buildOpenApiDocument } from '../dist/src/swagger';
 
 // Gera services/api-gateway/openapi.json sem subir servidor nem tocar o banco.
 // O arquivo é versionado e serve de fonte única de tipos para os frontends

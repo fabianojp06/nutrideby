@@ -13,6 +13,7 @@
  */
 
 import { request, ApiError } from "@/lib/apiClient";
+import type { components } from "@/lib/api-types";
 import {
   Assinatura,
   Fatura,
@@ -106,14 +107,9 @@ interface AssinaturaApi {
   trialAte: string | null;
 }
 
-interface NutricionistaApi {
-  id: string;
-  nome: string;
-  email: string;
-  crn: string;
-  telefone: string | null;
-  cpfCnpj: string | null;
-}
+// Fonte única de tipos (item 7): gerado do contrato OpenAPI do gateway.
+// Rode `npm run types:gen` após mudar o backend. Não redefinir à mão.
+type NutricionistaApi = components["schemas"]["NutricionistaMeDto"];
 
 // ---------------------------------------------------------------------------
 // Mapeamentos

@@ -49,7 +49,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NutricionistaMeDto"
+                }
+              }
+            }
           }
         }
       },
@@ -68,7 +75,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NutricionistaMeDto"
+                }
+              }
+            }
           }
         }
       }
@@ -578,7 +592,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
@@ -930,19 +951,152 @@
     "schemas": {
       "RegisterNutricionistaDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "senha": {
+            "type": "string",
+            "minLength": 8
+          },
+          "crn": {
+            "type": "string",
+            "pattern": "CRN_REGEX"
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "plano": {
+            "type": "string",
+            "enum": [
+              "STARTER",
+              "PRO",
+              "CLINICA"
+            ]
+          }
+        },
+        "required": [
+          "nome",
+          "email",
+          "senha",
+          "crn"
+        ]
       },
       "LoginDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "senha": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "NUTRICIONISTA",
+              "PACIENTE"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "senha",
+          "role"
+        ]
+      },
+      "NutricionistaMeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "crn": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpfCnpj": {
+            "type": "string",
+            "nullable": true
+          },
+          "ativo": {
+            "type": "boolean"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "email",
+          "crn",
+          "telefone",
+          "cpfCnpj",
+          "ativo",
+          "criadoEm"
+        ]
       },
       "UpdateNutricionistaDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "cpfCnpj": {
+            "type": "string",
+            "pattern": "CPF_CNPJ_REGEX"
+          }
+        }
       },
       "CreatePacienteDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "senha": {
+            "type": "string",
+            "minLength": 8
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "dataNascimento": {
+            "type": "string"
+          },
+          "sexoBiologico": {
+            "type": "string",
+            "enum": [
+              "MASCULINO",
+              "FEMININO"
+            ]
+          }
+        },
+        "required": [
+          "nome",
+          "email",
+          "senha"
+        ]
       },
       "UpdatePacienteDto": {
         "type": "object",
@@ -950,11 +1104,64 @@
       },
       "AceitarConsentimentoDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "versaoTermo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "versaoTermo"
+        ]
       },
       "CreateProntuarioDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "queixaPrincipal": {
+            "type": "string"
+          },
+          "historicoClinico": {
+            "type": "string"
+          },
+          "historicoFamiliar": {
+            "type": "string"
+          },
+          "habitosAlimentares": {
+            "type": "string"
+          },
+          "usoMedicamentos": {
+            "type": "string"
+          },
+          "alergias": {
+            "type": "string"
+          },
+          "intolerancias": {
+            "type": "string"
+          },
+          "nivelAtividadeFisica": {
+            "type": "string"
+          },
+          "observacoesGerais": {
+            "type": "string"
+          },
+          "pesoKg": {
+            "type": "number"
+          },
+          "alturaCm": {
+            "type": "number"
+          },
+          "circunferenciaCintura": {
+            "type": "number"
+          },
+          "circunferenciaQuadril": {
+            "type": "number"
+          },
+          "percentualGordura": {
+            "type": "number"
+          },
+          "imc": {
+            "type": "number"
+          }
+        }
       },
       "UpdateProntuarioDto": {
         "type": "object",
@@ -962,7 +1169,37 @@
       },
       "CreatePlanoAlimentarDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "titulo": {
+            "type": "string"
+          },
+          "objetivo": {
+            "type": "string"
+          },
+          "caloriasAlvo": {
+            "type": "number"
+          },
+          "refeicoes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "origem": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "IA_RASCUNHO"
+            ]
+          }
+        },
+        "required": [
+          "titulo",
+          "refeicoes"
+        ]
       },
       "UpdatePlanoAlimentarDto": {
         "type": "object",
@@ -970,31 +1207,110 @@
       },
       "GerarRascunhoIaDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "perguntaNutricionista": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 4000
+          }
+        },
+        "required": [
+          "perguntaNutricionista"
+        ]
       },
       "DuplicarPlanoAlimentarDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "pacienteDestinoId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pacienteDestinoId"
+        ]
       },
       "CreateAssinaturaDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "plano": {
+            "type": "string",
+            "enum": [
+              "STARTER",
+              "PRO",
+              "CLINICA"
+            ]
+          },
+          "trialAte": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "plano"
+        ]
       },
       "ConverterParaPagoDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "plano": {
+            "type": "string",
+            "enum": [
+              "STARTER",
+              "PRO",
+              "CLINICA"
+            ]
+          }
+        },
+        "required": [
+          "plano"
+        ]
+      },
+      "AsaasWebhookPaymentDto": {
+        "type": "object",
+        "properties": {
+          "subscription": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
       },
       "AsaasWebhookDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "event": {
+            "type": "string"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/AsaasWebhookPaymentDto"
+          }
+        },
+        "required": [
+          "event"
+        ]
       },
       "CreateRegistroPesoDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "pesoKg": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "pesoKg"
+        ]
       },
       "CreateRegistroDiarioDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "texto": {
+            "type": "string"
+          },
+          "fotoUrl": {
+            "type": "string"
+          }
+        }
       }
     }
   }
