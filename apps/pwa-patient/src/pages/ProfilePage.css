@@ -16,6 +16,14 @@
   font-weight: 600;
 }
 
+.profile-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+
 .btn-secondary {
   width: 100%;
   background: transparent;

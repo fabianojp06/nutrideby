@@ -46,7 +46,7 @@
 }
 
 .login-card__error {
-  color: #e07a6a;
+  color: var(--danger);
   font-size: 12px;
   margin: 0;
 }

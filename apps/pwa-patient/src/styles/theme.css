@@ -1,16 +1,35 @@
-/* Paleta extraída do mockup aprovado (layout_opcao_2_progresso.html) */
+/* Paleta extraída do mockup aprovado (layout_opcao_2_progresso.html).
+   Dark é o padrão (identidade atual). O tema claro é aplicado via
+   data-theme="light" na raiz pelo hook useTheme. */
 :root {
   --bg: #0f1a15;
   --surface: #132019;
   --surface-alt: #1b2a22;
   --border: #24352b;
   --accent: #3fa66c;
+  --accent-soft: rgba(63, 166, 108, 0.12);
   --text: #eaf2ed;
   --text-muted: #8fa79a;
   --text-dim: #5c7568;
+  --danger: #e07a6a;
+  --on-accent: var(--bg);
   --radius-lg: 28px;
   --radius-md: 14px;
   --radius-sm: 10px;
+}
+
+:root[data-theme='light'] {
+  --bg: #eef2ec;
+  --surface: #ffffff;
+  --surface-alt: #f1f5ef;
+  --border: #dde3d9;
+  --accent: #1f6b48;
+  --accent-soft: rgba(31, 107, 72, 0.1);
+  --text: #16241d;
+  --text-muted: #5a6b60;
+  --text-dim: #8b988f;
+  --danger: #c0392b;
+  --on-accent: #ffffff;
 }
 
 * {
@@ -52,6 +71,21 @@ a {
 .screen {
   flex: 1;
   padding-bottom: 88px;
+}
+
+.fab {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fab:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .centered-screen {
