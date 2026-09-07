@@ -12,18 +12,23 @@ import { aprovarPlano, AprovarPlanoState } from "@/lib/planos-actions";
 export function AprovarPlanoButton({
   pacienteId,
   planoId,
+  semRefeicoes = false,
 }: {
   pacienteId: string;
   planoId: string;
+  // Plano sem nenhuma refeição estruturada com itens: o paciente veria só o
+  // texto (ex.: rascunho da IA em observações), não refeições. Avisa a nutri.
+  semRefeicoes?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [resultado, setResultado] = useState<AprovarPlanoState | null>(null);
 
   function confirmarEAprovar() {
-    const ok = window.confirm(
-      "Aprovar este plano? Ao aprovar, este plano fica visível para o paciente. Esta ação não pode ser desfeita."
-    );
+    const aviso = semRefeicoes
+      ? "Atenção: este plano NÃO tem refeições estruturadas. O paciente verá apenas o texto (sem refeições, kcal ou macros por refeição). Recomendamos montar as refeições no editor antes de aprovar.\n\nAprovar mesmo assim? Fica visível para o paciente e não pode ser desfeito."
+      : "Aprovar este plano? Ao aprovar, este plano fica visível para o paciente. Esta ação não pode ser desfeita.";
+    const ok = window.confirm(aviso);
     if (!ok) return;
 
     setResultado(null);
@@ -42,6 +47,12 @@ export function AprovarPlanoButton({
         <Check className="h-4 w-4" />
         {pending ? "Aprovando..." : "Aprovar e enviar"}
       </Button>
+      {semRefeicoes && (
+        <p className="max-w-[16rem] text-right text-xs text-amber-600">
+          Sem refeições estruturadas — o paciente veria só texto. Monte as
+          refeições no editor antes de aprovar.
+        </p>
+      )}
       {resultado?.erro && (
         <p className="text-sm text-destructive">{resultado.erro}</p>
       )}

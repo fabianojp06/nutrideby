@@ -69,6 +69,7 @@ export default async function PlanoDetalhePage({
             <AprovarPlanoButton
               pacienteId={plano.pacienteId}
               planoId={plano.id}
+              semRefeicoes={!plano.refeicoes.some((r) => r.itens.length > 0)}
             />
           )}
         </div>
