@@ -1,5 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import './ProfilePage.css';
 
 export function ProfilePage() {
@@ -20,6 +21,11 @@ export function ProfilePage() {
       <section className="section profile-card">
         <div className="profile-card__avatar" />
         <div className="profile-card__name">{name ?? 'Paciente'}</div>
+      </section>
+
+      <section className="section">
+        <h3 className="profile-section-title">Aparência</h3>
+        <ThemeToggle variant="row" />
       </section>
 
       <section className="section">

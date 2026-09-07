@@ -124,6 +124,6 @@
 
 .anamnese-feedback--erro {
   background: var(--surface-alt);
-  border: 1px solid #e0564f;
+  border: 1px solid var(--danger);
   color: var(--text);
 }
