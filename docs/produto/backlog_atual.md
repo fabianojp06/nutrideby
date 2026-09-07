@@ -53,9 +53,9 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | # | Item | Esf. | Status |
 |:-:|---|:--:|:--:|
 | 19b | **Medir latência real do rascunho em prod** — gerar 1 rascunho pela UI (nutri Pro/Clínica + paciente c/ prontuário), ler logs `embedding/rag/llm/total ms` do rag-agent, confirmar <15s (US-08). Se não bater, o log diz o gargalo | P | 🟡 aguarda 1 rascunho real |
-| — | **Deploys pós-merge** — api-gateway e rag-agent já deployados 07/09; a partir daqui deploy manual após cada merge que muda runtime | P | ✅ feito nesta leva |
+| — | **Deploys pós-merge** — api-gateway e rag-agent já deployados; deploy manual após cada merge que muda runtime | P | ✅ processo |
 
-> P1 concluídos: 4 (checkout Asaas), 5 (fila aprovação), 6 (telegram-bot), 7 (fonte única de tipos), 8 (adaptador de canais), 9 (disclaimer PWA), 17 (ações de plano no admin), 18 (editor de prontuário).
+> P1 concluídos: 4 (checkout Asaas), 5 (fila aprovação), 6 (telegram-bot), 7 (fonte única de tipos), 8 (adaptador de canais), 9 (disclaimer PWA), 17 (ações de plano no admin), 18 (editor de prontuário), **20 (anamnese auto-declarada — backend PR#66, PWA PR#67, admin PR#68; recorte validado pelo nutri-domain)**.
 
 ### P2 — hardening
 | Ordem | # | Item | Esf. | Status |
@@ -65,6 +65,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ a iniciar |
 | — | — | Migrar módulo `pacientes` para o contrato OpenAPI (item 7 não cobriu; `PacienteApi` ainda manual) | P | ⚪ a iniciar |
 | — | — | `rag-agent`: `embed_query` usa `input_type="document"` (deveria ser `"query"` p/ Voyage — afeta qualidade da recuperação); upgrade SDK `anthropic` 0.68→1.x | P/M | ⚪ dívida |
+| **1º** | 21 | **HAZARD `db push`** — `prisma db push` do api-gateway DROPA a `knowledge_base` (tabela do rag-agent, fora do schema Prisma). Incidente 07/09: TACO (597) apagada e re-semeada. **Correção:** declarar `knowledge_base` como `Unsupported("vector")` no schema do api-gateway (para o push preservar) OU padronizar migração de schema por SQL direcionado. **Nunca** rodar `db push` do api-gateway até isso. | M | 🔴 pós-incidente |
 
 > P2 concluídos: 10 (testes do gate), 11 (blindar aprovação), 14 (menores sem dependência), 15 (mascarar cpfCnpj no log), 19 (latência rag-agent — falta medir).
 
