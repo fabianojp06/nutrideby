@@ -1,4 +1,6 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { RegistroPesoDto, RegistroDiarioDto } from './dto/registro.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ConsentGuard } from '../common/guards/consent.guard';
@@ -20,21 +22,25 @@ export class MeusRegistrosController {
   constructor(private readonly registrosService: RegistrosService) {}
 
   @Post('peso')
+  @ApiOkResponse({ type: RegistroPesoDto })
   registrarPeso(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateRegistroPesoDto) {
     return this.registrosService.registrarPeso(user.sub, dto);
   }
 
   @Get('peso')
+  @ApiOkResponse({ type: RegistroPesoDto, isArray: true })
   listarPeso(@CurrentUser() user: AuthenticatedUser) {
     return this.registrosService.listarPesoDoPaciente(user.sub);
   }
 
   @Post('diario')
+  @ApiOkResponse({ type: RegistroDiarioDto })
   registrarDiario(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateRegistroDiarioDto) {
     return this.registrosService.registrarDiario(user.sub, dto);
   }
 
   @Get('diario')
+  @ApiOkResponse({ type: RegistroDiarioDto, isArray: true })
   listarDiario(@CurrentUser() user: AuthenticatedUser) {
     return this.registrosService.listarDiarioDoPaciente(user.sub);
   }

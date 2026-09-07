@@ -17,6 +17,8 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/types/authenticated-user';
 import { PlanosAlimentaresService } from './planos-alimentares.service';
 import { CalculoNutricionalService } from './calculo-nutricional.service';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { PlanoAlimentarDto } from './dto/plano-alimentar.dto';
 import { CreatePlanoAlimentarDto } from './dto/create-plano-alimentar.dto';
 import { UpdatePlanoAlimentarDto } from './dto/update-plano-alimentar.dto';
 import { DuplicarPlanoAlimentarDto } from './dto/duplicar-plano-alimentar.dto';
@@ -34,6 +36,7 @@ export class PlanosAlimentaresController {
   ) {}
 
   @Post()
+  @ApiOkResponse({ type: PlanoAlimentarDto })
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
@@ -43,11 +46,13 @@ export class PlanosAlimentaresController {
   }
 
   @Get()
+  @ApiOkResponse({ type: PlanoAlimentarDto, isArray: true })
   findAll(@CurrentUser() user: AuthenticatedUser, @Param('pacienteId') pacienteId: string) {
     return this.planosService.findAllByPaciente(pacienteId, user.sub);
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: PlanoAlimentarDto })
   findOne(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
@@ -57,6 +62,7 @@ export class PlanosAlimentaresController {
   }
 
   @Patch(':id')
+  @ApiOkResponse({ type: PlanoAlimentarDto })
   update(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
@@ -67,6 +73,7 @@ export class PlanosAlimentaresController {
   }
 
   @Post(':id/aprovar')
+  @ApiOkResponse({ type: PlanoAlimentarDto })
   aprovar(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
@@ -95,6 +102,7 @@ export class PlanosAlimentaresController {
   }
 
   @Post(':id/duplicar')
+  @ApiOkResponse({ type: PlanoAlimentarDto })
   duplicar(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,

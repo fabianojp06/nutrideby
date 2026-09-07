@@ -40,38 +40,9 @@ interface PacienteApi {
   ativo: boolean;
 }
 
-interface ProntuarioApi {
-  id: string;
-  pacienteId: string;
-  queixaPrincipal: string | null;
-  historicoClinico: string | null;
-  historicoFamiliar: string | null;
-  habitosAlimentares: string | null;
-  usoMedicamentos: string | null;
-  alergias: string | null;
-  intolerancias: string | null;
-  nivelAtividadeFisica: string | null;
-  observacoesGerais: string | null;
-  pesoKg: string | null;
-  alturaCm: string | null;
-  imc: string | null;
-  criadoEm: string;
-  atualizadoEm: string;
-}
-
-interface PlanoAlimentarApi {
-  id: string;
-  pacienteId: string;
-  titulo: string;
-  objetivo: string | null;
-  caloriasAlvo: number | null;
-  refeicoes: unknown;
-  observacoes: string | null;
-  origem: "MANUAL" | "IA_RASCUNHO";
-  aprovadoPeloNutri: boolean;
-  ativo: boolean;
-  criadoEm: string;
-}
+// Fonte única de tipos (item 7): gerados do contrato OpenAPI do gateway.
+type ProntuarioApi = components["schemas"]["ProntuarioDto"];
+type PlanoAlimentarApi = components["schemas"]["PlanoAlimentarDto"];
 
 // Retorno de GET /pacientes/:pacienteId/planos-alimentares/:id/calculo
 interface CalculoApi {
@@ -132,11 +103,7 @@ export async function getPaciente(id: string): Promise<Paciente | undefined> {
   return mapPaciente(p);
 }
 
-interface RegistroPesoApi {
-  id: string;
-  pesoKg: string | number;
-  registradoEm: string;
-}
+type RegistroPesoApi = components["schemas"]["RegistroPesoDto"];
 
 // Peso auto-lançado pelo paciente na PWA (tabela RegistroPeso). Rota de nutri:
 // GET /pacientes/:pacienteId/peso. Complementa a antropometria do prontuário —
@@ -379,13 +346,6 @@ export interface ProntuarioRaw {
   atualizadoEm: string;
 }
 
-// Shape cru do gateway com os campos antropométricos completos (ProntuarioApi
-// acima é parcial — só o que a exibição consome). Aqui precisamos de todos.
-interface ProntuarioRawApi extends ProntuarioApi {
-  circunferenciaCintura: string | null;
-  circunferenciaQuadril: string | null;
-  percentualGordura: string | null;
-}
 
 function numOuNull(v: string | null): number | null {
   return v != null ? Number(v) : null;
@@ -396,7 +356,7 @@ function numOuNull(v: string | null): number | null {
 export async function getProntuarioRaw(
   pacienteId: string
 ): Promise<ProntuarioRaw | undefined> {
-  const lista = await request<ProntuarioRawApi[]>(
+  const lista = await request<ProntuarioApi[]>(
     `/pacientes/${pacienteId}/prontuarios`
   );
   if (lista.length === 0) return undefined;

@@ -1,4 +1,6 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { PlanoAlimentarDto } from './dto/plano-alimentar.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ConsentGuard } from '../common/guards/consent.guard';
@@ -22,11 +24,13 @@ export class MeusPlanosAlimentaresController {
   ) {}
 
   @Get()
+  @ApiOkResponse({ type: PlanoAlimentarDto, isArray: true })
   findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.planosService.findAllByPaciente(user.sub);
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: PlanoAlimentarDto })
   findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.planosService.findOne(user.sub, id);
   }

@@ -581,6 +581,30 @@ export interface components {
             percentualGordura?: number;
             imc?: number;
         };
+        ProntuarioDto: {
+            id: string;
+            pacienteId: string;
+            queixaPrincipal: string | null;
+            historicoClinico: string | null;
+            historicoFamiliar: string | null;
+            habitosAlimentares: string | null;
+            usoMedicamentos: string | null;
+            alergias: string | null;
+            intolerancias: string | null;
+            nivelAtividadeFisica: string | null;
+            observacoesGerais: string | null;
+            /** @description Decimal serializado como string, ex.: "90.00". */
+            pesoKg: string | null;
+            alturaCm: string | null;
+            circunferenciaCintura: string | null;
+            circunferenciaQuadril: string | null;
+            percentualGordura: string | null;
+            imc: string | null;
+            /** Format: date-time */
+            criadoEm: string;
+            /** Format: date-time */
+            atualizadoEm: string;
+        };
         UpdateProntuarioDto: Record<string, never>;
         CreatePlanoAlimentarDto: {
             titulo: string;
@@ -591,12 +615,43 @@ export interface components {
             /** @enum {string} */
             origem?: "MANUAL" | "IA_RASCUNHO";
         };
+        PlanoAlimentarDto: {
+            id: string;
+            pacienteId: string;
+            titulo: string;
+            objetivo: string | null;
+            caloriasAlvo: number | null;
+            /** @description JSON livre: [{ nome, horario, itens: [{ descricao?, alimentoCodigo?, quantidadeGramas? }] }]. */
+            refeicoes: {
+                [key: string]: unknown;
+            }[];
+            observacoes: string | null;
+            /** @enum {string} */
+            origem: "MANUAL" | "IA_RASCUNHO";
+            /** @description Gate de compliance. Nas rotas /me/* nunca vem false. */
+            aprovadoPeloNutri: boolean;
+            ativo: boolean;
+            /** Format: date-time */
+            criadoEm: string;
+            /** Format: date-time */
+            atualizadoEm: string;
+        };
         UpdatePlanoAlimentarDto: Record<string, never>;
         GerarRascunhoIaDto: {
             perguntaNutricionista: string;
         };
         DuplicarPlanoAlimentarDto: {
             pacienteDestinoId: string;
+        };
+        PlanoPendenteDto: {
+            id: string;
+            pacienteId: string;
+            pacienteNome: string;
+            titulo: string;
+            /** @enum {string} */
+            origem: "MANUAL" | "IA_RASCUNHO";
+            /** Format: date-time */
+            criadoEm: string;
         };
         CreateAssinaturaDto: {
             /** @enum {string} */
@@ -677,6 +732,21 @@ export interface components {
             piridoxinaMg: number | null;
             niacinaMg: number | null;
             vitaminaCMg: number | null;
+        };
+        RegistroPesoDto: {
+            id: string;
+            pacienteId: string;
+            pesoKg: string | number;
+            /** Format: date-time */
+            registradoEm: string;
+        };
+        RegistroDiarioDto: {
+            id: string;
+            pacienteId: string;
+            texto: string | null;
+            fotoUrl: string | null;
+            /** Format: date-time */
+            registradoEm: string;
         };
         CreateRegistroPesoDto: {
             pesoKg: number;
@@ -949,7 +1019,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ProntuarioDto"][];
+                };
             };
         };
     };
@@ -968,6 +1040,14 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProntuarioDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -992,7 +1072,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ProntuarioDto"];
+                };
             };
         };
     };
@@ -1036,7 +1118,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ProntuarioDto"];
+                };
             };
         };
     };
@@ -1055,7 +1139,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlanoAlimentarDto"][];
+                };
             };
         };
     };
@@ -1074,6 +1160,14 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanoAlimentarDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -1098,7 +1192,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlanoAlimentarDto"];
+                };
             };
         };
     };
@@ -1142,7 +1238,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlanoAlimentarDto"];
+                };
             };
         };
     };
@@ -1158,6 +1256,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanoAlimentarDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -1227,6 +1333,14 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanoAlimentarDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -1248,7 +1362,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlanoAlimentarDto"][];
+                };
             };
         };
     };
@@ -1267,7 +1383,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlanoAlimentarDto"];
+                };
             };
         };
     };
@@ -1303,7 +1421,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlanoPendenteDto"][];
+                };
             };
         };
     };
@@ -1510,7 +1630,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RegistroPesoDto"][];
+                };
             };
         };
     };
@@ -1529,7 +1651,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RegistroDiarioDto"][];
+                };
             };
         };
     };
@@ -1546,7 +1670,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RegistroPesoDto"][];
+                };
             };
         };
     };
@@ -1563,6 +1689,14 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistroPesoDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -1584,7 +1718,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RegistroDiarioDto"][];
+                };
             };
         };
     };
@@ -1601,6 +1737,14 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistroDiarioDto"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
