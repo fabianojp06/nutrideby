@@ -1,6 +1,6 @@
 # NutriDeby — Backlog Atual (estado vivo)
 
-Retrato do backlog em 30/08/2026. Inclui itens **concluídos** e **pendentes**. O núcleo da Fase 0 está concluído e **validado ponta a ponta em produção** (nutri registra → cria paciente → paciente loga na PWA → registra peso → aparece na nutri).
+Retrato do backlog em 07/09/2026. Inclui itens **concluídos** e **pendentes**. O núcleo da Fase 0 está concluído e **validado ponta a ponta em produção** (nutri registra → cria paciente → paciente loga na PWA → registra peso → aparece na nutri).
 
 Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · ✅ concluído · P/M/G = esforço.
 
@@ -13,7 +13,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | Onboarding | Cadastro de nutricionista + trial automático 14 dias + **validação de CRN** | US-01 |
 | Onboarding | Cadastro de paciente pela nutri (loop de login validado) | US-03 |
 | LGPD | Termo de Consentimento + revogação | US-04/05 |
-| LGPD | Criptografia (repouso/trânsito) + log de auditoria | US-19/20 |
+| LGPD | Cripto em **repouso (disco Railway) / trânsito (TLS)** + log de auditoria. ⚠️ **Não há cripto de campo (application-level)** — ver item 12 | US-19/20 |
 | Prontuário | Gráfico de evolução antropométrica (+ peso do paciente) | US-07 |
 | Plano | Cálculo nutricional TACO | US-11 |
 | Plano | Duplicação de plano | US-10 |
@@ -31,6 +31,12 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | Onboarding | Validação de formato de CRN no cadastro (`@Matches`, mensagem no form) | US-01 |
 | IA | **rag-agent hospedado** (Railway) + gateway ligado por rede interna + timeout | — |
 | IA | Base de conhecimento pgvector semeada com a **TACO (597 alimentos)** | — |
+| Plano | **Ligar ações de plano no admin** — Aprovar/Duplicar/Rascunho IA/Editor criar+editar; ciclo da nutri fecha ponta a ponta | US-09/10, item 17 |
+| Prontuário | **Editor de prontuário/antropometria no admin** — anamnese + medidas, IMC automático | item 18 |
+| Compliance | **Blindar aprovação de plano** — rota dedicada `POST /:id/aprovar`; DTO de criar/editar não aceita `aprovadoPeloNutri`; `origem` imutável | item 11 (PR#53) |
+| Dívida | **Fonte única de tipos (contrato OpenAPI)** — `@nestjs/swagger` gera `openapi.json` versionado; admin-web e pwa-patient consomem tipos gerados; gate de drift nos 3 pacotes | item 7 (PR#54–60) |
+| IA | **Latência do rag-agent** — extended thinking off por padrão, `max_tokens` 1600, streaming, instrumentação. *Falta medir em prod* | item 19 (PR#61) |
+| UX | Última consulta no dashboard + legenda/rótulos no gráfico de evolução | item 14 (PR#62) |
 
 ---
 
@@ -43,36 +49,31 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | ~~—~~ | ~~Hospedar o rag-agent~~ | — | M | ✅ Concluído |
 | ~~—~~ | ~~Validação de CRN no cadastro~~ | US-01 | P | ✅ Concluído |
 
-### P1
-| # | Item | Origem | Esf. | Status |
-|:-:|---|---|:--:|:--:|
-| ~~17~~ | ~~**Ligar ações de plano no admin**~~ — ✅ Aprovar (PR#35), Duplicar (PR#37), Rascunho IA (PR#39), Editor criar+editar (PR#41). Conserta o "Novo plano" quebrado. Ciclo da nutri fecha ponta a ponta | GAP UX | G | ✅ 4/4 |
-| ~~18~~ | ~~**Editor de prontuário/antropometria no admin**~~ — registrar/editar anamnese + peso/altura/medidas, IMC automático; conserta a dependência de script. Backend já auditava (`PRONTUARIO_CRIADO/ATUALIZADO`) | GAP UX | M | ✅ PR#50 |
-| 7 | Fonte única de tipos (codegen) | dívida | M | ⚪ A iniciar (sessão dedicada) |
-| ~~4~~ | ~~Checkout Asaas — frontend (perfil CPF/CNPJ + assinar pago)~~ | GAP#9 | M | ✅ Backend PR#24 + frontend PR#28 |
-| ~~5~~ | ~~Fila de aprovação / plano por id global~~ | GAP#1 | M | ✅ Concluído (PR#23) |
-| ~~6~~ | ~~Hospedar o telegram-bot~~ | US-16 | P | ✅ Concluído (para testes) |
-| ~~8~~ | ~~Adaptador de Canais~~ | — | M | ✅ Concluído (PR#25, inerte/DPA) |
-| ~~9~~ | ~~R2 — disclaimer de IA no PWA~~ | review GAP#5 | P | ✅ Concluído (PR#26) |
+### P1 — pendente
+| # | Item | Esf. | Status |
+|:-:|---|:--:|:--:|
+| 19b | **Medir latência real do rascunho em prod** — gerar 1 rascunho pela UI (nutri Pro/Clínica + paciente c/ prontuário), ler logs `embedding/rag/llm/total ms` do rag-agent, confirmar <15s (US-08). Se não bater, o log diz o gargalo | P | 🟡 aguarda 1 rascunho real |
+| — | **Deploys pós-merge** — api-gateway e rag-agent já deployados 07/09; a partir daqui deploy manual após cada merge que muda runtime | P | ✅ feito nesta leva |
+
+> P1 concluídos: 4 (checkout Asaas), 5 (fila aprovação), 6 (telegram-bot), 7 (fonte única de tipos), 8 (adaptador de canais), 9 (disclaimer PWA), 17 (ações de plano no admin), 18 (editor de prontuário).
 
 ### P2 — hardening
 | Ordem | # | Item | Esf. | Status |
 |:--:|:-:|---|:--:|:--:|
-| **1º** | 11 | R1 — forçar `origem` no backend + **DTO de criar/editar plano NÃO aceitar `aprovadoPeloNutri`** (aprovação só via rota dedicada; risco latente confirmado na revisão do PR#45) | P | ⚪ A iniciar |
-| **1º** | 12 | Verificação de cripto no CI | P | ⚪ A iniciar |
-| **1º** | 19 | **Otimizar latência do rag-agent** (~60s hoje; meta US-08 <15s — rever max_tokens/modelo/streaming). Timeouts subidos p/ 90s como paliativo (gateway + Vercel) | M | 🟡 Em andamento |
-| **3º** | 13 | Ambiente de staging | M | ⚪ A iniciar |
-| — | 14 | Menores: `ultimaConsulta`, anamnese estruturada, TBCA, rótulo do gráfico | M | ⚪ A iniciar |
-| — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ A iniciar |
-| ~~1º~~ | ~~10~~ | ~~Testes E2E do gate de aprovação (não-negociável)~~ | M | ✅ PR#31 (jest + specs; teste de mutação; gateando no CI) |
-| ~~2º~~ | ~~15~~ | ~~Mascarar `cpfCnpj` no log de erro da Asaas~~ | P | ✅ PR#33 (common/sanitize + testes; deployado) |
+| **1º** | 12 | **Cripto de campo AES-256** nos modelos sensíveis (Prontuario, RegistroDiario…) + verificação no CI. **Não existe hoje** — só cripto de disco (Railway) e TLS. Precisa: decisão de key management no Railway + `$extends`/pgcrypto + backfill de prod + custo nas queries de evolução | G | 🔴 precisa design + decisão |
+| **2º** | 13 | Ambiente de staging | M | ⚪ a iniciar |
+| — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ a iniciar |
+| — | — | Migrar módulo `pacientes` para o contrato OpenAPI (item 7 não cobriu; `PacienteApi` ainda manual) | P | ⚪ a iniciar |
+| — | — | `rag-agent`: `embed_query` usa `input_type="document"` (deveria ser `"query"` p/ Voyage — afeta qualidade da recuperação); upgrade SDK `anthropic` 0.68→1.x | P/M | ⚪ dívida |
 
-**Ordem de prioridade recomendada** (atualizada em 03/09/2026 — itens 10 e 15 concluídos). O item 4 do P1 (codegen) entra no meio desta fila:
-1. **R1 (11) + cripto no CI (12)** — fecham brechas de compliance; complementam os testes.
-2. **Codegen (P1-7)** — elimina classe inteira de bugs de contrato; exige sessão dedicada (mexe em contrato de 3 pacotes).
-3. **Staging (13)** — importante, mas maior esforço e menor urgência agora.
+> P2 concluídos: 10 (testes do gate), 11 (blindar aprovação), 14 (menores sem dependência), 15 (mascarar cpfCnpj no log), 19 (latência rag-agent — falta medir).
 
-> Observação: 4 dos 6 itens restantes são compliance/LGPD — o núcleo já funciona; o trabalho restante é sobretudo **blindar** as regras existentes contra regressões.
+**Ordem recomendada agora:**
+1. **19b** — medir a latência (rápido, fecha o item 19).
+2. **Item 12 (cripto de campo)** — maior peso de compliance restante; abrir a discussão de design (pgcrypto vs. `$extends`, chave no Railway).
+3. **Staging (13)**.
+
+> Núcleo funcional e sob contrato de tipos. O trabalho restante é sobretudo **blindagem de compliance** (cripto de campo) e **infra** (staging).
 
 ---
 
@@ -85,6 +86,8 @@ Detalhe em `fase1_2_epicos_ia_exames_loja.md`. Gate de aprovação embutido; blo
 | A · Análise de Exames | IA estrutura dados do exame (não diagnostica) → aprovação | Jurídico/DPA | 📋 Planejado |
 | B · Recomendação de Produtos | IA sugere produtos como rascunho → aprovação | Épicos A+C | 📋 Planejado |
 | C · Loja Virtual (e-commerce) | Catálogo/carrinho/checkout; reusa Asaas | Jurídico/DPA | 📋 Planejado |
+| — · Anamnese estruturada | Campos free-text do prontuário (alergias, histórico clínico…) → estruturados (arrays). Tirado de "menores": migração de schema em dado de saúde + backfill de prod + compliance-reviewer | — | 📋 Planejado |
+| — · Segunda base nutricional (TBCA) | Base da USP (~2000 alimentos) além da TACO. Decisão de schema (`fonte` na tabela vs. tabela nova) + seed + busca/cálculo multi-fonte. Talvez nem Fase 0 (TACO já atende US-11) | — | 📋 Planejado |
 
 ---
 
@@ -100,4 +103,6 @@ Detalhe em `fase1_2_epicos_ia_exames_loja.md`. Gate de aprovação embutido; blo
 
 ---
 
-**P0 restante:** só a decisão de canal + DPA (jurídico — brief enviado à Controladora). A Onda 1 (itens 5, 6, 8, 9 + backend do 4) foi executada com 4 agentes em paralelo. Próximos: **Onda 2** (checkout Asaas frontend), **item 7** (codegen, sessão dedicada), e o follow-up de compliance (item 15). Épico novo registrado: **Painel do Operador**.
+**P0 restante:** só a decisão de canal + DPA (jurídico — brief enviado à Controladora).
+
+**Estado em 07/09/2026:** Fase 0 funcional e em produção, com todo o contrato de tipos gerado do backend (item 7). api-gateway e rag-agent deployados. Próximos: medir latência do rascunho em prod (19b), depois abrir o design da cripto de campo (item 12). Épicos registrados fora da Fase 0: **Painel do Operador**, **anamnese estruturada**, **TBCA**.
