@@ -15,10 +15,13 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/types/authenticated-user';
+import { ApiOkResponse } from '@nestjs/swagger';
 import { AssinaturasService } from './assinaturas.service';
 import { CreateAssinaturaDto } from './dto/create-assinatura.dto';
 import { ConverterParaPagoDto } from './dto/converter-para-pago.dto';
 import { AsaasWebhookDto } from './dto/asaas-webhook.dto';
+import { AssinaturaDto } from './dto/assinatura.dto';
+import { FaturaDto } from './dto/fatura.dto';
 
 // Eventos de cobrança da Asaas -> nosso enum StatusAssinatura. Só
 // mapeamos os eventos relevantes para o ciclo de vida da assinatura;
@@ -41,6 +44,7 @@ export class AssinaturasController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('NUTRICIONISTA')
   @Post()
+  @ApiOkResponse({ type: AssinaturaDto })
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateAssinaturaDto) {
     return this.assinaturasService.create(user.sub, dto);
   }
@@ -49,6 +53,7 @@ export class AssinaturasController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('NUTRICIONISTA')
   @Post('converter-para-pago')
+  @ApiOkResponse({ type: AssinaturaDto })
   converterParaPago(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: ConverterParaPagoDto,
@@ -60,6 +65,7 @@ export class AssinaturasController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('NUTRICIONISTA')
   @Post('trial')
+  @ApiOkResponse({ type: AssinaturaDto })
   iniciarTrial(@CurrentUser() user: AuthenticatedUser) {
     return this.assinaturasService.iniciarTrial(user.sub);
   }
@@ -67,6 +73,7 @@ export class AssinaturasController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('NUTRICIONISTA')
   @Get('me')
+  @ApiOkResponse({ type: AssinaturaDto })
   findMine(@CurrentUser() user: AuthenticatedUser) {
     return this.assinaturasService.findMine(user.sub);
   }
@@ -74,6 +81,7 @@ export class AssinaturasController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('NUTRICIONISTA')
   @Get('me/faturas')
+  @ApiOkResponse({ type: FaturaDto, isArray: true })
   listarFaturas(@CurrentUser() user: AuthenticatedUser) {
     return this.assinaturasService.listarFaturas(user.sub);
   }

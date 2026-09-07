@@ -719,8 +719,25 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssinaturaDto"
+                }
+              }
+            }
+          },
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssinaturaDto"
+                }
+              }
+            }
           }
         }
       }
@@ -740,8 +757,25 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssinaturaDto"
+                }
+              }
+            }
+          },
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssinaturaDto"
+                }
+              }
+            }
           }
         }
       }
@@ -751,8 +785,25 @@
         "operationId": "AssinaturasController_iniciarTrial",
         "parameters": [],
         "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssinaturaDto"
+                }
+              }
+            }
+          },
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssinaturaDto"
+                }
+              }
+            }
           }
         }
       }
@@ -763,7 +814,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssinaturaDto"
+                }
+              }
+            }
           }
         }
       }
@@ -774,7 +832,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FaturaDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1265,6 +1333,73 @@
           "plano"
         ]
       },
+      "AssinaturaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nutricionistaId": {
+            "type": "string"
+          },
+          "plano": {
+            "type": "string",
+            "enum": [
+              "STARTER",
+              "PRO",
+              "CLINICA"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "TRIAL",
+              "ATIVA",
+              "INADIMPLENTE",
+              "CANCELADA",
+              "EXPIRADA"
+            ]
+          },
+          "trialAte": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "inadimplenteDesde": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "asaasCustomerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "asaasSubscriptionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "atualizadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "nutricionistaId",
+          "plano",
+          "status",
+          "trialAte",
+          "inadimplenteDesde",
+          "asaasCustomerId",
+          "asaasSubscriptionId",
+          "criadoEm",
+          "atualizadoEm"
+        ]
+      },
       "ConverterParaPagoDto": {
         "type": "object",
         "properties": {
@@ -1279,6 +1414,54 @@
         },
         "required": [
           "plano"
+        ]
+      },
+      "FaturaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "valor": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "paga",
+              "pendente",
+              "falhou",
+              "outro"
+            ]
+          },
+          "vencimento": {
+            "type": "string",
+            "description": "Data de vencimento (YYYY-MM-DD)."
+          },
+          "pagoEm": {
+            "type": "string",
+            "nullable": true,
+            "description": "Data de pagamento (YYYY-MM-DD)."
+          },
+          "reciboUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Página do recibo/fatura hospedada pela Asaas."
+          },
+          "boletoUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Página do boleto hospedada pela Asaas."
+          }
+        },
+        "required": [
+          "id",
+          "valor",
+          "status",
+          "vencimento",
+          "pagoEm",
+          "reciboUrl",
+          "boletoUrl"
         ]
       },
       "AsaasWebhookPaymentDto": {

@@ -91,21 +91,9 @@ interface CalculoApi {
   }[];
 }
 
-interface FaturaApi {
-  id: string;
-  valor: number;
-  status: "paga" | "pendente" | "falhou" | "outro";
-  vencimento: string;
-  pagoEm?: string;
-  reciboUrl?: string;
-  boletoUrl?: string;
-}
-
-interface AssinaturaApi {
-  plano: "STARTER" | "PRO" | "CLINICA";
-  status: "TRIAL" | "ATIVA" | "INADIMPLENTE" | "CANCELADA" | "EXPIRADA";
-  trialAte: string | null;
-}
+// Fonte única de tipos (item 7): gerados do contrato OpenAPI do gateway.
+type FaturaApi = components["schemas"]["FaturaDto"];
+type AssinaturaApi = components["schemas"]["AssinaturaDto"];
 
 // Fonte única de tipos (item 7): gerado do contrato OpenAPI do gateway.
 // Rode `npm run types:gen` após mudar o backend. Não redefinir à mão.
@@ -473,7 +461,7 @@ export async function getFaturas(): Promise<Fatura[]> {
     valor: f.valor,
     status: mapStatusFatura(f.status),
     vencimento: f.vencimento.slice(0, 10),
-    reciboUrl: f.reciboUrl,
+    reciboUrl: f.reciboUrl ?? undefined,
   }));
 }
 

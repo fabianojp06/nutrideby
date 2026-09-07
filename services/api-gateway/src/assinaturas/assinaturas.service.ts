@@ -11,6 +11,8 @@ import { AuditService } from '../common/audit/audit.service';
 import { AsaasService } from './asaas.service';
 import { CreateAssinaturaDto } from './dto/create-assinatura.dto';
 import { ConverterParaPagoDto } from './dto/converter-para-pago.dto';
+import { AssinaturaDto } from './dto/assinatura.dto';
+import { FaturaDto } from './dto/fatura.dto';
 
 const TRIAL_DIAS = 14;
 
@@ -29,7 +31,7 @@ export class AssinaturasService {
     private readonly asaas: AsaasService,
   ) {}
 
-  async create(nutricionistaId: string, dto: CreateAssinaturaDto) {
+  async create(nutricionistaId: string, dto: CreateAssinaturaDto): Promise<AssinaturaDto> {
     const existente = await this.prisma.assinatura.findUnique({ where: { nutricionistaId } });
     if (existente) throw new ConflictException('Nutricionista já possui assinatura.');
 
@@ -71,7 +73,7 @@ export class AssinaturasService {
   // recorrente na Asaas. A cobrança só passa a ATIVA quando a Asaas confirma
   // o pagamento (webhook) — aqui a assinatura permanece em TRIAL com os IDs
   // da Asaas vinculados, mesmo padrão do create().
-  async converterParaPago(nutricionistaId: string, dto: ConverterParaPagoDto) {
+  async converterParaPago(nutricionistaId: string, dto: ConverterParaPagoDto): Promise<AssinaturaDto> {
     const assinatura = await this.prisma.assinatura.findUnique({
       where: { nutricionistaId },
     });
@@ -189,7 +191,7 @@ export class AssinaturasService {
     });
   }
 
-  async findMine(nutricionistaId: string) {
+  async findMine(nutricionistaId: string): Promise<AssinaturaDto> {
     const assinatura = await this.prisma.assinatura.findUnique({ where: { nutricionistaId } });
     if (!assinatura) throw new NotFoundException('Assinatura não encontrada.');
     return assinatura;
@@ -200,7 +202,7 @@ export class AssinaturasService {
   // cobrança só existe na conversão do trial em plano pago. Espelha o trial
   // criado no cadastro (auth.service), mas exposto como ação para contas
   // que ficaram sem assinatura.
-  async iniciarTrial(nutricionistaId: string) {
+  async iniciarTrial(nutricionistaId: string): Promise<AssinaturaDto> {
     const existente = await this.prisma.assinatura.findUnique({
       where: { nutricionistaId },
     });
@@ -221,7 +223,7 @@ export class AssinaturasService {
   // do recibo/boleto (hospedado pela própria Asaas). Sem integração
   // configurada ou sem cliente Asaas ainda criado, devolve lista vazia em
   // vez de erro — mesmo padrão de degradação graciosa do create().
-  async listarFaturas(nutricionistaId: string) {
+  async listarFaturas(nutricionistaId: string): Promise<FaturaDto[]> {
     const assinatura = await this.findMine(nutricionistaId);
     if (!this.asaas.isConfigured() || !assinatura.asaasCustomerId) return [];
 
