@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { criarProntuario, DadosProntuario } from "@/lib/prontuario-actions";
+import { incorporarAnamnese } from "@/lib/anamnese-actions";
 import type { ProntuarioRaw } from "@/lib/api";
 
 // Campos de texto da anamnese (label + chave). Pré-preenchidos a partir do
@@ -62,18 +63,27 @@ function numStr(v: number | null | undefined): string {
 interface ProntuarioEditorProps {
   pacienteId: string;
   valoresIniciais?: ProntuarioRaw;
+  // Item 20 (fase 3): quando o editor abre a partir da anamnese auto-declarada,
+  // recebe o ID dela. Após salvar o prontuário com sucesso, marcamos a anamnese
+  // como INCORPORADA (nunca antes; nunca automático).
+  anamneseIdParaIncorporar?: string;
 }
 
 export function ProntuarioEditor({
   pacienteId,
   valoresIniciais,
+  anamneseIdParaIncorporar,
 }: ProntuarioEditorProps) {
   const router = useRouter();
 
   const [texto, setTexto] = useState<TextoState>(() => textoInicial(valoresIniciais));
   // Antropometria: peso/medidas normalmente MUDAM a cada consulta, então NÃO
   // pré-preenchemos peso; altura costuma repetir, então a mantemos como conveniência.
-  const [pesoKg, setPesoKg] = useState("");
+  // Exceção: vindo da anamnese, pré-preenchemos o peso AUTO-DECLARADO (provisório)
+  // para a nutri confirmar/corrigir na consulta.
+  const [pesoKg, setPesoKg] = useState(
+    anamneseIdParaIncorporar ? numStr(valoresIniciais?.pesoKg) : ""
+  );
   const [alturaCm, setAlturaCm] = useState(numStr(valoresIniciais?.alturaCm));
   const [cintura, setCintura] = useState("");
   const [quadril, setQuadril] = useState("");
@@ -149,6 +159,29 @@ export function ProntuarioEditor({
         setErro(r.erro);
         return;
       }
+
+      // Fluxo vindo da anamnese: o prontuário JÁ foi salvo. Agora marcamos a
+      // anamnese como incorporada. Se isto falhar, NÃO perdemos o prontuário —
+      // avisamos e a nutri pode voltar e tentar de novo (a ação é idempotente).
+      if (anamneseIdParaIncorporar) {
+        const inc = await incorporarAnamnese(
+          pacienteId,
+          anamneseIdParaIncorporar
+        );
+        if (inc.erro) {
+          setSucesso(
+            "Prontuário registrado, mas não foi possível marcar a anamnese como incorporada: " +
+              inc.erro +
+              " O prontuário está salvo; você pode tentar incorporar novamente."
+          );
+          router.refresh();
+          return;
+        }
+        setSucesso("Prontuário registrado e anamnese incorporada.");
+        router.push(`/pacientes/${pacienteId}`);
+        return;
+      }
+
       setSucesso(r.sucesso ?? "Prontuário registrado.");
       router.refresh();
     });
@@ -156,12 +189,21 @@ export function ProntuarioEditor({
 
   return (
     <div className="space-y-6">
-      {valoresIniciais && (
-        <div className="rounded-md border border-brand-200 bg-brand-50/60 px-4 py-3 text-sm text-brand-800">
-          Campos pré-preenchidos a partir da última consulta. Ao salvar, um{" "}
-          <strong>novo prontuário</strong> é registrado (o histórico anterior é
-          preservado para a evolução).
+      {anamneseIdParaIncorporar ? (
+        <div className="rounded-md border border-amber-300 bg-amber-50/70 px-4 py-3 text-sm text-amber-800">
+          Pré-preenchido a partir do que o <strong>paciente informou</strong> —
+          revise antes de salvar. Peso e altura são auto-declarados
+          (provisórios). Ao salvar, um novo prontuário é registrado e a anamnese
+          é marcada como incorporada.
         </div>
+      ) : (
+        valoresIniciais && (
+          <div className="rounded-md border border-brand-200 bg-brand-50/60 px-4 py-3 text-sm text-brand-800">
+            Campos pré-preenchidos a partir da última consulta. Ao salvar, um{" "}
+            <strong>novo prontuário</strong> é registrado (o histórico anterior é
+            preservado para a evolução).
+          </div>
+        )
       )}
 
       <Card>

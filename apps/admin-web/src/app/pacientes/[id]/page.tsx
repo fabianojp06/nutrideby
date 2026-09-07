@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/patients/status-badge";
 import { EvolutionChart } from "@/components/patients/evolution-chart";
 import { GerarRascunhoIA } from "./gerar-rascunho-ia";
+import { AnamneseAutodeclaradaCard } from "@/components/prontuario/anamnese-autodeclarada-card";
 import {
   getPaciente,
   getProntuario,
   getPlanosAlimentaresDoPaciente,
   getRegistrosPeso,
+  getAnamneseDoPaciente,
 } from "@/lib/api";
 
 // A geração de rascunho por IA (Agente Clínico RAG) roda como Server Action a
@@ -29,10 +31,11 @@ export default async function PacienteDetalhePage({
   const paciente = await getPaciente(params.id);
   if (!paciente) notFound();
 
-  const [prontuario, planos, registrosPeso] = await Promise.all([
+  const [prontuario, planos, registrosPeso, anamnese] = await Promise.all([
     getProntuario(params.id),
     getPlanosAlimentaresDoPaciente(params.id),
     getRegistrosPeso(params.id),
+    getAnamneseDoPaciente(params.id),
   ]);
 
   // Junta a antropometria do prontuário com o peso que o paciente lança na PWA
@@ -78,7 +81,14 @@ export default async function PacienteDetalhePage({
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      {anamnese && (
+        <AnamneseAutodeclaradaCard
+          pacienteId={paciente.id}
+          anamnese={anamnese}
+        />
+      )}
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Anamnese</CardTitle>
