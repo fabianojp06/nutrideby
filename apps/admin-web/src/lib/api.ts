@@ -374,6 +374,32 @@ export async function getProntuarioRaw(
 }
 
 // ---------------------------------------------------------------------------
+// Anamnese auto-declarada pelo paciente (item 20, fase 3).
+// ---------------------------------------------------------------------------
+
+// Fonte única de tipos (item 7): gerado do contrato OpenAPI do gateway.
+// Relato do paciente (PENDENTE_REVISAO) — NÃO é prontuário oficial. A nutri
+// revisa/edita e salva o prontuário, e só então a anamnese vira INCORPORADA.
+export type AnamneseAutodeclarada =
+  components["schemas"]["AnamneseAutodeclaradaDto"];
+
+// GET /pacientes/:pacienteId/anamnese → anamnese auto-declarada mais recente,
+// ou null se o paciente ainda não respondeu (backend devolve corpo vazio/204).
+export async function getAnamneseDoPaciente(
+  pacienteId: string
+): Promise<AnamneseAutodeclarada | null> {
+  try {
+    const a = await request<AnamneseAutodeclarada | null>(
+      `/pacientes/${pacienteId}/anamnese`
+    );
+    return a && a.id ? a : null;
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) return null;
+    throw e;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Assinatura / faturas / perfil
 // ---------------------------------------------------------------------------
 
