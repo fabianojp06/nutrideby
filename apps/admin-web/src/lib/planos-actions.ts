@@ -10,20 +10,20 @@ export interface AprovarPlanoState {
 }
 
 // Item 17 (fatia 1): aprova um plano alimentar via
-// PATCH /pacientes/:pacienteId/planos-alimentares/:id { aprovadoPeloNutri: true }.
+// POST /pacientes/:pacienteId/planos-alimentares/:id/aprovar.
 // Ação SENSÍVEL de compliance: aprovar libera o plano (incluindo rascunho de IA)
-// para o paciente ver na PWA (rotas /me/* filtram aprovadoPeloNutri=true). Por
-// isso a confirmação irreversível fica na UI (client component) antes de chamar.
+// para o paciente ver na PWA (rotas /me/* filtram aprovadoPeloNutri=true). É rota
+// dedicada no backend — editar um plano (PATCH) não aprova nem rebaixa. Por isso
+// a confirmação irreversível fica na UI (client component) antes de chamar.
 export async function aprovarPlano(
   pacienteId: string,
   planoId: string
 ): Promise<AprovarPlanoState> {
   try {
     await request(
-      `/pacientes/${pacienteId}/planos-alimentares/${planoId}`,
+      `/pacientes/${pacienteId}/planos-alimentares/${planoId}/aprovar`,
       {
-        method: "PATCH",
-        body: JSON.stringify({ aprovadoPeloNutri: true }),
+        method: "POST",
       }
     );
   } catch (e) {

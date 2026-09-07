@@ -10,17 +10,25 @@ import { PlanosAlimentaresService } from './planos-alimentares.service';
 describe('PlanosAlimentaresService — gate de aprovação', () => {
   let service: PlanosAlimentaresService;
   let prisma: {
-    planoAlimentar: { findMany: jest.Mock; findFirst: jest.Mock };
+    planoAlimentar: {
+      findMany: jest.Mock;
+      findFirst: jest.Mock;
+      create: jest.Mock;
+      update: jest.Mock;
+    };
     paciente: { findFirst: jest.Mock };
   };
   const audit = { registrar: jest.fn() };
   const ragAgent = { gerarRascunho: jest.fn() };
 
   beforeEach(() => {
+    audit.registrar.mockClear();
     prisma = {
       planoAlimentar: {
         findMany: jest.fn().mockResolvedValue([]),
         findFirst: jest.fn().mockResolvedValue({ id: 'plano-1' }),
+        create: jest.fn().mockImplementation((args) => Promise.resolve({ id: 'novo', ...args.data })),
+        update: jest.fn().mockImplementation((args) => Promise.resolve({ id: args.where.id, origem: 'MANUAL', ...args.data })),
       },
       // assertPacienteDoNutricionista: no contexto de nutri, o paciente
       // precisa pertencer a ele. Devolvemos um paciente para não barrar.
@@ -52,6 +60,32 @@ describe('PlanosAlimentaresService — gate de aprovação', () => {
       const where = prisma.planoAlimentar.findMany.mock.calls[0][0].where;
       // A ausência da chave é o ponto: a nutri enxerga aprovados e pendentes.
       expect(where).not.toHaveProperty('aprovadoPeloNutri');
+    });
+  });
+
+  // Item 11 / risco confirmado na revisão do PR#45: a aprovação NÃO pode
+  // acontecer pelo caminho genérico (create/update). É rota dedicada.
+  describe('create — nunca nasce aprovado', () => {
+    it('força aprovadoPeloNutri=false na criação', async () => {
+      await service.create('nutri-1', 'pac-1', {
+        titulo: 'Plano',
+        refeicoes: [],
+      } as never);
+
+      const data = prisma.planoAlimentar.create.mock.calls[0][0].data;
+      expect(data.aprovadoPeloNutri).toBe(false);
+    });
+  });
+
+  describe('aprovar — único caminho que libera para o paciente', () => {
+    it('marca aprovadoPeloNutri=true e audita PLANO_ALIMENTAR_APROVADO', async () => {
+      await service.aprovar('nutri-1', 'pac-1', 'plano-1');
+
+      const data = prisma.planoAlimentar.update.mock.calls[0][0].data;
+      expect(data).toEqual({ aprovadoPeloNutri: true });
+      expect(audit.registrar).toHaveBeenCalledWith(
+        expect.objectContaining({ acao: 'PLANO_ALIMENTAR_APROVADO', entidadeId: 'plano-1' }),
+      );
     });
   });
 
