@@ -1238,6 +1238,9 @@
                 }
               }
             }
+          },
+          "204": {
+            "description": "Paciente não tem anamnese auto-declarada."
           }
         }
       }
@@ -1320,6 +1323,9 @@
                 }
               }
             }
+          },
+          "204": {
+            "description": "Paciente ainda não respondeu a anamnese."
           }
         }
       }
