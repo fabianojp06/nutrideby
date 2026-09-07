@@ -147,7 +147,10 @@ export default async function PacienteDetalhePage({
       <Card className="mt-6">
         <CardHeader>
           <CardTitle>Evolução antropométrica</CardTitle>
-          <CardDescription>Peso e IMC ao longo das consultas</CardDescription>
+          <CardDescription>
+            Peso e IMC ao longo do tempo — inclui as consultas e as pesagens que o
+            paciente registra pelo app
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {evolucao.length > 0 ? (
