@@ -1214,6 +1214,115 @@
           }
         }
       }
+    },
+    "/api/pacientes/{pacienteId}/anamnese": {
+      "get": {
+        "operationId": "AnamneseController_buscarMaisRecente",
+        "parameters": [
+          {
+            "name": "pacienteId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnamneseAutodeclaradaDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pacientes/{pacienteId}/anamnese/{id}/incorporar": {
+      "patch": {
+        "operationId": "AnamneseController_incorporar",
+        "parameters": [
+          {
+            "name": "pacienteId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnamneseAutodeclaradaDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/anamnese": {
+      "post": {
+        "operationId": "MinhaAnamneseController_enviar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnamneseAutodeclaradaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnamneseAutodeclaradaDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "operationId": "MinhaAnamneseController_minhaAnamnese",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnamneseAutodeclaradaDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "info": {
@@ -2307,6 +2416,231 @@
           },
           "fotoUrl": {
             "type": "string"
+          }
+        }
+      },
+      "AnamneseAutodeclaradaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pacienteId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDENTE_REVISAO",
+              "INCORPORADA"
+            ]
+          },
+          "respondidoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "incorporadoEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "incorporadoPorNutriId": {
+            "type": "string",
+            "nullable": true
+          },
+          "objetivo": {
+            "type": "string",
+            "nullable": true
+          },
+          "queixaPrincipal": {
+            "type": "string",
+            "nullable": true
+          },
+          "historicoClinico": {
+            "type": "string",
+            "nullable": true
+          },
+          "historicoFamiliar": {
+            "type": "string",
+            "nullable": true
+          },
+          "habitosAlimentares": {
+            "type": "string",
+            "nullable": true
+          },
+          "usoMedicamentos": {
+            "type": "string",
+            "nullable": true
+          },
+          "alergias": {
+            "type": "string",
+            "nullable": true
+          },
+          "intolerancias": {
+            "type": "string",
+            "nullable": true
+          },
+          "nivelAtividadeFisica": {
+            "type": "string",
+            "nullable": true
+          },
+          "preferenciasAversoes": {
+            "type": "string",
+            "nullable": true
+          },
+          "rotinaRefeicoes": {
+            "type": "string",
+            "nullable": true
+          },
+          "consumoAgua": {
+            "type": "string",
+            "nullable": true
+          },
+          "habitoIntestinal": {
+            "type": "string",
+            "nullable": true
+          },
+          "sono": {
+            "type": "string",
+            "nullable": true
+          },
+          "consumoAlcool": {
+            "type": "string",
+            "nullable": true
+          },
+          "tabagismo": {
+            "type": "string",
+            "nullable": true
+          },
+          "gestacaoLactacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "praticaExercicio": {
+            "type": "string",
+            "nullable": true
+          },
+          "suplementos": {
+            "type": "string",
+            "nullable": true
+          },
+          "observacoesGerais": {
+            "type": "string",
+            "nullable": true
+          },
+          "pesoDeclaradoKg": {
+            "type": "string",
+            "nullable": true,
+            "description": "Decimal serializado como string, ex.: \"72.50\"."
+          },
+          "alturaDeclaradaCm": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "status",
+          "respondidoEm",
+          "incorporadoEm",
+          "incorporadoPorNutriId",
+          "objetivo",
+          "queixaPrincipal",
+          "historicoClinico",
+          "historicoFamiliar",
+          "habitosAlimentares",
+          "usoMedicamentos",
+          "alergias",
+          "intolerancias",
+          "nivelAtividadeFisica",
+          "preferenciasAversoes",
+          "rotinaRefeicoes",
+          "consumoAgua",
+          "habitoIntestinal",
+          "sono",
+          "consumoAlcool",
+          "tabagismo",
+          "gestacaoLactacao",
+          "praticaExercicio",
+          "suplementos",
+          "observacoesGerais",
+          "pesoDeclaradoKg",
+          "alturaDeclaradaCm"
+        ]
+      },
+      "CreateAnamneseAutodeclaradaDto": {
+        "type": "object",
+        "properties": {
+          "objetivo": {
+            "type": "string"
+          },
+          "queixaPrincipal": {
+            "type": "string"
+          },
+          "historicoClinico": {
+            "type": "string"
+          },
+          "historicoFamiliar": {
+            "type": "string"
+          },
+          "habitosAlimentares": {
+            "type": "string"
+          },
+          "usoMedicamentos": {
+            "type": "string"
+          },
+          "alergias": {
+            "type": "string"
+          },
+          "intolerancias": {
+            "type": "string"
+          },
+          "nivelAtividadeFisica": {
+            "type": "string"
+          },
+          "preferenciasAversoes": {
+            "type": "string"
+          },
+          "rotinaRefeicoes": {
+            "type": "string"
+          },
+          "consumoAgua": {
+            "type": "string"
+          },
+          "habitoIntestinal": {
+            "type": "string"
+          },
+          "sono": {
+            "type": "string"
+          },
+          "consumoAlcool": {
+            "type": "string"
+          },
+          "tabagismo": {
+            "type": "string"
+          },
+          "gestacaoLactacao": {
+            "type": "string"
+          },
+          "praticaExercicio": {
+            "type": "string"
+          },
+          "suplementos": {
+            "type": "string"
+          },
+          "observacoesGerais": {
+            "type": "string"
+          },
+          "pesoDeclaradoKg": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Peso auto-declarado (kg). Provisório, não oficial."
+          },
+          "alturaDeclaradaCm": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Altura auto-declarada (cm). Provisória, não oficial."
           }
         }
       }
