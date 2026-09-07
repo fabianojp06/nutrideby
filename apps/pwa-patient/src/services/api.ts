@@ -157,6 +157,65 @@ function mapOrigem(origem?: 'MANUAL' | 'IA_RASCUNHO'): PlanOrigin {
 
 type CalculoApi = components['schemas']['CalculoNutricionalDto'];
 
+// --- Plano alimentar completo (tela "Plano") ---
+
+export interface MealPlanItem {
+  descricao: string;
+  quantidadeGramas: number | null;
+  kcal: number | null;
+}
+
+export interface MealPlanMeal {
+  nome: string;
+  horario: string;
+  totalKcal: number;
+  itens: MealPlanItem[];
+}
+
+export interface MealPlan {
+  titulo: string;
+  observacoes: string | null;
+  origem: PlanOrigin;
+  totalKcal: number;
+  macros: { protein: number; carbs: number; fat: number };
+  refeicoes: MealPlanMeal[];
+}
+
+// Plano ativo e aprovado do paciente + macros calculados pela TACO
+// (GET /me/planos-alimentares -> escolhe o ativo/aprovado -> /:id/calculo).
+// Retorna null quando ainda não há plano aprovado.
+export async function fetchMealPlan(): Promise<MealPlan | null> {
+  const planos = await apiClient.request<PlanoAlimentarApi[]>('/me/planos-alimentares');
+  const plano = planos.find((p) => p.ativo && p.aprovadoPeloNutri) ?? null;
+  if (!plano) return null;
+
+  const calculo = await apiClient.request<CalculoApi>(
+    `/me/planos-alimentares/${plano.id}/calculo`,
+  );
+
+  return {
+    titulo: plano.titulo,
+    observacoes: plano.observacoes,
+    origem: mapOrigem(plano.origem),
+    totalKcal: Math.round(plano.caloriasAlvo ?? calculo.total.kcal),
+    macros: {
+      protein: Math.round(calculo.total.proteinaG),
+      carbs: Math.round(calculo.total.carboidratoG),
+      fat: Math.round(calculo.total.lipideosG),
+    },
+    refeicoes: calculo.porRefeicao.map((r) => ({
+      nome: r.nome ?? 'Refeição',
+      horario: r.horario ?? '',
+      totalKcal: Math.round(r.total.kcal),
+      itens: r.itens.map((i) => ({
+        descricao: i.fonte?.descricao ?? i.descricao ?? 'Item',
+        quantidadeGramas: i.quantidadeGramas ?? null,
+        kcal: i.kcal != null ? Math.round(i.kcal) : null,
+      })),
+    })),
+  };
+}
+
 export async function fetchDailyProgress(): Promise<DailyProgress> {
   const [planos, historicoPeso, diarioHoje] = await Promise.all([
     apiClient.request<PlanoAlimentarApi[]>('/me/planos-alimentares'),

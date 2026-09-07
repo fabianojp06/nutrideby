@@ -3,6 +3,7 @@ import './BottomNav.css';
 
 const ITEMS = [
   { to: '/', label: 'Início' },
+  { to: '/plano', label: 'Plano' },
   { to: '/diario', label: 'Diário' },
   { to: '/evolucao', label: 'Evolução' },
   { to: '/perfil', label: 'Perfil' },

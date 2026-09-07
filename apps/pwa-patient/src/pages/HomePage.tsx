@@ -53,8 +53,16 @@ export function HomePage() {
       )}
 
       <section className="section">
-        <h3>Próximas refeições</h3>
+        <div className="action">
+          <h3>Próximas refeições</h3>
+          <button className="fab" onClick={() => navigate('/plano')}>
+            Ver plano
+          </button>
+        </div>
         <div className="pill-list">
+          {progress.nextMeals.length === 0 && (
+            <span className="pill__n">Sem refeições no horário.</span>
+          )}
           {progress.nextMeals.map((meal) => (
             <div className="pill" key={meal.time}>
               <div className="pill__t">{meal.time}</div>
