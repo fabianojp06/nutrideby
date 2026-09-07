@@ -806,7 +806,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlimentoTacoDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -826,7 +836,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlimentoTacoDto"
+                }
+              }
+            }
           }
         }
       }
@@ -1287,6 +1304,155 @@
         },
         "required": [
           "event"
+        ]
+      },
+      "AlimentoTacoDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "number"
+          },
+          "categoria": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "umidadePercent": {
+            "type": "number",
+            "nullable": true
+          },
+          "kcal": {
+            "type": "number",
+            "nullable": true
+          },
+          "kj": {
+            "type": "number",
+            "nullable": true
+          },
+          "proteinaG": {
+            "type": "number",
+            "nullable": true
+          },
+          "lipideosG": {
+            "type": "number",
+            "nullable": true
+          },
+          "colesterolMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "carboidratoG": {
+            "type": "number",
+            "nullable": true
+          },
+          "fibraG": {
+            "type": "number",
+            "nullable": true
+          },
+          "cinzasG": {
+            "type": "number",
+            "nullable": true
+          },
+          "calcioMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "magnesioMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "manganesMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "fosforoMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "ferroMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "sodioMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "potassioMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "cobreMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "zincoMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "retinolMcg": {
+            "type": "number",
+            "nullable": true
+          },
+          "reMcg": {
+            "type": "number",
+            "nullable": true
+          },
+          "raeMcg": {
+            "type": "number",
+            "nullable": true
+          },
+          "tiaminaMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "riboflavinaMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "piridoxinaMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "niacinaMg": {
+            "type": "number",
+            "nullable": true
+          },
+          "vitaminaCMg": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "codigo",
+          "categoria",
+          "descricao",
+          "umidadePercent",
+          "kcal",
+          "kj",
+          "proteinaG",
+          "lipideosG",
+          "colesterolMg",
+          "carboidratoG",
+          "fibraG",
+          "cinzasG",
+          "calcioMg",
+          "magnesioMg",
+          "manganesMg",
+          "fosforoMg",
+          "ferroMg",
+          "sodioMg",
+          "potassioMg",
+          "cobreMg",
+          "zincoMg",
+          "retinolMcg",
+          "reMcg",
+          "raeMcg",
+          "tiaminaMg",
+          "riboflavinaMg",
+          "piridoxinaMg",
+          "niacinaMg",
+          "vitaminaCMg"
         ]
       },
       "CreateRegistroPesoDto": {
