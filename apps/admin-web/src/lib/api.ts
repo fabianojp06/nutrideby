@@ -38,6 +38,8 @@ interface PacienteApi {
   dataNascimento: string | null;
   statusConsentimento: "PENDENTE" | "ACEITO" | "REVOGADO";
   ativo: boolean;
+  // Só presente em GET /pacientes (lista); ausente no GET /pacientes/:id.
+  ultimaConsultaEm?: string | null;
 }
 
 // Fonte única de tipos (item 7): gerados do contrato OpenAPI do gateway.
@@ -74,8 +76,9 @@ function mapPaciente(p: PacienteApi): Paciente {
     telefone: p.telefone ?? "",
     dataNascimento: p.dataNascimento ?? "",
     status: derivarStatusPaciente(p),
-    // GAP: gateway não expõe "última consulta". Ver relatório.
-    ultimaConsulta: undefined,
+    ultimaConsulta: p.ultimaConsultaEm
+      ? new Date(p.ultimaConsultaEm).toLocaleDateString("pt-BR")
+      : undefined,
   };
 }
 

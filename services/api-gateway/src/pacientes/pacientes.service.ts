@@ -54,12 +54,21 @@ export class PacientesService {
     return paciente;
   }
 
-  findAllByNutricionista(nutricionistaId: string) {
-    return this.prisma.paciente.findMany({
+  async findAllByNutricionista(nutricionistaId: string) {
+    const pacientes = await this.prisma.paciente.findMany({
       where: { nutricionistaId },
-      select: this.selectPublico(),
+      select: {
+        ...this.selectPublico(),
+        // Data da consulta mais recente = criadoEm do último prontuário.
+        prontuarios: { select: { criadoEm: true }, orderBy: { criadoEm: 'desc' }, take: 1 },
+      },
       orderBy: { criadoEm: 'desc' },
     });
+
+    return pacientes.map(({ prontuarios, ...paciente }) => ({
+      ...paciente,
+      ultimaConsultaEm: prontuarios[0]?.criadoEm ?? null,
+    }));
   }
 
   async findOne(nutricionistaId: string, id: string) {
