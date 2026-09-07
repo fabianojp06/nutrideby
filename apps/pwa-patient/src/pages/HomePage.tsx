@@ -2,16 +2,22 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalorieRing } from '@/components/CalorieRing';
 import { useAuth } from '@/hooks/useAuth';
-import { fetchDailyProgress, DailyProgress } from '@/services/api';
+import { fetchDailyProgress, getMinhaAnamnese, DailyProgress } from '@/services/api';
 import './HomePage.css';
 
 export function HomePage() {
   const { name } = useAuth();
   const navigate = useNavigate();
   const [progress, setProgress] = useState<DailyProgress | null>(null);
+  // Card de entrada da anamnese: aparece enquanto o paciente ainda não teve a
+  // anamnese incorporada pela nutricionista (nunca respondeu ou pendente).
+  const [mostrarAnamnese, setMostrarAnamnese] = useState(false);
 
   useEffect(() => {
     fetchDailyProgress().then(setProgress);
+    getMinhaAnamnese()
+      .then((a) => setMostrarAnamnese(!a || a.status === 'PENDENTE_REVISAO'))
+      .catch(() => setMostrarAnamnese(false));
   }, []);
 
   if (!progress) {
@@ -24,6 +30,17 @@ export function HomePage() {
         <div className="home-header__name">Olá, {name ?? 'Paciente'}</div>
         <div className="home-header__avatar" />
       </header>
+
+      {mostrarAnamnese && (
+        <section className="section">
+          <div className="action">
+            <span>Complete sua anamnese para a nutricionista</span>
+            <button className="fab" onClick={() => navigate('/anamnese')}>
+              Preencher
+            </button>
+          </div>
+        </section>
+      )}
 
       <CalorieRing
         kcalRemaining={progress.kcalRemaining}
