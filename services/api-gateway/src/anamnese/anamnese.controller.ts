@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { Controller, Get, Param, Patch, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
+import { ApiNoContentResponse, ApiOkResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AssinaturaAtivaGuard } from '../common/guards/assinatura-ativa.guard';
@@ -22,13 +23,25 @@ import { AnamneseAutodeclaradaDto } from './dto/anamnese-autodeclarada.dto';
 export class AnamneseController {
   constructor(private readonly anamneseService: AnamneseService) {}
 
+  // Retorna 204 (sem corpo) quando o paciente não tem anamnese auto-declarada —
+  // evita o "200 com corpo vazio" que quebra o JSON.parse do admin-web.
   @Get()
   @ApiOkResponse({ type: AnamneseAutodeclaradaDto })
-  buscarMaisRecente(
+  @ApiNoContentResponse({ description: 'Paciente não tem anamnese auto-declarada.' })
+  async buscarMaisRecente(
     @CurrentUser() user: AuthenticatedUser,
     @Param('pacienteId') pacienteId: string,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    return this.anamneseService.buscarMaisRecenteParaNutricionista(user.sub, pacienteId);
+    const anamnese = await this.anamneseService.buscarMaisRecenteParaNutricionista(
+      user.sub,
+      pacienteId,
+    );
+    if (!anamnese) {
+      res.status(204);
+      return undefined;
+    }
+    return anamnese;
   }
 
   @Patch(':id/incorporar')

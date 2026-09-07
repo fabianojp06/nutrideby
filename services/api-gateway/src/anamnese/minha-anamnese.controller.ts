@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
+import { ApiNoContentResponse, ApiOkResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ConsentGuard } from '../common/guards/consent.guard';
@@ -30,9 +31,20 @@ export class MinhaAnamneseController {
     return this.anamneseService.enviar(user.sub, dto);
   }
 
+  // Retorna 204 (sem corpo) quando o paciente nunca respondeu — evita o
+  // "200 com corpo vazio" que quebra o JSON.parse dos clients (PWA/admin).
   @Get()
   @ApiOkResponse({ type: AnamneseAutodeclaradaDto })
-  minhaAnamnese(@CurrentUser() user: AuthenticatedUser) {
-    return this.anamneseService.buscarMaisRecenteDoPaciente(user.sub);
+  @ApiNoContentResponse({ description: 'Paciente ainda não respondeu a anamnese.' })
+  async minhaAnamnese(
+    @CurrentUser() user: AuthenticatedUser,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const anamnese = await this.anamneseService.buscarMaisRecenteDoPaciente(user.sub);
+    if (!anamnese) {
+      res.status(204);
+      return undefined;
+    }
+    return anamnese;
   }
 }
