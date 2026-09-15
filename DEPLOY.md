@@ -1,5 +1,12 @@
 # Deploy na Vercel — apps/pwa-patient e apps/admin-web
 
+## URLs de produção (ambientes vigentes)
+| Ambiente | URL | Login |
+| --- | --- | --- |
+| PWA Paciente (Vercel) | https://nutrideby.vercel.app | https://nutrideby.vercel.app/login |
+| Admin Web / Nutri (Vercel) | https://nutrideby-admin-web.vercel.app | https://nutrideby-admin-web.vercel.app/login |
+| API Gateway (Railway) | https://api-gateway-production-ec8d.up.railway.app/api | — |
+
 Este é um monorepo sem workspace unificado (cada app tem seu próprio `package.json`), então cada app vira um **Projeto Vercel separado**, apontando para uma subpasta via "Root Directory".
 
 ## Pré-requisito
