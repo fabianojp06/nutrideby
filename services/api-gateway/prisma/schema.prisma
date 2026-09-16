@@ -299,6 +299,26 @@ model AlimentoTaco {
   @@map("alimentos_taco")
 }
 
+// Base de conhecimento do Agente Clínico RAG (services/rag-agent).
+// A tabela é criada e populada FORA do Prisma (rag-agent/db/schema.sql +
+// scripts/seed_taco_knowledge.py: pgvector + TACO com 597 alimentos). Ela é
+// declarada aqui APENAS para que o `prisma db push` do api-gateway a reconheça
+// e NÃO a remova como tabela órfã — foi o que causou o incidente de 07/09
+// (TACO apagada e re-semeada). O api-gateway não lê nem escreve nesta tabela;
+// a coluna `embedding` é Unsupported("vector"), portanto o índice ivfflat sobre
+// ela não é gerenciado pelo Prisma (é preservado; o seed o recria com
+// CREATE INDEX IF NOT EXISTS). A extensão `vector` também é preservada porque o
+// preview `postgresqlExtensions` não está habilitado. NÃO adicionar campos aqui.
+model KnowledgeBase {
+  id        BigInt                      @id @default(autoincrement())
+  source    String
+  content   String
+  embedding Unsupported("vector(1024)")
+  createdAt DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("knowledge_base")
+}
+
 // Log de auditoria — obrigatório em toda operação sobre dado sensível
 model AuditLog {
   id     String @id @default(uuid())

@@ -42,6 +42,7 @@ O `DATABASE_URL` interno aponta para `postgres.railway.internal`, que **só reso
 
 - **Confirmar com o usuário antes de qualquer operação destrutiva** em produção (migration que dropa coluna, reseed, delete). Dado de saúde real de 430+ pacientes — nunca rodar `db push --accept-data-loss`, `migrate reset` ou DELETE em massa sem OK explícito.
 - Preferir `prisma migrate` versionado a `db push` para mudanças de schema em produção. `db push` foi usado no bootstrap inicial; daqui pra frente, migrations rastreáveis.
+- **`knowledge_base` (RAG/pgvector) está declarada no `schema.prisma` do api-gateway** como `Unsupported("vector(1024)")` (modelo `KnowledgeBase`) justamente para o `db push` NÃO dropá-la — corrige o incidente de 07/09. Não remover essa declaração; a tabela em si continua sendo populada pelo rag-agent (seed TACO), não pelo api-gateway.
 - Fechar o tcp-proxy quando terminar, se foi criado só para a tarefa.
 - Nunca colar a connection string com senha em commit, log ou arquivo versionado.
 

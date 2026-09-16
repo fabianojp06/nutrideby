@@ -65,7 +65,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ a iniciar |
 | — | — | Migrar módulo `pacientes` para o contrato OpenAPI (item 7 não cobriu; `PacienteApi` ainda manual) | P | ⚪ a iniciar |
 | — | — | `rag-agent`: `embed_query` usa `input_type="document"` (deveria ser `"query"` p/ Voyage — afeta qualidade da recuperação); upgrade SDK `anthropic` 0.68→1.x | P/M | ⚪ dívida |
-| **1º** | 21 | **HAZARD `db push`** — `prisma db push` do api-gateway DROPA a `knowledge_base` (tabela do rag-agent, fora do schema Prisma). Incidente 07/09: TACO (597) apagada e re-semeada. **Correção:** declarar `knowledge_base` como `Unsupported("vector")` no schema do api-gateway (para o push preservar) OU padronizar migração de schema por SQL direcionado. **Nunca** rodar `db push` do api-gateway até isso. | M | 🔴 pós-incidente |
+| ~~1º~~ | ~~21~~ | ~~**HAZARD `db push`** — `prisma db push` do api-gateway DROPA a `knowledge_base`~~. **✅ Corrigido:** modelo `KnowledgeBase` (`@@map("knowledge_base")`) declarado no `schema.prisma` do api-gateway com `embedding Unsupported("vector(1024)")`; o `db push` agora reconhece e preserva a tabela, o índice ivfflat e a extensão `vector`. | M | ✅ concluído |
 
 > P2 concluídos: 10 (testes do gate), 11 (blindar aprovação), 14 (menores sem dependência), 15 (mascarar cpfCnpj no log), 19 (latência rag-agent — falta medir).
 
