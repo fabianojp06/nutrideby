@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../common/audit/audit.service';
 import { CreateAnamneseAutodeclaradaDto } from './dto/create-anamnese-autodeclarada.dto';
@@ -30,10 +31,12 @@ export class AnamneseService {
     const anamnese = pendente
       ? await this.prisma.anamneseAutodeclarada.update({
           where: { id: pendente.id },
-          data: { ...dto, respondidoEm: new Date() },
+          // peso/altura declarados chegam como number e são cifrados (texto)
+          // pela extensão do Prisma junto dos campos free-text.
+          data: { ...dto, respondidoEm: new Date() } as unknown as Prisma.AnamneseAutodeclaradaUncheckedUpdateInput,
         })
       : await this.prisma.anamneseAutodeclarada.create({
-          data: { ...dto, pacienteId },
+          data: { ...dto, pacienteId } as unknown as Prisma.AnamneseAutodeclaradaUncheckedCreateInput,
         });
 
     await this.audit.registrar({

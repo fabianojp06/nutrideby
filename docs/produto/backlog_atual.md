@@ -60,7 +60,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 ### P2 — hardening
 | Ordem | # | Item | Esf. | Status |
 |:--:|:-:|---|:--:|:--:|
-| **1º** | 12 | **Cripto de campo AES-256** nos modelos sensíveis (Prontuario, RegistroDiario…) + verificação no CI. **Não existe hoje** — só cripto de disco (Railway) e TLS. Precisa: decisão de key management no Railway + `$extends`/pgcrypto + backfill de prod + custo nas queries de evolução | G | 🔴 precisa design + decisão |
+| **1º** | 12 | **Cripto de campo AES-256** nos modelos sensíveis. **✅ Código concluído** (PR): AES-256-GCM via extensão do Prisma (`$extends`), chave única `FIELD_ENCRYPTION_KEY` (Railway), registry única de campos + **gate no CI** (cobertura via DMMF), tolerância a texto legado e script `backfill:encrypt-health` (idempotente). **Pendente:** rollout em prod (migração Decimal→String + set da chave + backfill) — runbook em `railway-admin`, aguarda janela + OK. | G | 🟡 código pronto; rollout prod pendente |
 | **2º** | 13 | Ambiente de staging | M | ⚪ a iniciar |
 | — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ a iniciar |
 | — | — | Migrar módulo `pacientes` para o contrato OpenAPI (item 7 não cobriu; `PacienteApi` ainda manual) | P | ⚪ a iniciar |

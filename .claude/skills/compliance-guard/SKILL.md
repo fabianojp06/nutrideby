@@ -32,6 +32,11 @@ Termo de Consentimento obrigatório **antes** de qualquer tratamento de dado de 
 
 Dado de saúde: criptografado em repouso (AES-256) e em trânsito (TLS 1.2+). Nunca colocar dado sensível em query string / URL. Nunca logar dado de saúde em texto plano em log de aplicação.
 
+**Cripto de campo (item 12):** a cripto em repouso dos campos sensíveis é aplicada por uma extensão do Prisma (`src/prisma/field-encryption.extension.ts`), com a lista de campos em `src/common/crypto/encrypted-fields.ts`. Regras ao mexer nos models de `ENCRYPTED_FIELDS` (Prontuario, RegistroPeso, RegistroDiario, AnamneseAutodeclarada, PlanoAlimentar):
+- **NUNCA** gravar esses campos via `$queryRaw`/`$executeRaw` ou nested write — a extensão só intercepta chamadas via delegate; SQL cru/aninhado grava em texto plano.
+- Campo de saúde novo num desses models **precisa** entrar na registry (o teste `encrypted-fields.spec.ts` falha via DMMF se escapar).
+- Não trocar `FIELD_ENCRYPTION_KEY` sem plano de re-cifragem — torna ilegível o dado já cifrado.
+
 ## 6. Canal de notificação (bloqueio de LGPD, não de código)
 
 O canal ao paciente (Telegram vs. e-mail) está **bloqueado por aditivo de DPA pendente** — novo subprocessador exige notificação às Controladoras (15 dias) + janela de oposição (10 dias) + atualização do Termo. **Não** habilitar envio real a paciente em produção sem essa decisão jurídica fechada. O `telegram-bot` roda só local com dado fictício.

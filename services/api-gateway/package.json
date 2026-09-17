@@ -16,6 +16,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed:taco": "ts-node prisma/seed-taco.ts",
+    "backfill:encrypt-health": "ts-node scripts/backfill-encrypt-health.ts",
     "openapi:generate": "ts-node --transpile-only scripts/generate-openapi.ts"
   },
   "dependencies": {

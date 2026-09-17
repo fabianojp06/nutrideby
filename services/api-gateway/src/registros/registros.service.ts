@@ -15,7 +15,8 @@ export class RegistrosService {
 
   async registrarPeso(pacienteId: string, dto: CreateRegistroPesoDto) {
     const registro = await this.prisma.registroPeso.create({
-      data: { pacienteId, pesoKg: dto.pesoKg },
+      // pesoKg chega como number e é cifrado (como texto) pela extensão do Prisma.
+      data: { pacienteId, pesoKg: dto.pesoKg as unknown as string },
     });
 
     await this.audit.registrar({
