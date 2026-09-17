@@ -61,7 +61,7 @@ Legenda: 🔴 bloqueado · 🟡 parcial · ⚪ a iniciar · 📋 planejado · �
 | Ordem | # | Item | Esf. | Status |
 |:--:|:-:|---|:--:|:--:|
 | **1º** | 12 | **Cripto de campo AES-256** nos modelos sensíveis. **✅ Código concluído** (PR): AES-256-GCM via extensão do Prisma (`$extends`), chave única `FIELD_ENCRYPTION_KEY` (Railway), registry única de campos + **gate no CI** (cobertura via DMMF), tolerância a texto legado e script `backfill:encrypt-health` (idempotente). **Pendente:** rollout em prod (migração Decimal→String + set da chave + backfill) — runbook em `railway-admin`, aguarda janela + OK. | G | 🟡 código pronto; rollout prod pendente |
-| **2º** | 13 | Ambiente de staging | M | ⚪ a iniciar |
+| **2º** | 13 | Ambiente de staging — **blueprint + scaffolding prontos** (`docs/arquitetura/staging.md`, `*/.env.staging.example`, skill `deploy-nutrideby`, política de dados LGPD). **Pendente:** provisionar a infra paga (Railway env `staging` + Postgres + projetos Vercel) — aguarda OK de custo. | M | 🟡 blueprint pronto; provisionamento pendente |
 | — | 16 | Estender testes de gate a `prontuarios`/`registros` + e2e HTTP dos guards (follow-up do PR#31) | P | ⚪ a iniciar |
 | — | — | Migrar módulo `pacientes` para o contrato OpenAPI (item 7 não cobriu; `PacienteApi` ainda manual) | P | ⚪ a iniciar |
 | — | — | `rag-agent`: `embed_query` usa `input_type="document"` (deveria ser `"query"` p/ Voyage — afeta qualidade da recuperação); upgrade SDK `anthropic` 0.68→1.x | P/M | ⚪ dívida |

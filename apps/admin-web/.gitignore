@@ -7,3 +7,7 @@ out
 
 .vercel
 .env*
+
+# Exemplos de env são versionados (sem segredos reais)
+!.env.example
+!.env.staging.example

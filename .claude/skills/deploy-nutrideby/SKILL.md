@@ -31,6 +31,16 @@ Team `fabianojp06's projects` (id `team_lkvBkKon2L6BjRV2mjHJsVKX`):
 - `nutrideby` → `apps/pwa-patient` (prj_USbCFhxCLqj9qNKhYogLx5xaj4fO). `VITE_API_BASE_URL` aponta para o api-gateway do Railway.
 - `nutrideby-admin-web` → `apps/admin-web` (prj_aTJv5EkplB5ng0NrOaufqzrmiZfX). Ainda mockado.
 
+## Staging (item 13)
+
+Antes de tocar produção com mudança de schema/deploy sensível, valide em
+**staging** — ambiente `staging` no projeto Railway (api-gateway + rag-agent +
+Postgres próprio) + previews/projetos Vercel de staging. Blueprint completo,
+matriz de variáveis, provisionamento e fluxo de promoção em
+`docs/arquitetura/staging.md`; modelos em `*/.env.staging.example`.
+**Staging nunca recebe dado de saúde real** (LGPD) — só dados sintéticos + seed TACO.
+Fluxo: `main` (CI verde) → deploy staging → validar → deploy produção.
+
 ## Checklist de deploy
 
 - [ ] CI verde na branch?
