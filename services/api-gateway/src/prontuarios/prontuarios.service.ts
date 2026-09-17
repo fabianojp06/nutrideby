@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../common/audit/audit.service';
 import { CreateProntuarioDto } from './dto/create-prontuario.dto';
@@ -15,7 +16,9 @@ export class ProntuariosService {
     await this.assertPacienteDoNutricionista(nutricionistaId, pacienteId);
 
     const prontuario = await this.prisma.prontuario.create({
-      data: { ...dto, pacienteId },
+      // Campos numéricos de antropometria chegam como number no DTO e são
+      // cifrados (como texto) pela extensão do Prisma antes de persistir.
+      data: { ...dto, pacienteId } as unknown as Prisma.ProntuarioUncheckedCreateInput,
     });
 
     await this.registrarAuditoria(nutricionistaId, 'PRONTUARIO_CRIADO', prontuario.id);
@@ -46,7 +49,10 @@ export class ProntuariosService {
     dto: UpdateProntuarioDto,
   ) {
     await this.findOne(nutricionistaId, pacienteId, id);
-    const prontuario = await this.prisma.prontuario.update({ where: { id }, data: dto });
+    const prontuario = await this.prisma.prontuario.update({
+      where: { id },
+      data: dto as unknown as Prisma.ProntuarioUncheckedUpdateInput,
+    });
 
     await this.registrarAuditoria(nutricionistaId, 'PRONTUARIO_ATUALIZADO', id);
     return prontuario;

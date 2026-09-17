@@ -103,6 +103,11 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: services/api-gateway/package-lock.json
+      # Chave de teste da cripto de campo (item 12) gerada em runtime — nunca um
+      # literal no repo (evita falso-positivo de secret scanning). Descartável;
+      # em produção FIELD_ENCRYPTION_KEY é secret no Railway.
+      - name: Gera chave de teste (cripto de campo)
+        run: echo "FIELD_ENCRYPTION_KEY=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
       - run: npm ci
       - run: npx prisma generate
       # Sem config de ESLint neste pacote ainda — build (tsc) já é o gate de tipos.

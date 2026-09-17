@@ -1,5 +1,4 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../common/audit/audit.service';
 import { PLANOS_COM_ACESSO_RAG } from '../common/planos';
@@ -20,7 +19,7 @@ export class PlanosAlimentaresService {
     const plano = await this.prisma.planoAlimentar.create({
       data: {
         ...dto,
-        refeicoes: dto.refeicoes as Prisma.InputJsonValue,
+        refeicoes: dto.refeicoes as unknown as string,
         pacienteId,
         // Nunca nasce aprovado — aprovação é ação explícita e separada
         // (aprovar()). Redundante com o default do schema e o whitelist do
@@ -114,7 +113,7 @@ export class PlanosAlimentaresService {
     await this.findOne(pacienteId, id, nutricionistaId);
     const plano = await this.prisma.planoAlimentar.update({
       where: { id },
-      data: { ...dto, refeicoes: dto.refeicoes as Prisma.InputJsonValue | undefined },
+      data: { ...dto, refeicoes: dto.refeicoes as unknown as string | undefined },
     });
 
     await this.audit.registrar({
@@ -251,7 +250,7 @@ export class PlanosAlimentaresService {
         titulo: original.titulo,
         objetivo: original.objetivo,
         caloriasAlvo: original.caloriasAlvo,
-        refeicoes: original.refeicoes as Prisma.InputJsonValue,
+        refeicoes: original.refeicoes as unknown as string,
         observacoes: original.observacoes,
         // Preserva a origem (uma cópia de rascunho de IA continua IA_RASCUNHO,
         // mantendo o disclaimer CFN). A aprovação, sim, nasce false.

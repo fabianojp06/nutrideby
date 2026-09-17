@@ -148,9 +148,11 @@ model AnamneseAutodeclarada {
   suplementos          String?
   observacoesGerais    String?
 
-  // Antropometria auto-declarada (provisória)
-  pesoDeclaradoKg   Decimal? @db.Decimal(5, 2)
-  alturaDeclaradaCm Decimal? @db.Decimal(5, 2)
+  // Antropometria auto-declarada (provisória). String: cifrada em repouso
+  // (AES-256, item 12) — ver src/common/crypto. Todos os campos free-text
+  // acima também são cifrados pela extensão do Prisma.
+  pesoDeclaradoKg   String?
+  alturaDeclaradaCm String?
 
   @@map("anamneses_autodeclaradas")
 }
@@ -162,7 +164,8 @@ model RegistroPeso {
   id           String   @id @default(uuid())
   pacienteId   String
   paciente     Paciente @relation(fields: [pacienteId], references: [id])
-  pesoKg       Decimal  @db.Decimal(5, 2)
+  // String: cifrado em repouso (AES-256, item 12). Já saía como string no JSON.
+  pesoKg       String
   registradoEm DateTime @default(now())
 
   @@map("registros_peso")
@@ -189,7 +192,7 @@ model Prontuario {
   pacienteId String
   paciente   Paciente @relation(fields: [pacienteId], references: [id])
 
-  // Anamnese
+  // Anamnese — cifrada em repouso (AES-256, item 12; ver src/common/crypto).
   queixaPrincipal      String?
   historicoClinico     String?
   historicoFamiliar    String?
@@ -200,13 +203,14 @@ model Prontuario {
   nivelAtividadeFisica String?
   observacoesGerais    String?
 
-  // Dados antropométricos
-  pesoKg           Decimal? @db.Decimal(5, 2)
-  alturaCm         Decimal? @db.Decimal(5, 2)
-  circunferenciaCintura Decimal? @db.Decimal(5, 2)
-  circunferenciaQuadril Decimal? @db.Decimal(5, 2)
-  percentualGordura     Decimal? @db.Decimal(5, 2)
-  imc                   Decimal? @db.Decimal(5, 2)
+  // Dados antropométricos — String: cifrados em repouso (AES-256, item 12).
+  // Já serializavam como string no JSON (Decimal do Prisma).
+  pesoKg                String?
+  alturaCm              String?
+  circunferenciaCintura String?
+  circunferenciaQuadril String?
+  percentualGordura     String?
+  imc                   String?
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
@@ -222,7 +226,11 @@ model PlanoAlimentar {
   titulo            String
   objetivo          String?
   caloriasAlvo      Int?
-  refeicoes         Json // estrutura livre: [{ nome, horario, itens: [...] }]
+  // refeicoes: estrutura livre [{ nome, horario, itens: [...] }]. String
+  // (JSON serializado) cifrada em repouso (AES-256, item 12) — conteúdo do
+  // plano é dado de saúde. A extensão do Prisma faz JSON.stringify/parse +
+  // cripto de forma transparente; os serviços continuam usando objeto/array.
+  refeicoes         String
   observacoes       String?
   origem            OrigemPlano @default(MANUAL) // MANUAL x IA_RASCUNHO — dispara o disclaimer CFN na UI
   aprovadoPeloNutri Boolean  @default(false) // gate de compliance para output de IA

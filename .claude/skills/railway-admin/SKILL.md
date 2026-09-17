@@ -43,6 +43,11 @@ O `DATABASE_URL` interno aponta para `postgres.railway.internal`, que **só reso
 - **Confirmar com o usuário antes de qualquer operação destrutiva** em produção (migration que dropa coluna, reseed, delete). Dado de saúde real de 430+ pacientes — nunca rodar `db push --accept-data-loss`, `migrate reset` ou DELETE em massa sem OK explícito.
 - Preferir `prisma migrate` versionado a `db push` para mudanças de schema em produção. `db push` foi usado no bootstrap inicial; daqui pra frente, migrations rastreáveis.
 - **`knowledge_base` (RAG/pgvector) está declarada no `schema.prisma` do api-gateway** como `Unsupported("vector(1024)")` (modelo `KnowledgeBase`) justamente para o `db push` NÃO dropá-la — corrige o incidente de 07/09. Não remover essa declaração; a tabela em si continua sendo populada pelo rag-agent (seed TACO), não pelo api-gateway.
+- **Rollout da cripto de campo (item 12) — ordem obrigatória, com BACKUP antes:**
+  1. Gerar a chave (`node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`) e setá-la como secret `FIELD_ENCRYPTION_KEY` no serviço api-gateway do Railway. **Trocar a chave depois torna ilegível todo dado já cifrado.**
+  2. Migrar as colunas de saúde `Decimal`/`Json` → `String` no banco (o Postgres converte o valor para texto). Preferir SQL/migration direcionada; NUNCA `db push --accept-data-loss` sem OK.
+  3. Rodar o backfill idempotente: `npm run backfill:encrypt-health -- --dry-run` (confere contagem) e depois sem `--dry-run` para cifrar o texto plano existente. Pode rodar de novo com segurança (pula o que já está cifrado).
+  4. Deploy do api-gateway com a chave já setada. Ordem: chave → migração → backfill → deploy.
 - Fechar o tcp-proxy quando terminar, se foi criado só para a tarefa.
 - Nunca colar a connection string com senha em commit, log ou arquivo versionado.
 
