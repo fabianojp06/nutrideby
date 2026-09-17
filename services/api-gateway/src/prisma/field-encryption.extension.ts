@@ -15,6 +15,13 @@ import {
 //
 // NÃO cifra cláusulas `where`: valor cifrado (IV aleatório) não é pesquisável,
 // e nenhuma query filtra/ordena por esses campos (auditado no item 12).
+//
+// ⚠️ LIMITE DA ABORDAGEM (compliance): a extensão só intercepta chamadas via
+// delegate do Prisma Client. Ela NÃO cobre `$queryRaw`/`$executeRaw` nem
+// nested writes (create/update aninhado de um model-pai que inclua um model de
+// `ENCRYPTED_FIELDS` como filho). Hoje não existe nenhum caminho assim no
+// código. NUNCA gravar dado de saúde nos models de ENCRYPTED_FIELDS por SQL cru
+// ou escrita aninhada — passaria em texto plano. Ver compliance-guard (regra 5).
 
 function delegateKey(model: string | undefined): string | null {
   if (!model) return null;
